@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioxy - Discover the World of Great Books</title>
+    <link rel="stylesheet" href="style.css">
+     <script src="script.js"></script>
+     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+
+</head>
+<body>
+    <header>
+        <h2>
+     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="48" height="48" class="biblioxy-mini-logo">
+    <!-- Star Background -->
+    <polygon points="60,10 73,42 115,42 80,68 93,110 60,85 27,110 40,68 5,42 47,42" fill="#facc15" stroke="#1f2937" stroke-width="3" />
+    
+    <!-- Simplified Book Icon -->
+    <g transform="rotate(5 60 65)">
+        <rect x="45" y="50" width="30" height="30" fill="#ffffff" stroke="#1f2937" stroke-width="3" rx="2" />
+        <rect x="46" y="50" width="14" height="30" fill="#f3f4f6" stroke="#1f2937" stroke-width="3" rx="2" />
+        <rect x="60" y="50" width="14" height="30" fill="#f3f4f6" stroke="#1f2937" stroke-width="3" rx="2" />
+        <line x1="60" y1="50" x2="60" y2="80" stroke="#1f2937" stroke-width="3" />
+    </g>
+</svg>
+
+        Biblioxy</h2>
+
+        <div class="search-container">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" class="search-icon">
+        <circle cx="11" cy="11" r="8" stroke="#ccc" stroke-width="2" fill="none" />
+        <line x1="16" y1="16" x2="22" y2="22" stroke="#ccc" stroke-width="2" />
+    </svg>
+    <input type="text" placeholder="Find your next read...">
+    <button>Search</button>
+</div>
+
+        <nav>
+            <ul>
+                <li><a href="#" onclick="openLogin()">LOGIN</a></li>
+                <li><a href="#dashboard">DASHBOARD</a></li>
+                <li><a href="#my-books">MY BOOKS</a></li>
+                <li><a href="#">STATISTICS</a></li>
+                <li><a href="#">COMMUNITY</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    
+
+    
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-container">
+            <button class="close-btn" onclick="closeLogin()">×</button>
+            <h2>Login</h2>
+            <form>
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                <button type="submit">Login</button>
+            </form>
+            <p>Don't have an account? <a href="#">Sign up</a></p>
+        </div>
+    </div>
+
+
+    <div class="girlreadingimg-container">
+        <div class="intro-text1">
+          Biblioxy - the perfect place for enjoying online reading...
+        </div>
+        <img src="girlreading.jpg" alt="Girl Reading">
+
+        <div class="intro-text2">
+         and so much more!
+        </div>
+    </div>
+
+    <div class="about-container">
+        <div class="box-find">
+            <h2 class="box-header">Find</h2>
+            <div> Search and browse for your favorite books - or find the closest library near you. </div>
+        </div>
+         <div class="box-find">
+            <h2 class="box-header">Keep track</h2>
+            <div> Manage and organise every book by different categories: order of preferinces, genre, author, year, .</div>
+         </div>
+         <div class="box-find">
+            <h3 class="box-header">Create connections</h3>
+            <div>
+                 Connect with other readers by starting discutions based on books.
+            </div>
+         </div>
+         <div class="box-find">
+            <h2 class="box-header">Discover books</h2>
+            <div>
+                 
+            </div>
+         </div>
+    </div>
+    <div>
+    <h3 class="picknewbook-text">Having a hard time picking a new book to read?</h3>
+    <div class="picknewbook-description">
+        Luckily for you, we have a wide range of books you can choose from. 
+        Describe what you are looking for and chances are that we can find the perfect match.
+    </div>
+</div>
+
+<div>
+    <h4>Trending on Biblioxy</h4>
+</div>
+
+
+<div class="cards-wrapper">
+  <div class="cards-container" id="cards-container">
+    <!-- Prima serie de 5 cărți -->
+    <div class="book-card" onclick="toggleAnimation()">
+      <img src="https://covers.openlibrary.org/b/id/8228691-L.jpg" alt="Book 1">
+      <div class="book-title">The Great Gatsby</div>
+      <div class="book-author">F. Scott Fitzgerald</div>
+    </div>
+    <div class="book-card" onclick="toggleAnimation()">
+      <img src="https://covers.openlibrary.org/b/id/8231856-L.jpg" alt="Book 2">
+      <div class="book-title">1984</div>
+      <div class="book-author">George Orwell</div>
+    </div>
+    <div class="book-card" onclick="toggleAnimation()">
+      <img src="https://covers.openlibrary.org/b/id/8266750-L.jpg" alt="Book 3">
+      <div class="book-title">To Kill a Mockingbird</div>
+      <div class="book-author">Harper Lee</div>
+    </div>
+    <div class="book-card" onclick="toggleAnimation()">
+      <img src="https://covers.openlibrary.org/b/id/8231991-L.jpg" alt="Book 4">
+      <div class="book-title">Pride and Prejudice</div>
+      <div class="book-author">Jane Austen</div>
+    </div>
+    <!-- A doua serie duplicată pentru continuitate -->
+    <div class="book-card" onclick="toggleAnimation()">
+      <img src="https://covers.openlibrary.org/b/id/8228691-L.jpg" alt="Book 1">
+      <div class="book-title">The Great Gatsby</div>
+      <div class="book-author">F. Scott Fitzgerald</div>
+    </div>
+    <div class="book-card" onclick="toggleAnimation()">
+      <img src="https://covers.openlibrary.org/b/id/8231856-L.jpg" alt="Book 2">
+      <div class="book-title">1984</div>
+      <div class="book-author">George Orwell</div>
+    </div>
+    <div class="book-card" onclick="toggleAnimation()">
+      <img src="https://covers.openlibrary.org/b/id/8266750-L.jpg" alt="Book 3">
+      <div class="book-title">To Kill a Mockingbird</div>
+      <div class="book-author">Harper Lee</div>
+    </div>
+    <div class="book-card" onclick="toggleAnimation()">
+      <img src="https://covers.openlibrary.org/b/id/8231991-L.jpg" alt="Book 4">
+      <div class="book-title">Pride and Prejudice</div>
+      <div class="book-author">Jane Austen</div>
+    </div>
+  </div>
+</div>
+
+
+<footer>
+        <p>© 2025 Book Tracker. All rights reserved.</p>
+    </footer>
+</body>
+</html>
