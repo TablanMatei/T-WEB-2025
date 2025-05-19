@@ -43,6 +43,8 @@ header h2 svg {
     width: 32px;
     height: 32px;
 }
+
+
 .search-container {
     display: flex;
     align-items: center;
@@ -101,7 +103,64 @@ header h2 svg {
 .search-container:hover .search-icon {
     stroke: #fff;
 }
+.search-popup {
+    display: none;
+    position: absolute;
+    top: 80px;
+    left: 345px;
+     width: 450px; 
+    background-color: #2e2a27;
+    color: #fef3de;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    z-index: 10;
+}
 
+.category-list {
+    display: flex;
+    gap: 15px;
+    overflow-x: hidden;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #555;
+    margin-bottom: 15px;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;
+     border-bottom: 3px solid #555;   
+}
+.category-list::-webkit-scrollbar {
+    display: none; /* Chrome, Safari */
+}
+.category-list span {
+    cursor: pointer;
+    font-weight: bold;
+    color: #ccc;
+    transition: color 0.3s ease;
+}
+
+.category-list span.active {
+    color: #fef3de;
+    border-bottom: 2px solid #fef3de;
+}
+
+.popular-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.popular-list div {
+    background-color: #3d3734;
+    color: #fef3de;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.popular-list div:hover {
+    background-color: #5a504d;
+}
 nav ul {
     display: flex;
     gap: 15px;

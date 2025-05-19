@@ -32,8 +32,20 @@
         <circle cx="11" cy="11" r="8" stroke="#ccc" stroke-width="2" fill="none" />
         <line x1="16" y1="16" x2="22" y2="22" stroke="#ccc" stroke-width="2" />
     </svg>
-    <input type="text" placeholder="Find your next read...">
-    <button>Search</button>
+    <input type="text" placeholder="Find your next read..." onclick="togglePopup()">
+    <button onclick="togglePopup()">Search</button>
+</div>
+
+<div id="searchPopup" class="search-popup" style="display: none;">
+    <div class="category-list" id="categoryList">
+        <span class="active" onclick="setCategory('Books')">Books</span>
+        <span onclick="setCategory('Authors')">Authors</span>
+        <span onclick="setCategory('Series')">Series</span>
+        <span onclick="setCategory('Characters')">Characters</span>
+        <span onclick="setCategory('Users')">Users</span>
+        <span onclick="setCategory('Publishers')">Publishers</span>
+    </div>
+    <div class="popular-list" id="popularList"></div>
 </div>
 
      <nav>
@@ -48,9 +60,6 @@
 
 
     </header>
-    
-    
-
     
     <div class="login-overlay" id="loginOverlay">
         <div class="login-container">
@@ -114,56 +123,88 @@
 </div>
 
 
-
 <div class="cards-wrapper">
-     <button class="arrow-btn left" onclick="scrollLeft()">‹</button>
+  <button class="arrow-btn left" onclick="scrollLeft()">‹</button>
 
   <div class="cards-container" id="cards-container">
-    <!-- Prima serie de 5 cărți -->
     <div class="book-card" onclick="toggleAnimation()">
-      <img src="https://covers.openlibrary.org/b/id/8228691-L.jpg" alt="Book 1">
+      <img src="bookcovers/thegreatgatsby.jpg" alt="Book 1">
       <div class="book-title">The Great Gatsby</div>
       <div class="book-author">F. Scott Fitzgerald</div>
     </div>
     <div class="book-card" onclick="toggleAnimation()">
-      <img src="https://covers.openlibrary.org/b/id/8231856-L.jpg" alt="Book 2">
+      <img src="bookcovers/1984.jpg" alt="Book 2">
       <div class="book-title">1984</div>
       <div class="book-author">George Orwell</div>
     </div>
     <div class="book-card" onclick="toggleAnimation()">
-      <img src="https://covers.openlibrary.org/b/id/8266750-L.jpg" alt="Book 3">
+      <img src="bookcovers/tokillamockingbird.jpg" alt="Book 3">
       <div class="book-title">To Kill a Mockingbird</div>
       <div class="book-author">Harper Lee</div>
     </div>
     <div class="book-card" onclick="toggleAnimation()">
-      <img src="https://covers.openlibrary.org/b/id/8231991-L.jpg" alt="Book 4">
+      <img src="bookcovers/prideandprejudice.jpg" alt="Book 4">
       <div class="book-title">Pride and Prejudice</div>
       <div class="book-author">Jane Austen</div>
     </div>
-    <!-- A doua serie duplicată pentru continuitate -->
     <div class="book-card" onclick="toggleAnimation()">
-      <img src="https://covers.openlibrary.org/b/id/8228691-L.jpg" alt="Book 1">
-      <div class="book-title">The Great Gatsby</div>
-      <div class="book-author">F. Scott Fitzgerald</div>
+      <img src="bookcovers/harrypotter.jpg" alt="Book 5">
+      <div class="book-title">Harry Potter Series</div>
+      <div class="book-author">J.K. Rowling</div>
     </div>
     <div class="book-card" onclick="toggleAnimation()">
-      <img src="https://covers.openlibrary.org/b/id/8231856-L.jpg" alt="Book 2">
-      <div class="book-title">1984</div>
-      <div class="book-author">George Orwell</div>
+      <img src="bookcovers/warandpeace.jpg" alt="Book 6">
+      <div class="book-title">War and Peace</div>
+      <div class="book-author">Leo Tolstoy</div>
     </div>
     <div class="book-card" onclick="toggleAnimation()">
-      <img src="https://covers.openlibrary.org/b/id/8266750-L.jpg" alt="Book 3">
-      <div class="book-title">To Kill a Mockingbird</div>
-      <div class="book-author">Harper Lee</div>
-    </div>
-    <div class="book-card" onclick="toggleAnimation()">
-      <img src="https://covers.openlibrary.org/b/id/8231991-L.jpg" alt="Book 4">
-      <div class="book-title">Pride and Prejudice</div>
-      <div class="book-author">Jane Austen</div>
+      <img src="bookcovers/frankenstein.jpg" alt="Book 7">
+      <div class="book-title">Frankenstein</div>
+      <div class="book-author">Mary Shelley</div>
     </div>
   </div>
+
+  <div class="cards-container" id="cards-container">
+    <div class="book-card" onclick="toggleAnimation()">
+      <img src="bookcovers/thegreatgatsby.jpg" alt="Book 1">
+      <div class="book-title">The Great Gatsby</div>
+      <div class="book-author">F. Scott Fitzgerald</div>
+    </div>
+    <div class="book-card" onclick="toggleAnimation()">
+      <img src="bookcovers/1984.jpg" alt="Book 2">
+      <div class="book-title">1984</div>
+      <div class="book-author">George Orwell</div>
+    </div>
+    <div class="book-card" onclick="toggleAnimation()">
+      <img src="bookcovers/tokillamockingbird.jpg" alt="Book 3">
+      <div class="book-title">To Kill a Mockingbird</div>
+      <div class="book-author">Harper Lee</div>
+    </div>
+    <div class="book-card" onclick="toggleAnimation()">
+      <img src="bookcovers/prideandprejudice.jpg" alt="Book 4">
+      <div class="book-title">Pride and Prejudice</div>
+      <div class="book-author">Jane Austen</div>
+    </div>
+    <div class="book-card" onclick="toggleAnimation()">
+      <img src="bookcovers/harrypotter.jpg" alt="Book 5">
+      <div class="book-title">Harry Potter Series</div>
+      <div class="book-author">J.K. Rowling</div>
+    </div>
+    <div class="book-card" onclick="toggleAnimation()">
+      <img src="bookcovers/warandpeace.jpg" alt="Book 6">
+      <div class="book-title">War and Peace</div>
+      <div class="book-author">Leo Tolstoy</div>
+    </div>
+    <div class="book-card" onclick="toggleAnimation()">
+      <img src="bookcovers/frankenstein.jpg" alt="Book 7">
+      <div class="book-title">Frankenstein</div>
+      <div class="book-author">Mary Shelley</div>
+    </div>
+  </div>
+
   <button class="arrow-btn right" onclick="scrollRight()">›</button>
 </div>
+
 
 
 
