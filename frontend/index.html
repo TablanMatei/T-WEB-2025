@@ -36,15 +36,17 @@
     <button>Search</button>
 </div>
 
-        <nav>
-            <ul>
-                <li><a href="#" onclick="openLogin()">LOGIN</a></li>
-                <li><a href="#dashboard">DASHBOARD</a></li>
-                <li><a href="#my-books">MY BOOKS</a></li>
-                <li><a href="#">STATISTICS</a></li>
-                <li><a href="#">COMMUNITY</a></li>
-            </ul>
-        </nav>
+     <nav>
+    <ul>
+        
+        <li><a href="#dashboard" class="nav-btn">DASHBOARD</a></li>
+        <li><a href="#my-books" class="nav-btn">MY BOOKS</a></li>
+        <li><a href="#" class="nav-btn">COMMUNITY</a></li>
+        <li><a href="#" onclick="openLogin()" class="nav-btn login-btn">LOGIN</a></li>
+    </ul>
+</nav>
+
+
     </header>
     
     
@@ -112,7 +114,10 @@
 </div>
 
 
+
 <div class="cards-wrapper">
+     <button class="arrow-btn left" onclick="scrollLeft()">‹</button>
+
   <div class="cards-container" id="cards-container">
     <!-- Prima serie de 5 cărți -->
     <div class="book-card" onclick="toggleAnimation()">
@@ -157,7 +162,9 @@
       <div class="book-author">Jane Austen</div>
     </div>
   </div>
+  <button class="arrow-btn right" onclick="scrollRight()">›</button>
 </div>
+
 
 
 <footer>
