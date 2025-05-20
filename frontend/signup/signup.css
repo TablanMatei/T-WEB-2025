@@ -93,6 +93,7 @@ body, html {
   display: flex;
   flex-direction: column;
   gap: 18px;
+  
 }
 
 /* Etichete */
@@ -103,8 +104,8 @@ label {
   margin-bottom: 5px;
 }
 
-/* Input, select, textarea */
-input[type="text"], input[type="date"], select, textarea {
+input[type="text"], input[type="date"], input[type="email"],
+input[type="password"],select, textarea {
   width: 100%;
   padding: 14px 18px;
   border-radius: 12px;
@@ -115,6 +116,12 @@ input[type="text"], input[type="date"], select, textarea {
   transition: border-color 0.3s;
   font-family: 'Montserrat', sans-serif;
   resize: vertical;
+}
+
+textarea {
+  min-height: 100px;
+  max-height: 200px;
+  overflow-y: auto;
 }
 
 input[type="text"]:focus,
@@ -153,4 +160,20 @@ button:hover {
 .form-section {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
+}
+.finish-button {
+  background-color: #73342e;
+  color: #f5f0eb;
+  padding: 15px 0;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1.1rem;
+  transition: background-color 0.3s, transform 0.3s;
+  margin-top: 25px;
+  letter-spacing: 0.05em;
+  width: 100%;        /* ✅ Buton lung cât containerul */
+  max-width: 300px;   /* ✅ Dar nu mai mare de 300px */
+  align-self: center; /* ✅ Centrat */
 }
