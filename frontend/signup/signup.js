@@ -25,6 +25,17 @@ function submitForm() {
     const birthdate = document.getElementById("birthdate").value;
     const gender = document.getElementById("gender").value;
 
-    console.log({ name, username, email, password, bio, birthdate, gender });
-    alert("Profile setup complete!");
+    const userProfile = {
+        name,
+        username,
+        email,
+        bio,
+        birthdate,
+        gender
+        
+    };
+
+    localStorage.setItem("userProfile", JSON.stringify(userProfile));
+
+    window.location.href = "loading.html";
 }
