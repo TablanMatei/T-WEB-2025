@@ -13,7 +13,7 @@ try {
     die("Eroare conectare: " . $e->getMessage());
 }
 
-// Modifică funcția fetchBooks să accepte startIndex
+
 function fetchBooks($query, $maxResults = 40, $startIndex = 0) {
     $url = "https://www.googleapis.com/books/v1/volumes?q=" . urlencode($query) .
         "&maxResults=$maxResults&startIndex=$startIndex";

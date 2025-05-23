@@ -1,52 +1,36 @@
 Instrucțiuni pentru configurarea proiectului
 1. Clonează proiectul de pe GitHub
-git clone <linkul-tau-de-repo>  
 
-2. Instalează PostgreSQL și pgAdmin (dacă nu ai deja)
+2 Setup PostgreSQL
+Name: WEB_DB (sau ce vrei tu)
+Host: localhost
+Port: 5432
+Username: postgres
+Password: _________ (eu am pus matei)
+Database: postgres
 
-    Descarcă PostgreSQL
-    Instalează și asigură-te că știi parola userului postgres.
+3. Configurația corectă în backend/config.php
+<?php
+$host = 'localhost';
+$dbname = 'postgres';
+$username = 'postgres';
+$password = ________
 
-3. Instalează XAMPP 
+4. Creare tabele în baza de date
+pgAdmin - server - database -
+click dreapta pe postgres - querry tool
+copaiaza si ruleaza continutul din creare_tabele_web.sql
 
-    Descarcă XAMPP
-    Instalează și pornește Apache din XAMPP Control Panel.
+5. Rulare script populare carti
+Accesează în browser: http://localhost:9000/backend/populate_books.php
+Ar trebui să vezi: "Books populated successfully!" sau mesaj similar
+E posibil sa dureze cateva secunde, sunt mutle carti, dar asta se intampla doar o data
 
-4. Creează baza de date în pgAdmin
+6. Verificare exsitenta carti
+pgAdmin->Database->Schemas->Tables->View/Edit Data
 
-    Deschide pgAdmin și conectează-te la serverul local.
-    Click dreapta pe „Databases” → Create → Database...
-    
-5. Importă structura bazei de date
+7. Verificare functionalitate
+Pagina principala se gaseste la adresa
+http://localhost:9000/frontend/mainPage/index.html
+Ar trebui sa se pota naviga, sa se creeze un cont si sa te logezi/deconectezi
 
-    Deschide Query Tool pe baza de date creată.
-    Deschide fișierul schema.sql din proiect.
-    Copiază și lipește conținutul în Query Tool, apoi apasă „Run” (F5).
-
-6. Configurează scriptul de populare
-
-    Deschide fișierul populate_books.php din proiect.
-    Completează la început datele de conectare la baza de date:
-
-    php
-
-    Copy Code
-    $host = 'localhost';  
-    $db   = 'proiect_lectura';  
-    $user = 'postgres';  
-    $pass = 'PAROLA_TA_DE_POSTGRES';  
-
-    Salvează fișierul.
-
-7. Rulează scriptul de populare
-
-    Copiază populate_books.php în folderul htdocs din XAMPP (ex: C:\xampp\htdocs\).
-    Asigură-te că Apache este pornit în XAMPP.
-    Accesează în browser:
-    http://localhost/populate_books.php
-    Așteaptă să se termine popularea (poate dura câteva minute).
-
-8. Verifică datele în pgAdmin
-
-    În pgAdmin, dă click dreapta pe tabelele books, authors, book_authors → View/Edit Data → All Rows.
-    Verifică dacă datele au fost inserate.

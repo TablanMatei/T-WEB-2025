@@ -1,10 +1,14 @@
 -- Tabela utilizatori
 CREATE TABLE users (
-    user_id SERIAL PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    role VARCHAR(20) DEFAULT 'user'
+                       user_id SERIAL PRIMARY KEY,
+                       username VARCHAR(50) UNIQUE NOT NULL,
+                       email VARCHAR(100) UNIQUE NOT NULL,
+                       password VARCHAR(255) NOT NULL,
+                       real_name VARCHAR(100),
+                       description TEXT,
+                       birthdate DATE,
+                       gender VARCHAR(20),
+                       role VARCHAR(20) DEFAULT 'user'
 );
 
 -- Tabela autori

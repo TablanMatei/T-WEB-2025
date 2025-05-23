@@ -177,3 +177,48 @@ button:hover {
   max-width: 300px;   /* ✅ Dar nu mai mare de 300px */
   align-self: center; /* ✅ Centrat */
 }
+
+/* Stiluri pentru mesaje */
+.message {
+  padding: 12px 18px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-weight: 600;
+  text-align: center;
+  animation: slideIn 0.3s ease-out;
+}
+
+.message.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.message.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Stil pentru buton disabled */
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+button:disabled:hover {
+  background-color: #ccc;
+  transform: none;
+}
