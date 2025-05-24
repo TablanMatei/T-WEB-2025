@@ -350,6 +350,18 @@ function displayPopularItems(items, category) {
                     </div>
                 </div>
             `;
+        } else if (category === 'Authors') {
+            html += `
+                <div class="popular-item" onclick="selectAuthor(${item.id})">
+                    <div class="item-placeholder">👤</div>
+                    <div class="item-info">
+                        <div class="item-title">${item.name}</div>
+                        <div class="item-subtitle">${item.nationality || 'Unknown nationality'} • Born ${item.birth_year || 'Unknown'}</div>
+                        <div class="item-description">${item.description || 'No description available.'}</div>
+                        <div class="item-books">${item.book_count} books</div>
+                    </div>
+                </div>
+            `;
         } else {
             html += `
                 <div class="popular-item" onclick="searchByName('${item.name}', '${category}')">
@@ -364,6 +376,63 @@ function displayPopularItems(items, category) {
 
     html += '</div>';
     popularList.innerHTML = html;
+}
+
+function displaySearchResults(results, category) {
+    const popularList = document.getElementById('popularList');
+
+    if (results.length === 0) {
+        popularList.innerHTML = '<div class="no-results">No results found</div>';
+        return;
+    }
+
+    let html = `<h4>Search Results (${results.length})</h4><div class="search-results">`;
+
+    results.forEach(item => {
+        if (category === 'Books') {
+            html += `
+                <div class="search-result-item" onclick="selectBook(${item.id})">
+                    <div class="item-placeholder">📚</div>
+                    <div class="item-info">
+                        <div class="item-title">${item.title}</div>
+                        <div class="item-subtitle">${item.author} (${item.publication_year || 'N/A'})</div>
+                        <div class="item-publisher">Publisher: ${item.publisher}</div>
+                    </div>
+                </div>
+            `;
+        } else if (category === 'Authors') {
+            html += `
+                <div class="search-result-item" onclick="selectAuthor(${item.id})">
+                    <div class="item-placeholder">👤</div>
+                    <div class="item-info">
+                        <div class="item-title">${item.name}</div>
+                        <div class="item-subtitle">${item.nationality || 'Unknown nationality'} • Born ${item.birth_year || 'Unknown'}</div>
+                        <div class="item-description">${item.description || 'No description available.'}</div>
+                        <div class="item-books">${item.book_count} books</div>
+                    </div>
+                </div>
+            `;
+        } else {
+            html += `
+                <div class="search-result-item" onclick="searchByName('${item.name}', '${category}')">
+                    <div class="item-info">
+                        <div class="item-title">${item.name}</div>
+                        <div class="item-subtitle">${item.book_count} books</div>
+                    </div>
+                </div>
+            `;
+        }
+    });
+
+    html += '</div>';
+    popularList.innerHTML = html;
+}
+
+// Funcție pentru selectare autor
+function selectAuthor(authorId) {
+    console.log('Selected author:', authorId);
+    // TODO: Redirect to author details page sau show books by author
+    alert(`Selected author ID: ${authorId}. În viitor va deschide pagina autorului.`);
 }
 
 // Funcție search real-time
@@ -402,44 +471,7 @@ async function performSearch() {
     }
 }
 
-// Funcție afișează rezultate search
-function displaySearchResults(results, category) {
-    const popularList = document.getElementById('popularList');
 
-    if (results.length === 0) {
-        popularList.innerHTML = '<div class="no-results">No results found</div>';
-        return;
-    }
-
-    let html = `<h4>Search Results (${results.length})</h4><div class="search-results">`;
-
-    results.forEach(item => {
-        if (category === 'Books') {
-            html += `
-                <div class="search-result-item" onclick="selectBook(${item.id})">
-                    <img src="${item.image_url || 'default-book.jpg'}" alt="${item.title}" class="item-image">
-                    <div class="item-info">
-                        <div class="item-title">${item.title}</div>
-                        <div class="item-subtitle">${item.author} (${item.publication_year || 'N/A'})</div>
-                        <div class="item-rating">⭐ ${item.average_rating || 'N/A'}</div>
-                    </div>
-                </div>
-            `;
-        } else {
-            html += `
-                <div class="search-result-item" onclick="searchByName('${item.name}', '${category}')">
-                    <div class="item-info">
-                        <div class="item-title">${item.name}</div>
-                        <div class="item-subtitle">${item.book_count} books</div>
-                    </div>
-                </div>
-            `;
-        }
-    });
-
-    html += '</div>';
-    popularList.innerHTML = html;
-}
 
 // Funcții helper
 function selectBook(bookId) {

@@ -47,26 +47,28 @@ try {
 function getPopularItems($pdo, $category, $limit) {
     switch ($category) {
         case 'Books':
-            $sql = "SELECT book_id as id, title, year, publisher   
-                    FROM books   
-                    ORDER BY title ASC   
+            $sql = "SELECT book_id as id, title, year, publisher 
+                    FROM books 
+                    ORDER BY title ASC 
                     LIMIT :limit";
             break;
 
         case 'Authors':
-            // Nu avem coloană authors, deci returnez gol pentru acum
-            return [];
+            $sql = "SELECT author_id as id, name 
+                    FROM authors 
+                    ORDER BY name ASC 
+                    LIMIT :limit";
+            break;
 
         case 'Series':
-            // Nu avem coloană series, deci returnez gol pentru acum
             return [];
 
         case 'Publishers':
-            $sql = "SELECT publisher as name, COUNT(*) as book_count   
-                    FROM books   
-                    WHERE publisher IS NOT NULL AND publisher != ''  
-                    GROUP BY publisher   
-                    ORDER BY book_count DESC   
+            $sql = "SELECT publisher as name, COUNT(*) as book_count 
+                    FROM books 
+                    WHERE publisher IS NOT NULL AND publisher != ''
+                    GROUP BY publisher 
+                    ORDER BY book_count DESC 
                     LIMIT :limit";
             break;
 
@@ -81,13 +83,21 @@ function getPopularItems($pdo, $category, $limit) {
 
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Pentru books, adaug câmpuri lipsă pentru frontend
+        // Normalizez datele pentru frontend
         if ($category === 'Books') {
             foreach ($results as &$book) {
-                $book['author'] = 'Unknown'; // Placeholder
+                $book['author'] = 'Unknown';
                 $book['publication_year'] = $book['year'];
                 $book['average_rating'] = null;
                 $book['image_url'] = null;
+            }
+        } elseif ($category === 'Authors') {
+            foreach ($results as &$author) {
+                // Adaug câmpuri placeholder pentru frontend
+                $author['nationality'] = 'Unknown';
+                $author['birth_year'] = null;
+                $author['book_count'] = 0;
+                $author['description'] = 'Author information not available.';
             }
         }
 
@@ -103,31 +113,36 @@ function searchItems($pdo, $query, $category, $limit, $offset) {
 
     switch ($category) {
         case 'Books':
-            $sql = "SELECT book_id as id, title, year, publisher   
-                    FROM books   
-                    WHERE title ILIKE :query OR publisher ILIKE :query  
-                    ORDER BY   
-                        CASE   
-                            WHEN title ILIKE :query THEN 1  
-                            WHEN publisher ILIKE :query THEN 2  
-                            ELSE 3  
-                        END,  
-                        title ASC  
+            $sql = "SELECT book_id as id, title, year, publisher 
+                    FROM books 
+                    WHERE title ILIKE :query OR publisher ILIKE :query
+                    ORDER BY 
+                        CASE 
+                            WHEN title ILIKE :query THEN 1
+                            WHEN publisher ILIKE :query THEN 2
+                            ELSE 3
+                        END,
+                        title ASC
                     LIMIT :limit OFFSET :offset";
             break;
 
         case 'Authors':
-            return []; // Nu avem authors
+            $sql = "SELECT author_id as id, name 
+                    FROM authors 
+                    WHERE name ILIKE :query
+                    ORDER BY name ASC
+                    LIMIT :limit OFFSET :offset";
+            break;
 
         case 'Series':
-            return []; // Nu avem series
+            return [];
 
         case 'Publishers':
-            $sql = "SELECT publisher as name, COUNT(*) as book_count   
-                    FROM books   
-                    WHERE publisher ILIKE :query AND publisher IS NOT NULL AND publisher != ''  
-                    GROUP BY publisher   
-                    ORDER BY book_count DESC   
+            $sql = "SELECT publisher as name, COUNT(*) as book_count 
+                    FROM books 
+                    WHERE publisher ILIKE :query AND publisher IS NOT NULL AND publisher != ''
+                    GROUP BY publisher 
+                    ORDER BY book_count DESC 
                     LIMIT :limit OFFSET :offset";
             break;
 
@@ -144,13 +159,20 @@ function searchItems($pdo, $query, $category, $limit, $offset) {
 
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Pentru books, adaug câmpuri lipsă
+        // Normalizez datele
         if ($category === 'Books') {
             foreach ($results as &$book) {
                 $book['author'] = 'Unknown';
                 $book['publication_year'] = $book['year'];
                 $book['average_rating'] = null;
                 $book['image_url'] = null;
+            }
+        } elseif ($category === 'Authors') {
+            foreach ($results as &$author) {
+                $author['nationality'] = 'Unknown';
+                $author['birth_year'] = null;
+                $author['book_count'] = 0;
+                $author['description'] = 'Author information not available.';
             }
         }
 
