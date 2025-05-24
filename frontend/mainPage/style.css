@@ -873,3 +873,84 @@ footer {
 nav ul li {
     position: relative;
 }
+
+
+/* Search Results Styling */
+.popular-items, .search-results {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.popular-item, .search-result-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.popular-item:hover, .search-result-item:hover {
+    background-color: #f5f5f5;
+}
+
+.item-image {
+    width: 40px;
+    height: 60px;
+    object-fit: cover;
+    margin-right: 10px;
+    border-radius: 4px;
+}
+
+.item-info {
+    flex: 1;
+}
+
+.item-title {
+    font-weight: bold;
+    margin-bottom: 4px;
+    color: #333;
+}
+
+.item-subtitle {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 2px;
+}
+
+.item-rating {
+    font-size: 0.8em;
+    color: #f39c12;
+}
+
+.no-results {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-style: italic;
+}
+
+#popularList h4 {
+    margin: 0 0 10px 0;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    color: #333;
+}
+
+.item-placeholder {
+    width: 40px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    margin-right: 10px;
+    font-size: 20px;
+}
+
+.item-publisher {
+    font-size: 0.8em;
+    color: #888;
+}

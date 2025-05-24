@@ -49,13 +49,13 @@ const data = {
 
 function togglePopup() {
     const popup = document.getElementById('searchPopup');
-    
-    // Deschide sau închide popup-ul
-    if (popup.style.display === 'none' || popup.style.display === '') {
-        popup.style.display = 'block';
-    } else {
+    const isVisible = popup.style.display !== 'none';
+
+    if (isVisible) {
         popup.style.display = 'none';
-        resetToBooks(); // Resetează la Books când se închide
+    } else {
+        popup.style.display = 'block';
+        loadPopularItems(currentCategory);
     }
 }
 
@@ -65,11 +65,16 @@ function resetToBooks() {
 }
 
 function setCategory(category) {
-        document.querySelectorAll('.category-list span').forEach(span => span.classList.remove('active'));
-        document.querySelector(`[onclick="setCategory('${category}')"]`).classList.add('active');
-        const popularList = document.getElementById('popularList');
-        popularList.innerHTML = data[category].map(item => `<div>${item}</div>`).join('');
-    }
+    currentCategory = category;
+
+    // Update active category
+    const categories = document.querySelectorAll('.category-list span');
+    categories.forEach(cat => cat.classList.remove('active'));
+    event.target.classList.add('active');
+
+    // Load popular items for this category
+    loadPopularItems(category);
+}
 
 // Închide popup-ul dacă faci clic în afara lui
 document.addEventListener('click', (e) => {
@@ -282,4 +287,193 @@ document.addEventListener('click', function(e) {
     if (dropdown && !loginButton.contains(e.target)) {
         dropdown.style.display = 'none';
     }
+});
+
+
+///FUNCTII DE SEARCH
+// Variabile globale pentru search
+let currentCategory = 'Books';
+let searchResults = [];
+
+// Funcție existentă - o actualizez
+
+
+// Funcție existentă - o actualizez
+function setCategory(category) {
+    currentCategory = category;
+
+    // Update active category
+    const categories = document.querySelectorAll('.category-list span');
+    categories.forEach(cat => cat.classList.remove('active'));
+    event.target.classList.add('active');
+
+    // Load popular items for this category
+    loadPopularItems(category);
+}
+
+// Funcție încarcă items populare
+async function loadPopularItems(category) {
+    try {
+        const response = await fetch(`http://localhost:9000/backend/api/search.php?category=${category}&limit=10`);
+        const data = await response.json();
+
+        if (data.success) {
+            displayPopularItems(data.data, category);
+        } else {
+            console.error('Error loading popular items:', data.error);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+// Funcție afișează items populare
+function displayPopularItems(items, category) {
+    const popularList = document.getElementById('popularList');
+
+    if (items.length === 0) {
+        popularList.innerHTML = '<div class="no-results">No popular items found</div>';
+        return;
+    }
+
+    let html = `<h4>Popular ${category}</h4><div class="popular-items">`;
+
+    items.forEach(item => {
+        if (category === 'Books') {
+            html += `
+                <div class="popular-item" onclick="selectBook(${item.id})">
+                    <div class="item-placeholder">📚</div>
+                    <div class="item-info">
+                        <div class="item-title">${item.title}</div>
+                        <div class="item-subtitle">${item.author} (${item.publication_year || 'N/A'})</div>
+                        <div class="item-publisher">Publisher: ${item.publisher}</div>
+                    </div>
+                </div>
+            `;
+        } else {
+            html += `
+                <div class="popular-item" onclick="searchByName('${item.name}', '${category}')">
+                    <div class="item-info">
+                        <div class="item-title">${item.name}</div>
+                        <div class="item-subtitle">${item.book_count} books</div>
+                    </div>
+                </div>
+            `;
+        }
+    });
+
+    html += '</div>';
+    popularList.innerHTML = html;
+}
+
+// Funcție search real-time
+async function performSearch() {
+    const searchInput = document.querySelector('.search-container input');
+    const query = searchInput.value.trim();
+
+    if (query.length < 2) {
+        loadPopularItems(currentCategory);
+        return;
+    }
+
+    try {
+        const response = await fetch('http://localhost:9000/backend/api/search.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                query: query,
+                category: currentCategory,
+                limit: 20,
+                offset: 0
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            displaySearchResults(data.data, currentCategory);
+        } else {
+            console.error('Search error:', data.error);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+// Funcție afișează rezultate search
+function displaySearchResults(results, category) {
+    const popularList = document.getElementById('popularList');
+
+    if (results.length === 0) {
+        popularList.innerHTML = '<div class="no-results">No results found</div>';
+        return;
+    }
+
+    let html = `<h4>Search Results (${results.length})</h4><div class="search-results">`;
+
+    results.forEach(item => {
+        if (category === 'Books') {
+            html += `
+                <div class="search-result-item" onclick="selectBook(${item.id})">
+                    <img src="${item.image_url || 'default-book.jpg'}" alt="${item.title}" class="item-image">
+                    <div class="item-info">
+                        <div class="item-title">${item.title}</div>
+                        <div class="item-subtitle">${item.author} (${item.publication_year || 'N/A'})</div>
+                        <div class="item-rating">⭐ ${item.average_rating || 'N/A'}</div>
+                    </div>
+                </div>
+            `;
+        } else {
+            html += `
+                <div class="search-result-item" onclick="searchByName('${item.name}', '${category}')">
+                    <div class="item-info">
+                        <div class="item-title">${item.name}</div>
+                        <div class="item-subtitle">${item.book_count} books</div>
+                    </div>
+                </div>
+            `;
+        }
+    });
+
+    html += '</div>';
+    popularList.innerHTML = html;
+}
+
+// Funcții helper
+function selectBook(bookId) {
+    console.log('Selected book:', bookId);
+    // TODO: Redirect to book details page
+    alert(`Selected book ID: ${bookId}`);
+}
+
+function searchByName(name, category) {
+    const searchInput = document.querySelector('.search-container input');
+    searchInput.value = name;
+    setCategory('Books'); // Switch to books to show books by this author/series/etc
+    performSearch();
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.querySelector('.search-container input');
+    const searchButton = document.querySelector('.search-container button');
+
+    // Real-time search
+    searchInput.addEventListener('input', performSearch);
+
+    // Search button click
+    searchButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        performSearch();
+    });
+
+    // Enter key search
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            performSearch();
+        }
+    });
 });
