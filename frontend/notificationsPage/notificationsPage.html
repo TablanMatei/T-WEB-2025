@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Biblioxy - Discover the World of Great Books</title>
-    <link rel="stylesheet" href="style.css">
-     <script src="script.js"></script>
+    <link rel="stylesheet" href="notificationsPage.css">
+     <script src="notificationsPage.js"></script>
      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 
 </head>
@@ -190,35 +190,110 @@
     </li>
 
     <li><a href="#" class="nav-btn">Community</a></li>
-    <li><a href="#" onclick="openLogin()" class="nav-btn login-btn">Login</a></li>
+    <li class="dropdown profile">
+  <a href="#profile" class="nav-btn profile-btn">Profile
+    <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M6 9l6 6 6-6"></path>
+    </svg>
+  </a>
+  <ul class="dropdown-menu">
+    <li>
+      <a href="#notifications">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8a6 6 0 0 0-12 0v5H5a1 1 0 0 0-1 1v1h16v-1a1 1 0 0 0-1-1h-1z"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        Notifications
+      </a>
+    </li>
+    <li>
+      <a href="#goals">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M12 6v6l4 2"></path>
+        </svg>
+        Goals
+      </a>
+    </li>
+    <li>
+      <a href="#stats">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="20" x2="12" y2="10"></line>
+          <line x1="18" y1="20" x2="18" y2="4"></line>
+          <line x1="6" y1="20" x2="6" y2="16"></line>
+        </svg>
+        Stats
+      </a>
+    </li>
+    <li>
+      <a href="#settings">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        Settings
+      </a>
+    </li>
+    <li>
+      <a href="#signout">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+        Sign Out
+      </a>
+    </li>
+  </ul>
+</li>
+
   </ul>
 </nav>
 
-
     </header>
-    
-   <div class="login-overlay" id="loginOverlay">
-    <div class="login-container">
-        <button class="close-btn" onclick="closeLogin()">×</button>
-        <h2>Login</h2>
-        <form id="loginForm" onsubmit="return handleLogin(event)">
-            <label for="username">Username</label>
-            <input type="text" id="username" name="username" placeholder="Enter your username" required>
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" placeholder="Enter your password" required>
-            <button type="submit">Login</button>
-        </form>
-        <p>Don't have an account? <a href="../signup/signup.html">Sign up</a></p>
-    </div>
-</div>
+    <section class="notifications-section">
+  <h2>Notifications</h2>
+  <ul class="notification-list">
+    <li class="notification-item">
+      <svg class="notif-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2">
+        <path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+        <path d="M13.73 21a2 2 0 01-3.46 0" />
+      </svg>
+      <div class="notif-content">
+        <p>You have a new message from Jane.</p>
+        <span class="notif-time">2 minutes ago</span>
+      </div>
+    </li>
 
+    <li class="notification-item">
+      <svg class="notif-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2">
+        <path d="M20 6L9 17l-5-5" />
+      </svg>
+      <div class="notif-content">
+        <p>Your reading goal is 80% complete.</p>
+        <span class="notif-time">1 hour ago</span>
+      </div>
+    </li>
+
+    <li class="notification-item">
+      <svg class="notif-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 6v6l4 2" />
+      </svg>
+      <div class="notif-content">
+        <p>Your session stats are now available.</p>
+        <span class="notif-time">Yesterday</span>
+      </div>
+    </li>
+  </ul>
+</section>
 
 
     <div class="girlreadingimg-container">
         <div class="intro-text1">
           Biblioxy - the perfect place for enjoying online reading...
         </div>
-        <img src="girlreading.jpg" alt="Girl Reading">
+        <img src="../mainPage/girlreading.jpg" alt="Girl Reading">
 
         <div class="intro-text2">
          and so much more!
@@ -265,37 +340,37 @@
 
   <div class="cards-container" id="cards-container">
     <div class="book-card" onclick="toggleAnimation()">
-      <img src="bookcovers/thegreatgatsby.jpg" alt="Book 1">
+      <img src="../mainPage/bookcovers/thegreatgatsby.jpg" alt="Book 1">
       <div class="book-title">The Great Gatsby</div>
       <div class="book-author">F. Scott Fitzgerald</div>
     </div>
     <div class="book-card" onclick="toggleAnimation()">
-      <img src="bookcovers/1984.jpg" alt="Book 2">
+      <img src="../mainPage/bookcovers/1984.jpg" alt="Book 2">
       <div class="book-title">1984</div>
       <div class="book-author">George Orwell</div>
     </div>
     <div class="book-card" onclick="toggleAnimation()">
-      <img src="bookcovers/tokillamockingbird.jpg" alt="Book 3">
+      <img src="../mainPage/bookcovers/tokillamockingbird.jpg" alt="Book 3">
       <div class="book-title">To Kill a Mockingbird</div>
       <div class="book-author">Harper Lee</div>
     </div>
     <div class="book-card" onclick="toggleAnimation()">
-      <img src="bookcovers/prideandprejudice.jpg" alt="Book 4">
+      <img src="../mainPage/bookcovers/prideandprejudice.jpg" alt="Book 4">
       <div class="book-title">Pride and Prejudice</div>
       <div class="book-author">Jane Austen</div>
     </div>
     <div class="book-card" onclick="toggleAnimation()">
-      <img src="bookcovers/harrypotter.jpg" alt="Book 5">
+      <img src="../mainPage/bookcovers/harrypotter.jpg" alt="Book 5">
       <div class="book-title">Harry Potter Series</div>
       <div class="book-author">J.K. Rowling</div>
     </div>
     <div class="book-card" onclick="toggleAnimation()">
-      <img src="bookcovers/warandpeace.jpg" alt="Book 6">
+      <img src="../mainPage/bookcovers/warandpeace.jpg" alt="Book 6">
       <div class="book-title">War and Peace</div>
       <div class="book-author">Leo Tolstoy</div>
     </div>
     <div class="book-card" onclick="toggleAnimation()">
-      <img src="bookcovers/frankenstein.jpg" alt="Book 7">
+      <img src="../mainPage/bookcovers/frankenstein.jpg" alt="Book 7">
       <div class="book-title">Frankenstein</div>
       <div class="book-author">Mary Shelley</div>
     </div>
@@ -303,37 +378,37 @@
 
   <div class="cards-container" id="cards-container">
     <div class="book-card" onclick="toggleAnimation()">
-      <img src="bookcovers/thegreatgatsby.jpg" alt="Book 1">
+      <img src="../mainPage/bookcovers/thegreatgatsby.jpg" alt="Book 1">
       <div class="book-title">The Great Gatsby</div>
       <div class="book-author">F. Scott Fitzgerald</div>
     </div>
     <div class="book-card" onclick="toggleAnimation()">
-      <img src="bookcovers/1984.jpg" alt="Book 2">
+      <img src="../mainPage/bookcovers/1984.jpg" alt="Book 2">
       <div class="book-title">1984</div>
       <div class="book-author">George Orwell</div>
     </div>
     <div class="book-card" onclick="toggleAnimation()">
-      <img src="bookcovers/tokillamockingbird.jpg" alt="Book 3">
+      <img src="../mainPage/bookcovers/tokillamockingbird.jpg" alt="Book 3">
       <div class="book-title">To Kill a Mockingbird</div>
       <div class="book-author">Harper Lee</div>
     </div>
     <div class="book-card" onclick="toggleAnimation()">
-      <img src="bookcovers/prideandprejudice.jpg" alt="Book 4">
+      <img src="../mainPage/bookcovers/prideandprejudice.jpg" alt="Book 4">
       <div class="book-title">Pride and Prejudice</div>
       <div class="book-author">Jane Austen</div>
     </div>
     <div class="book-card" onclick="toggleAnimation()">
-      <img src="bookcovers/harrypotter.jpg" alt="Book 5">
+      <img src="../mainPage/bookcovers/harrypotter.jpg" alt="Book 5">
       <div class="book-title">Harry Potter Series</div>
       <div class="book-author">J.K. Rowling</div>
     </div>
     <div class="book-card" onclick="toggleAnimation()">
-      <img src="bookcovers/warandpeace.jpg" alt="Book 6">
+      <img src="../mainPage/bookcovers/warandpeace.jpg" alt="Book 6">
       <div class="book-title">War and Peace</div>
       <div class="book-author">Leo Tolstoy</div>
     </div>
     <div class="book-card" onclick="toggleAnimation()">
-      <img src="bookcovers/frankenstein.jpg" alt="Book 7">
+      <img src="../mainPage/bookcovers/frankenstein.jpg" alt="Book 7">
       <div class="book-title">Frankenstein</div>
       <div class="book-author">Mary Shelley</div>
     </div>

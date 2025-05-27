@@ -185,12 +185,11 @@ nav ul li a:hover {
     color: #f9d6c4;
 }
 
-
 .dropdown {
   position: relative;
 }
 
-/* Dropdown menu hidden by default */
+/* Dropdown menu - inițial ascuns și cu animație */
 .dropdown-menu {
   position: absolute;
   top:  100%;
@@ -229,20 +228,21 @@ nav ul li a:hover {
   z-index: 101;
 }
 
-/* Show dropdown on hover */
-.dropdown:hover .dropdown-menu {
-  display: block;
+
+/* Active dropdown on hover or focus */
+.dropdown:hover .dropdown-menu,
+.dropdown:focus-within .dropdown-menu {
   opacity: 1;
   pointer-events: auto;
   transform: translateY(0);
 }
 
-/* Dropdown menu items */
+/* Dropdown items */
 .dropdown-menu li {
   padding: 12px 28px;
   cursor: pointer;
   font-weight: 600;
-  color: #7a4e3e; /* maro mediu */
+  color: #7a4e3e;
   letter-spacing: 0.02em;
   user-select: none;
   display: flex;
@@ -261,14 +261,23 @@ nav ul li a:hover {
   white-space: nowrap;
 }
 
+/* Hover effect */
 .dropdown-menu li:hover,
 .dropdown-menu li a:hover {
-  background-color: #b87a61; /* maro deschis */
-  color: #f5efe6; /* bej */
-  transition: background-color 0.3s ease, color 0.3s ease;
+  background-color: #b87a61;
+  color: #f5efe6;
+}
+.dropdown:hover .dropdown-menu {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+.dropdown.open .dropdown-menu {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
 }
 
-/* Icon style */
 .icon {
   width: 20px;
   height: 20px;
@@ -281,13 +290,7 @@ nav ul li a:hover {
 .dropdown-menu li a:hover .icon {
   stroke: #f5efe6;
 }
-.dropdown:hover .dropdown-menu,
-.dropdown:focus-within .dropdown-menu {
-  display: block;
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0);
-}
+
 
 
 
@@ -324,7 +327,7 @@ nav ul li a:hover {
   transform: translateY(1px) scale(0.95);
   box-shadow: 0 4px 10px rgba(120, 70, 50, 0.2);
 }
-.login-btn {
+.profile-btn {
     background-color: #2e2a27;
     color: #fef3de;
     border: 2px solid transparent;
@@ -335,7 +338,7 @@ nav ul li a:hover {
     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     margin-right: 5px;
 }
-.login-btn:hover {
+.profile-btn:hover {
     background-color: #e5b995;
     border-color: #fef3de;
     transform: scale(1.05);
@@ -372,150 +375,6 @@ footer {
     padding: 15px;
     box-shadow: 0 -4px 6px rgba(0,0,0,0.1);
     width: 100%;
-}
-.login {
-    background: url("loginBookPic.jpg") no-repeat center center;
-     background-size: cover;
-    background-blend-mode: overlay;
-    background-color: rgba(0,0,0,0.6); /* Adjust transparency */
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
-    width: 300px;
-    margin-left: auto;
-    margin-right: auto;
-    color: white;
-}
-
-.login h2 {
-    color: #f9fbfe;
-    text-align: center;
-}
-.login form {
-    display: flex;
-    flex-direction: column;
-}
-.login label {
-    margin-bottom: 10px;
-    font-weight: bold;
-}
-.login input {
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    font-size: 14px;
-}
-.login button {
-    background-color: #755948;
-    color: #fff;
-    padding: 10px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-}
-.login button:hover {
-    background-color: #969391;
-}
-.login p {
-    text-align: center;
-}
-.login p a {
-    color: #97725b;
-    text-decoration: none;
-    font-weight: bold;
-}
-.login p a:hover {
-    text-decoration: underline;
-}
-/* Efect de blur pentru body */
-.blur-effect > *:not(.login-overlay) {
-    filter: blur(5px);
-}
-
-/* Login overlay */
-.login-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0,0,0,0.6);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-}
-
-/* Login popup */
-.login-container {
-    background: url("loginBookPic.jpg") no-repeat center center;
-    background-size: cover;
-    background-blend-mode: overlay;
-    background-color: rgba(0,0,0,0.6);
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
-    width: 300px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-    color: white; /* ca textul să fie vizibil */
-}
-
-/* Close button */
-.close-btn {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    background-color: transparent;
-    border: none;
-    color: #aaa;
-    font-size: 24px;
-    cursor: pointer;
-    transition: color 0.3s ease;
-}
-
-.close-btn:hover {
-    color: #6b3230;
-}
-
-/* Input styles */
-.login-container input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-}
-
-.login-container button[type="submit"] {
-    background-color: #a66d4e;
-    color: #fff;
-    padding: 10px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    width: 100%;
-    transition: background-color 0.3s ease;
-}
-
-.login-container button[type="submit"]:hover {
-    background-color: #dcc6aa;
-}
-
-.login-container p a {
-    color: #bb9e8d;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.login-container p a:hover {
-    text-decoration: underline;
 }
 
 .girlreadingimg-container {
@@ -812,174 +671,59 @@ footer {
     background-color: #e5b995;
     transform: scale(1.1);
 }
-
-
-/* Stiluri pentru mesajele din modal */
-.login-message {
-    padding: 10px 15px;
-    border-radius: 5px;
-    margin-bottom: 15px;
-    font-weight: 600;
-    text-align: center;
-    animation: slideIn 0.3s ease-out;
+.notifications-section {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 24px;
+  background-color: #f5efe6;
+  border-radius: 20px;
+  box-shadow: 0 8px 16px rgba(184, 122, 97, 0.2);
+  border: 1px solid rgba(184, 122, 97, 0.3);
 }
 
-.login-message.success {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
+.notifications-section h2 {
+  margin-bottom: 16px;
+  color: #7a4e3e;
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
 }
 
-.login-message.error {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
+.notification-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.notification-item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 16px;
+  border-radius: 14px;
+  transition: background-color 0.3s ease;
+  border: 1px solid transparent;
+  margin-bottom: 12px;
 }
 
-/* Stil pentru buton disabled */
-#loginForm button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-    opacity: 0.6;
+.notification-item:hover {
+  background-color: #e6d5c8;
+  border-color: #b87a61;
 }
 
-
-/* Stiluri pentru user dropdown */
-.user-dropdown {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    min-width: 150px;
-    z-index: 1000;
-    display: none;
+.notif-icon {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
 }
 
-.user-dropdown a {
-    display: block;
-    padding: 10px 15px;
-    text-decoration: none;
-    color: #333;
-    border-bottom: 1px solid #eee;
+.notif-content p {
+  margin: 0;
+  color: #7a4e3e;
+  font-weight: 600;
 }
 
-.user-dropdown a:hover {
-    background-color: #f5f5f5;
-}
-
-.user-dropdown a:last-child {
-    border-bottom: none;
-    color: #dc3545;
-}
-
-nav ul li {
-    position: relative;
-}
-
-
-/* Search Results Styling */
-.popular-items, .search-results {
-    max-height: 400px;
-    overflow-y: auto;
-}
-
-.popular-item, .search-result-item {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    border-bottom: 1px solid #eee;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.popular-item:hover, .search-result-item:hover {
-    background-color: #f5f5f5;
-}
-
-.item-image {
-    width: 40px;
-    height: 60px;
-    object-fit: cover;
-    margin-right: 10px;
-    border-radius: 4px;
-}
-
-.item-info {
-    flex: 1;
-}
-
-.item-title {
-    font-weight: bold;
-    margin-bottom: 4px;
-    color: #333;
-}
-
-.item-subtitle {
-    font-size: 0.9em;
-    color: #666;
-    margin-bottom: 2px;
-}
-
-.item-rating {
-    font-size: 0.8em;
-    color: #f39c12;
-}
-
-.no-results {
-    text-align: center;
-    padding: 20px;
-    color: #666;
-    font-style: italic;
-}
-
-#popularList h4 {
-    margin: 0 0 10px 0;
-    padding: 10px;
-    background-color: #f8f9fa;
-    border-radius: 4px;
-    color: #333;
-}
-
-.item-placeholder {
-    width: 40px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f0f0f0;
-    border-radius: 4px;
-    margin-right: 10px;
-    font-size: 20px;
-}
-
-.item-publisher {
-    font-size: 0.8em;
-    color: #888;
-}
-
-.item-description {
-    font-size: 0.85em;
-    color: #666;
-    margin: 4px 0;
-    line-height: 1.3;
-}
-
-.item-books {
-    font-size: 0.8em;
-    color: #007bff;
-    font-weight: bold;
+.notif-time {
+  font-size: 13px;
+  color: #a27c6a;
 }
