@@ -554,4 +554,5 @@ function updateSettingsNavigation() {
             window.location.href = '/frontend/notificationsPage/notificationsPage.html';
         });
     });
+
 }
