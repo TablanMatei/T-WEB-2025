@@ -509,3 +509,49 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+
+
+
+// Verifică autentificarea la încărcarea paginii
+document.addEventListener('DOMContentLoaded', function() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    if (isLoggedIn === 'true' && user.username) {
+        updateUIAfterLogin(user);
+    } else {
+        // Redirect la main page dacă nu e logat
+        window.location.href = '/frontend/mainPage/index.html';
+    }
+
+    // Actualizează link-urile pentru navigare
+    updateSettingsNavigation();
+});
+
+// Funcție pentru actualizarea navigării
+function updateSettingsNavigation() {
+    // Edit Profile link
+    const editProfileLink = document.querySelector('a[href*="editProfilePage"]');
+    if (editProfileLink) {
+        editProfileLink.href = '/frontend/settingsPage/editProfilePage/editProfilePage.html';
+    }
+
+
+    const settingsLinks = document.querySelectorAll('a[href="#settings"]');
+    settingsLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = '/frontend/settingsPage/settingsPage.html';
+        });
+    });
+
+    // Notifications link
+    const notificationsLinks = document.querySelectorAll('a[href="#notifications"]');
+    notificationsLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = '/frontend/notificationsPage/notificationsPage.html';
+        });
+    });
+}

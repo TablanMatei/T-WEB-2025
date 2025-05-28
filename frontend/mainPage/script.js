@@ -248,10 +248,10 @@ function updateUIAfterLogin(user) {
     if (loginButton) {
         // Creează dropdown pentru utilizator logat
         loginButton.innerHTML = `
-            ${user.username} 
-            <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M6 9l6 6 6-6"></path>
-            </svg>
+        ${user.username} 
+        <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 9l6 6 6-6"></path>
+        </svg>
         `;
 
         // Schimbă funcționalitatea
@@ -262,12 +262,37 @@ function updateUIAfterLogin(user) {
             const userDropdown = document.createElement('div');
             userDropdown.className = 'user-dropdown';
             userDropdown.innerHTML = `
-                <a href="#profile">My Profile</a>
-                <a href="#settings">Settings</a>
-                <a href="#" onclick="logout()">Logout</a>
+            <a href="#" id="profile-link">My Profile</a>
+            <a href="#" id="settings-link">Settings</a>
+            <a href="#" onclick="logout()">Logout</a>
             `;
             loginButton.parentNode.appendChild(userDropdown);
+
+            // Adaugă event listeners pentru navigare
+            setupNavigationLinks();
         }
+    }
+}
+
+// Funcție nouă pentru configurarea link-urilor de navigare
+function setupNavigationLinks() {
+    const profileLink = document.getElementById('profile-link');
+    const settingsLink = document.getElementById('settings-link');
+
+    if (profileLink) {
+        profileLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Navigating to profile page...');
+            window.location.href = '/frontend/settingsPage/editProfilePage/editProfilePage.html';
+        });
+    }
+
+    if (settingsLink) {
+        settingsLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Navigating to settings page...');
+            window.location.href = '/frontend/settingsPage/settingsPage.html';
+        });
     }
 }
 
