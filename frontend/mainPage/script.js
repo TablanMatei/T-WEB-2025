@@ -243,6 +243,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 // Funcție pentru actualizarea interfeței după login
+// În script.js, în funcția updateUIAfterLogin, înlocuiește partea cu dropdown-ul:
+
+// În script.js, înlocuiește funcția updateUIAfterLogin cu:
+
 function updateUIAfterLogin(user) {
     const loginButton = document.querySelector('.login-btn');
     if (loginButton) {
@@ -262,7 +266,8 @@ function updateUIAfterLogin(user) {
             const userDropdown = document.createElement('div');
             userDropdown.className = 'user-dropdown';
             userDropdown.innerHTML = `
-            <a href="#" id="profile-link">My Profile</a>
+            <a href="#" id="profile-link">Edit Profile</a>
+            <a href="#" id="notifications-link">Notifications</a>
             <a href="#" id="settings-link">Settings</a>
             <a href="#" onclick="logout()">Logout</a>
             `;
@@ -275,27 +280,45 @@ function updateUIAfterLogin(user) {
 }
 
 // Funcție nouă pentru configurarea link-urilor de navigare
+
 function setupNavigationLinks() {
-    const profileLink = document.getElementById('profile-link');
-    const settingsLink = document.getElementById('settings-link');
+    // Folosește setTimeout pentru a se asigura că DOM-ul este gata
+    setTimeout(() => {
+        const profileLink = document.getElementById('profile-link');
+        const settingsLink = document.getElementById('settings-link');
+        const notificationsLink = document.getElementById('notifications-link');
 
-    if (profileLink) {
-        profileLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('Navigating to profile page...');
-            window.location.href = '/frontend/settingsPage/editProfilePage/editProfilePage.html';
-        });
-    }
+        console.log('Profile link:', profileLink);
+        console.log('Settings link:', settingsLink);
+        console.log('Notifications link:', notificationsLink);
 
-    if (settingsLink) {
-        settingsLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('Navigating to settings page...');
-            window.location.href = '/frontend/settingsPage/settingsPage.html';
-        });
-    }
+        if (profileLink) {
+            profileLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Navigating to profile page...');
+                window.location.href = '/frontend/settingsPage/editProfilePage/editProfilePage.html';
+            });
+        }
+
+        if (settingsLink) {
+            settingsLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Navigating to settings page...');
+                window.location.href = '/frontend/settingsPage/settingsPage.html';
+            });
+        }
+
+        if (notificationsLink) {
+            notificationsLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Navigating to notifications page...');
+                window.location.href = '/frontend/notificationsPage/notificationsPage.html';
+            });
+        } else {
+            console.error('Notifications link not found!');
+        }
+    }, 100);
 }
-
 // Funcție pentru toggle user menu
 function toggleUserMenu() {
     const dropdown = document.querySelector('.user-dropdown');

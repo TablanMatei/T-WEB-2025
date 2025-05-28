@@ -727,3 +727,51 @@ footer {
   font-size: 13px;
   color: #a27c6a;
 }
+
+/* Stiluri pentru notificări */
+.notification-item.error {
+    background-color: #fef2f2;
+    border-left: 4px solid #dc2626;
+}
+
+.notification-item.error .error-message {
+    color: #dc2626;
+    font-weight: 500;
+}
+
+.notification-item.no-notifications {
+    background-color: #f9fafb;
+    border-left: 4px solid #6b7280;
+    opacity: 0.7;
+}
+
+.notification-item.unread {
+    background-color: #eff6ff;
+    border-left: 4px solid #3b82f6;
+}
+
+.notification-item.read {
+    background-color: #f9fafb;
+    opacity: 0.8;
+}
+
+.unread-indicator {
+    width: 8px;
+    height: 8px;
+    background-color: #3b82f6;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+}
+
+.notification-item {
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.notification-item:hover {
+    background-color: #f3f4f6;
+}

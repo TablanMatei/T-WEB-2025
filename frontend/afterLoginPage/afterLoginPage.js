@@ -62,4 +62,58 @@ document.addEventListener('click', (e) => {
         resetToBooks();
     }
 });
+
+// În afterLoginPage.js, adaugă la sfârșitul fișierului:
+
+// Configurează navigarea pentru pagina after login
+document.addEventListener('DOMContentLoaded', function() {
+    setupAfterLoginNavigation();
+});
+
+
+function setupAfterLoginNavigation() {
+    const notificationsLink = document.querySelector('a[href="#notifications"]');
+    const settingsLink = document.querySelector('a[href="#settings"]');
+    const signoutLink = document.querySelector('a[href="#signout"]');
+
+    if (notificationsLink) {
+        notificationsLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = '../notificationsPage/notificationsPage.html';
+        });
+    }
+
+    if (settingsLink) {
+        settingsLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = '../settingsPage/settingsPage.html';
+        });
+    }
+
+    if (signoutLink) {
+        signoutLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            logout();
+        });
+    }
+}
+
+async function logout() {
+    try {
+        const response = await fetch('../backend/auth/logout.php', {
+            method: 'POST',
+            credentials: 'include'
+        });
+
+        localStorage.removeItem('user');
+        localStorage.removeItem('isLoggedIn');
+        window.location.href = '../index.html';
+    } catch (error) {
+        console.error('Logout error:', error);
+        localStorage.removeItem('user');
+        localStorage.removeItem('isLoggedIn');
+        window.location.href = '../index.html';
+    }
+}
+
 window.onload = () => setCategory('Books');
