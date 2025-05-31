@@ -98,7 +98,7 @@ async function submitForm() {
 
     try {
 
-        const response = await fetch('/backend/auth/register.php', {
+        const response = await fetch('../../backend/auth/register.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
