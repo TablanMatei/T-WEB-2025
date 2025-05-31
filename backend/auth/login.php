@@ -1,7 +1,5 @@
 <?php
 require_once '../config.php';
-/** @var PDO $pdo */
-
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
@@ -15,7 +13,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 try {
-    require_once '../config.php';
+    // Folosește funcția din config.php
+    $pdo = getDbConnection();
 
     $input = json_decode(file_get_contents('php://input'), true);
     $username = trim(isset($input['username']) ? $input['username'] : '');
@@ -35,9 +34,6 @@ try {
         exit;
     }
 
-    // DEBUG: Verifică parola
-    $passwordMatch = password_verify($password, $user['password']);
-
     if (password_verify($password, $user['password'])) {
         // Login reușit
         echo json_encode([
@@ -53,6 +49,7 @@ try {
     }
 
 } catch (Exception $e) {
-    echo json_encode(['error' => 'Login failed']);
+    error_log("Login error: " . $e->getMessage());
+    echo json_encode(['error' => 'Login failed: ' . $e->getMessage()]);
 }
 ?>

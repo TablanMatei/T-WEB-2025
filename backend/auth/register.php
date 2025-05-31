@@ -1,7 +1,7 @@
 <?php
 require_once '../config.php';
 /** @var PDO $pdo */
-
+$pdo = getDbConnection();
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     jsonResponse(array('error' => 'Method not allowed'), 405);
 }

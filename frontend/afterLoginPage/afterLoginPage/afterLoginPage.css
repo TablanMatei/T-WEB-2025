@@ -1,0 +1,674 @@
+/* Elimină overflow-ul orizontal */
+body, html {
+    overflow-x: hidden;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to right, #fef3de, #ffcd8a);
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.3s ease;
+}
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #7d4d3a;
+    color: #f6f3f3;
+    padding: 0px;
+    gap: 10px;
+    font-size: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    width: 100%;
+}
+
+header h2 {
+    margin-left: 50px;
+    flex-shrink: 0;
+    font-family: 'Playfair Display', serif;
+}
+h4 {
+    margin-left: 50px;
+    flex-shrink: 0;
+    font-family: 'Playfair Display', serif;
+    color: rgb(131, 73, 51);
+    font-size: 2rem;
+}
+header h2 svg {
+    fill: #d3d6dc;
+    width: 32px;
+    height: 32px;
+}
+
+
+.search-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-grow: 1;
+    max-width: 350px;
+    margin-left: 20px;
+    background-color: #2e2a27;
+    padding: 8px 12px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.search-container input {
+    flex-grow: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    background-color: #fff;
+    color: #333;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.search-container input:focus {
+    background-color: #fef3de;
+    box-shadow: 0 0 0 3px rgba(255, 205, 138, 0.6);
+}
+
+.search-container button {
+    background-color: #73342e;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.search-container button:hover {
+    background-color: #a8443e;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+}
+
+.search-icon {
+    width: 24px;
+    height: 24px;
+    stroke: #ccc;
+    stroke-width: 2;
+    transition: stroke 0.3s ease;
+}
+
+.search-container:hover .search-icon {
+    stroke: #fff;
+}
+.search-popup {
+    display: none;
+    position: absolute;
+    top: 80px;
+    left: 345px;
+     width: 450px; 
+    background-color: #2e2a27;
+    color: #fef3de;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    z-index: 10;
+}
+
+.category-list {
+    display: flex;
+    gap: 15px;
+    overflow-x: hidden;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #555;
+    margin-bottom: 15px;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;
+     border-bottom: 3px solid #555;   
+}
+.category-list::-webkit-scrollbar {
+    display: none; /* Chrome, Safari */
+}
+.category-list span {
+    cursor: pointer;
+    font-weight: bold;
+    color: #ccc;
+    transition: color 0.3s ease;
+}
+
+.category-list span.active {
+    color: #fef3de;
+    border-bottom: 2px solid #fef3de;
+}
+
+.popular-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.popular-list div {
+    background-color: #3d3734;
+    color: #fef3de;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.popular-list div:hover {
+    background-color: #5a504d;
+}
+nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+nav ul li {
+    display: inline;
+    margin: 0;
+}
+
+nav ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.2s ease;
+}
+nav ul li a:hover {
+    color: #f9d6c4;
+}
+
+.dropdown {
+  position: relative;
+}
+
+/* Dropdown menu - inițial ascuns și cu animație */
+.dropdown-menu {
+  position: absolute;
+  top:  100%;
+  left: -60px;
+  background-color: #f5efe6;
+  border-radius: 16px;
+  padding: 8px 0;
+  box-shadow:
+    0 10px 20px rgba(184, 122, 97, 0.25),
+    0 4px 10px rgba(184, 122, 97, 0.15);
+  min-width: 260px;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  border: 1px solid rgba(184, 122, 97, 0.3);
+  user-select: none;
+  white-space: nowrap;
+  display: block; /* Important pentru animație */
+}
+.dropdown-menu::before {
+  content: "";
+  position: absolute;
+  top: -12px; /* deasupra dropdown-ului */
+  left: 50%;   /* la mijloc pe orizontală */
+  transform: translateX(-50%);
+  width: 40px;  /* lățime mai mare, dreptunghi */
+  height: 12px; 
+  background: #f5efe6;
+  border-radius: 8px; /* colțuri rotunjite */
+  box-shadow:
+    0 3px 6px rgba(184, 122, 97, 0.25);
+  border: 1px solid rgba(184, 122, 97, 0.3);
+  pointer-events: none;
+  z-index: 101;
+}
+
+
+
+/* Active dropdown on hover or focus */
+.dropdown:hover .dropdown-menu,
+.dropdown:focus-within .dropdown-menu {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* Dropdown items */
+.dropdown-menu li {
+  padding: 12px 28px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #7a4e3e;
+  letter-spacing: 0.02em;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.dropdown-menu li a {
+  color: inherit;
+  text-decoration: none;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  white-space: nowrap;
+}
+
+/* Hover effect */
+.dropdown-menu li:hover,
+.dropdown-menu li a:hover {
+  background-color: #b87a61;
+  color: #f5efe6;
+}
+.dropdown:hover .dropdown-menu {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+.dropdown.open .dropdown-menu {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  stroke: #7a4e3e;
+  flex-shrink: 0;
+  transition: stroke 0.3s ease;
+}
+
+.dropdown-menu li:hover .icon,
+.dropdown-menu li a:hover .icon {
+  stroke: #f5efe6;
+}
+
+
+
+
+
+.nav-btn {
+  text-decoration: none;
+  background-color: #f4caaf;
+  color: #73342e;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.3s, transform 0.3s;
+}
+.nav-btn:hover {
+  background-color: #a3624f; /* maro mai închis */
+  box-shadow: 0 10px 25px rgba(163, 98, 79, 0.4);
+  transform: translateY(-2px) scale(1.05);
+}
+.dropdown-arrow {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.3s;
+  margin-top: 2px; /* Aici ajustezi alinierea */
+}
+
+.dropdown:hover .dropdown-arrow {
+  transform: rotate(180deg);
+}
+
+.nav-btn:active {
+  transform: translateY(1px) scale(0.95);
+  box-shadow: 0 4px 10px rgba(120, 70, 50, 0.2);
+}
+.profile-btn {
+    background-color: #2e2a27;
+    color: #fef3de;
+    border: 2px solid transparent;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: background-color 0.3s, border-color 0.3s, transform 0.3s;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    margin-right: 5px;
+}
+.profile-btn:hover {
+    background-color: #e5b995;
+    border-color: #fef3de;
+    transform: scale(1.05);
+}
+main {
+    padding: 20px;
+}
+.welcome {
+    background-color: #fff;
+    padding: 25px;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+.welcome:hover {
+    transform: scale(1.02);
+}
+
+.book-list:hover {
+    transform: scale(1.02);
+}
+.book-list ul li {
+    margin: 8px 0;
+    transition: color 0.2s ease;
+}
+.book-list ul li:hover {
+    color: #996134;
+}
+footer {
+    background-color: #7d4d3a;
+    color: #fff;
+    text-align: center;
+    padding: 15px;
+    box-shadow: 0 -4px 6px rgba(0,0,0,0.1);
+    width: 100%;
+}
+
+.girlreadingimg-container {
+  background: linear-gradient(to right, #fef3de, #ffcd8a);
+  width: 100%;
+  padding: 30px 40px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  justify-content: flex-start;
+  padding-left: 200px;
+}
+
+.girlreadingimg-container img {
+  width: 250px;
+  border-radius: 12px;
+  margin-left: 0; 
+}
+
+.intro-text1{
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 2.5rem;
+    color: #7c3f25;
+    line-height: 1.3;
+    max-width: 400px;
+}
+
+.intro-text2{
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 2.5rem;
+    color: #7c3f25;
+    line-height: 1.3;
+    max-width: 400px;
+    padding-left: 70px;
+}
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: translateY(-12px) scale(1.07) rotate(1deg);
+    box-shadow: 0 30px 50px rgba(0,0,0,0.35);
+  }
+  50% {
+    transform: translateY(-15px) scale(1.1) rotate(2deg);
+    box-shadow: 0 35px 60px rgba(0,0,0,0.45);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 30px 50px rgba(0,0,0,0.35);
+  }
+  50% {
+    box-shadow: 0 30px 60px rgba(115,52,46,0.7);
+  }
+}
+
+.about-container {
+  display: flex;
+  gap: 30px;
+  padding: 60px 80px;
+  justify-content: center;
+  background: linear-gradient(145deg, #2e2a27, #3c3532);
+  width: calc(100vw - 160px);
+  margin: 40px auto;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+  overflow-x: hidden;
+}
+
+.box-find {
+    animation: fadeInUp 0.8s ease forwards;
+  background: linear-gradient(145deg, #fef3de, #ffcd8a);
+  border: none;
+  border-radius: 15px;
+  padding: 35px 25px 20px;
+  width: 160px;
+  height: 180px;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+  font-family: 'Playfair Display', serif;
+  font-weight: 600;
+  color: #73342e;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.box-find:hover {
+    animation: pulse 1.5s infinite;
+  transform: translateY(-12px) scale(1.07) rotate(1deg);
+  box-shadow: 0 30px 50px rgba(0,0,0,0.35);
+}
+
+.box-find::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%);
+  z-index: 1;
+  transition: transform 0.6s ease;
+}
+
+.box-find:hover::before {
+  transform: scale(1.3);
+}
+
+.box-find .box-header {
+  margin: 0;
+  font-weight: bold;
+  font-size: 1.4rem;
+  z-index: 2;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.box-find .box-icon {
+  font-size: 2.5rem;
+  color: #8a4f3d;
+  z-index: 2;
+  margin-bottom: 10px;
+}
+
+.box-find div {
+  z-index: 2;
+  position: relative;
+  margin-top: 10px;
+}
+
+
+.align-text-box {
+  white-space: nowrap;
+  overflow: hidden;  
+  text-overflow: ellipsis; 
+}
+.picknewbook-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #7c3f25;
+    margin-bottom: 10px;
+    margin-top: 70px;
+    margin-left: 40px;
+    padding-left: 20px; /* Mutat puțin la dreapta */
+}
+
+.picknewbook-description {
+    font-family: Arial, sans-serif;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    color: #4f3928;
+    margin-left: 60px;
+    padding-left: 40px; 
+    max-width: 600px;
+}
+
+
+
+.cards-wrapper {
+    width: 1000px; 
+    overflow: hidden;
+    margin: 20px auto;
+    border-radius: 12px;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.cards-container {
+    display: flex;
+    gap: 20px;
+    padding: 10px;
+    animation: scroll-left 20s linear infinite;
+}
+
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+
+.cards-container.paused {
+    animation-play-state: paused;
+}
+
+.cards-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.cards-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.cards-container::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.cards-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.book-card {
+    flex: 0 0 200px;
+    background: #ffcd8a;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    font-family: 'Playfair Display', serif;
+}
+
+.book-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 30px rgba(0,0,0,0.2);
+  transform: scale(1.05);
+}
+
+.book-card img {
+  width: 100%;
+ 
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.book-title {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #73342e;
+    margin-bottom: 5px;
+}
+
+.book-author {
+    font-style: italic;
+    font-size: 0.9rem;
+    color: #5a3a32;
+}
+
+/* Săgeți */
+.arrow-btn {
+    background-color: #f4caaf;
+    color: #73342e;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: bold;
+    z-index: 2;
+    transition: background-color 0.3s, transform 0.3s;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.arrow-btn.left {
+    left: -0px;
+}
+
+.arrow-btn.right {
+    right: -0px;
+}
+
+.arrow-btn:hover {
+    background-color: #e5b995;
+    transform: scale(1.1);
+}

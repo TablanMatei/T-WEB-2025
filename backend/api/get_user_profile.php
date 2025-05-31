@@ -3,8 +3,8 @@ session_start();
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET');
-
-require_once '../config/database.php';
+require_once '../config.php';
+//require_once '../config/database.php';
 /** @var PDO $pdo */
 
 // Verifică sesiunea (similar cu logout.php)
