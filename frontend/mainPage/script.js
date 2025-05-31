@@ -327,7 +327,7 @@ function toggleUserMenu() {
     }
 }
 
-// Închide dropdown-ul când apeși în altă parte
+// Închide dropdown-ul când apeși în altă parte//
 document.addEventListener('click', function(e) {
     const dropdown = document.querySelector('.user-dropdown');
     const loginButton = document.querySelector('.login-btn');
