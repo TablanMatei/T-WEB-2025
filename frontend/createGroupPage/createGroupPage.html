@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Biblioxy - Discover the World of Great Books</title>
-    <link rel="stylesheet" href="afterLoginPage.css">
-     <script src="afterLoginPage.js"></script>
+    <link rel="stylesheet" href="createGroupPage.css">
+     <script src="createGroupPage.js"></script>
      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 
 </head>
@@ -251,6 +251,88 @@
 
     </header>
     
+    <section class="group-customize-section">
+  <h2 class="group-title">Customize Your Book Group</h2>
+  <p class="group-description">
+    Personalize your book club settings and invite fellow readers to join the adventure.
+  </p>
+
+  <form>
+    <!-- Book Group Name -->
+    <div class="form-group">
+      <label for="group-name">Book Group Name</label>
+      <input type="text" id="group-name" name="group-name" placeholder="Enter your book group name" required />
+    </div>
+
+    <!-- Book Group Description -->
+    <div class="form-group">
+      <label for="group-description">Description</label>
+      <textarea id="group-description" name="group-description" placeholder="Write a short description of your book group"></textarea>
+    </div>
+
+    <!-- Preferred Genres -->
+   <div class="form-group">
+  <label>Preferred Genres</label>
+  <div class="genre-tags">
+    <label class="genre-tag">
+      <input type="checkbox" name="genres" value="fiction" />
+      <span>Fiction</span>
+    </label>
+    <label class="genre-tag">
+      <input type="checkbox" name="genres" value="nonfiction" />
+      <span>Non-fiction</span>
+    </label>
+    <label class="genre-tag">
+      <input type="checkbox" name="genres" value="fantasy" />
+      <span>Fantasy</span>
+    </label>
+    <label class="genre-tag">
+      <input type="checkbox" name="genres" value="mystery" />
+      <span>Mystery</span>
+    </label>
+    <label class="genre-tag">
+      <input type="checkbox" name="genres" value="sci-fi" />
+      <span>Sci-Fi</span>
+    </label>
+    <label class="genre-tag">
+      <input type="checkbox" name="genres" value="romance" />
+      <span>Romance</span>
+    </label>
+    <label class="genre-tag">
+      <input type="checkbox" name="genres" value="history" />
+      <span>History</span>
+    </label>
+    <label class="genre-tag">
+      <input type="checkbox" name="genres" value="biography" />
+      <span>Biography</span>
+    </label>
+  </div>
+  <small>Select one or more genres that your group enjoys</small>
+</div>
+
+<div class="age-range-section">
+  <label for="min-age">Allowed Age Range to Join</label>
+  <div class="age-inputs">
+    <input type="number" id="min-age" name="min-age" placeholder="Min" min="0" max="120" />
+    <span class="dash">–</span>
+    <input type="number" id="max-age" name="max-age" placeholder="Max" min="0" max="120" />
+  </div>
+  <p class="note">Enter the minimum and maximum age of participants</p>
+</div>
+
+
+
+    <!-- Public Group Checkbox -->
+    <div class="form-group checkbox-group">
+      <input type="checkbox" id="public-group" name="public-group" />
+      <label for="public-group">Make this group public</label>
+    </div>
+
+    <!-- Submit Button -->
+   <a href="#" class="btn-primary">Save Changes</a>
+
+  </form>
+</section>
 
     <div class="girlreadingimg-container">
         <div class="intro-text1">
