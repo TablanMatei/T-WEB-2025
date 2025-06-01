@@ -63,7 +63,7 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// În afterLoginPage.js, adaugă la sfârșitul fișierului:
+
 
 // Configurează navigarea pentru pagina after login
 document.addEventListener('DOMContentLoaded', function() {
@@ -115,5 +115,90 @@ async function logout() {
         window.location.href = '../index.html';
     }
 }
+// Funcție pentru salvarea grupului
+// Funcție pentru salvarea grupului
+async function saveGroup(event) {
+    event.preventDefault();
+
+    // Colectează datele din formular
+    const groupName = document.getElementById('group-name').value.trim();
+    const groupDescription = document.getElementById('group-description').value.trim();
+    const minAge = document.getElementById('min-age').value;
+    const maxAge = document.getElementById('max-age').value;
+    const isPublic = document.getElementById('public-group').checked;
+
+    // Colectează genurile selectate
+    const selectedGenres = [];
+    const genreCheckboxes = document.querySelectorAll('input[name="genres"]:checked');
+    genreCheckboxes.forEach(checkbox => {
+        selectedGenres.push(checkbox.value);
+    });
+
+    // Validare de bază
+    if (!groupName) {
+        alert('Please enter a group name');
+        return;
+    }
+
+    if (!groupDescription) {
+        alert('Please enter a group description');
+        return;
+    }
+
+    if (selectedGenres.length === 0) {
+        alert('Please select at least one genre');
+        return;
+    }
+
+    // Verifică dacă utilizatorul este logat - folosește user_id în loc de id
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (!user.user_id) {  // Schimbat de la user.id la user.user_id
+        alert('You must be logged in to create a group');
+        return;
+    }
+
+    // Construiește descrierea extinsă cu toate detaliile
+    const extendedDescription = `${groupDescription}
+
+Preferred Genres: ${selectedGenres.join(', ')}
+${minAge || maxAge ? `Age Range: ${minAge || 'No min'} - ${maxAge || 'No max'}` : ''}`;
+
+    try {
+        const response = await fetch('../../backend/community/create_groups.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: groupName,
+                description: extendedDescription,
+                user_id: user.user_id,  // Schimbat de la user.id la user.user_id
+                is_private: !isPublic
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert('Group created successfully!');
+            // Redirecționează către pagina grupului sau comunității
+            window.location.href = '../communityPage/communityPage.html';
+        } else {
+            alert('Error creating group: ' + (result.error || 'Unknown error'));
+        }
+
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Network error. Please try again.');
+    }
+}
+
+// butonul de salvare
+document.addEventListener('DOMContentLoaded', function() {
+    const saveButton = document.querySelector('.btn-primary');
+    if (saveButton) {
+        saveButton.addEventListener('click', saveGroup);
+    }
+});
 
 window.onload = () => setCategory('Books');
