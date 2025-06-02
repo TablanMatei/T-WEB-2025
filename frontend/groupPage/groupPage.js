@@ -1,3 +1,123 @@
+document.addEventListener('DOMContentLoaded', function() {
+    loadGroupData();
+    setupAfterLoginNavigation();
+});
+
+async function loadGroupData() {
+    const currentGroup = JSON.parse(localStorage.getItem('currentGroup') || '{}');
+
+    if (!currentGroup.id) {
+        // Dacă nu avem ID-ul grupului, redirectează înapoi
+        window.location.href = '../communityPage/communityPage.html';
+        return;
+    }
+
+    try {
+        const response = await fetch(`../../backend/community/get_group_details.php?group_id=${currentGroup.id}`);
+        const data = await response.json();
+
+        if (data.success) {
+            updateGroupUI(data.group, data.members);
+        } else {
+            console.error('Error loading group:', data.error);
+            alert('Error loading group details');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Network error loading group');
+    }
+}
+
+function updateGroupUI(group, members) {
+    // Actualizează titlul și descrierea
+    const groupTitle = document.querySelector('.group-title');
+    const groupSubtitle = document.querySelector('.group-subtitle');
+
+    if (groupTitle) {
+        groupTitle.textContent = group.name;
+    }
+
+    if (groupSubtitle) {
+        groupSubtitle.textContent = group.description || 'No description available.';
+    }
+
+    // Actualizează genurile
+    updateGenres(group.genres);
+
+    // Actualizează vârsta
+    updateAgeRequirement(group.min_age, group.max_age);
+
+    // Actualizează lista de membri
+    updateMembersList(members);
+}
+
+function updateGenres(genres) {
+    const genresContainer = document.querySelector('.group-tags');
+
+    if (genresContainer && genres) {
+        genresContainer.innerHTML = '';
+
+        // Împarte genurile după virgulă și creează tag-uri
+        const genreList = genres.split(',').map(g => g.trim()).filter(g => g);
+
+        genreList.forEach(genre => {
+            const span = document.createElement('span');
+            span.textContent = genre;
+            genresContainer.appendChild(span);
+        });
+    }
+}
+function updateAgeRequirement(minAge, maxAge) {
+    const ageElement = document.querySelector('.group-age');
+
+    if (ageElement && (minAge || maxAge)) {
+        let ageText = 'Age requirement: ';
+
+        if (minAge && maxAge) {
+            ageText += `<strong>${minAge} - ${maxAge} years</strong>`;
+        } else if (minAge) {
+            ageText += `<strong>${minAge}+ years</strong>`;
+        } else if (maxAge) {
+            ageText += `<strong>Under ${maxAge} years</strong>`;
+        }
+
+        ageElement.innerHTML = ageText;
+    }
+}
+
+function updateMembersList(members) {
+    const membersList = document.querySelector('.group-members');
+
+    if (membersList && members.length > 0) {
+        membersList.innerHTML = '';
+
+        members.forEach(member => {
+            const li = document.createElement('li');
+            const displayName = member.real_name || member.username;
+            const roleIcon = member.role === 'admin' ? '👑 ' : '';
+            li.textContent = roleIcon + displayName;
+            membersList.appendChild(li);
+        });
+    }
+}
+
+function updateGroupInfo(group) {
+    // Optional: logică pentru a actualiza alte informații
+    // cum ar fi data creării, tipul grupului, etc.
+
+    // Exemplu: actualizează vârsta minimă
+}
+
+async function loadGroupMembers(groupId) {
+    // TODO: Implementează încărcarea membrilor din backend
+    console.log('Loading members for group:', groupId);
+}
+
+async function loadGroupDiscussions(groupId) {
+    // TODO: Implementează încărcarea discuțiilor din backend
+    console.log('Loading discussions for group:', groupId);
+}
+
 function toggleAnimation() {
   const container = document.getElementById('cards-container');
   if (container) {

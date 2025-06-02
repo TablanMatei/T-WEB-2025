@@ -535,6 +535,21 @@ function searchByName(name, category) {
     performSearch();
 }
 
+// Funcție pentru navigarea către Community
+function navigateToCommunity() {
+    // Verifică dacă utilizatorul este logat
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    if (isLoggedIn === 'true' && user.username) {
+        // Utilizator logat - navighează către pagina de comunitate
+        window.location.href = '/frontend/communityPage/communityPage.html';
+    } else {
+        // Utilizator nelogat - navighează către pagina fără comunitate
+        window.location.href = '/frontend/noCommunityPage/noCommunityPage.html';
+    }
+}
+
 // Event listeners
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.querySelector('.search-container input');
