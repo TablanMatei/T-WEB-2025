@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Biblioxy - Discover the World of Great Books</title>
-    <link rel="stylesheet" href="afterLoginPage.css">
-     <script src="afterLoginPage.js"></script>
+    <link rel="stylesheet" href="popularAuthorsPage.css">
+     <script src="popularAuthorsPage.js"></script>
      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 
 </head>
@@ -50,53 +50,6 @@
 
 <nav>
   <ul>
-    <li class="dropdown">
-      <a href="#dashboard" class="nav-btn">DASHBOARD
-        <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M6 9l6 6 6-6"></path>
-        </svg>
-      </a>
-      <ul class="dropdown-menu">
-        <li>
-          <a href="#currently-reading">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <polyline points="12 6 12 12 16 14"></polyline>
-            </svg>
-            Currently Reading
-          </a>
-        </li>
-        <li>
-          <a href="#want-to-read">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 20l9-5-9-5-9 5 9 5z"></path>
-              <path d="M12 12v8"></path>
-              <path d="M12 12L3 7"></path>
-              <path d="M12 12l9-5"></path>
-            </svg>
-            Want to Read
-          </a>
-        </li>
-        <li>
-          <a href="#finished-books">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-            Finished Books
-          </a>
-        </li>
-        <li>
-          <a href="#reading-stats">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="20" x2="12" y2="10"></line>
-              <line x1="18" y1="20" x2="18" y2="4"></line>
-              <line x1="6" y1="20" x2="6" y2="16"></line>
-            </svg>
-            Book Stats
-          </a>
-        </li>
-      </ul>
-    </li>
 
     <li class="dropdown">
       <a href="#discover" class="nav-btn">DISCOVER
@@ -123,7 +76,7 @@
           </a>
         </li>
         <li>
-          <a href="#genres">
+          <a href="../genresPage/genresPage.html">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="4" width="18" height="16" rx="2" ry="2"></rect>
               <line x1="3" y1="10" x2="21" y2="10"></line>
@@ -132,7 +85,7 @@
           </a>
         </li>
         <li>
-          <a href="#popular-authors">
+          <a href="popularAuthorsPage.html">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="7" r="4"></circle>
               <path d="M5.5 21h13"></path>
@@ -144,69 +97,98 @@
       </ul>
     </li>
 
-    <li><a href="../noCommunityPage/noCommunityPage.html" class="nav-btn">Community</a></li>
-    <li class="dropdown profile">
-  <a href="#profile" class="nav-btn profile-btn">Profile
-    <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M6 9l6 6 6-6"></path>
-    </svg>
-  </a>
-  <ul class="dropdown-menu">
-    <li>
-      <a href="./notificationsPage/notificationsPage.html">
-        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M18 8a6 6 0 0 0-12 0v5H5a1 1 0 0 0-1 1v1h16v-1a1 1 0 0 0-1-1h-1z"></path>
-          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-        </svg>
-        Notifications
-      </a>
-    </li>
-    <li>
-      <a href="#goals">
-        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <path d="M12 6v6l4 2"></path>
-        </svg>
-        Goals
-      </a>
-    </li>
-    <li>
-      <a href="#stats">
-        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="12" y1="20" x2="12" y2="10"></line>
-          <line x1="18" y1="20" x2="18" y2="4"></line>
-          <line x1="6" y1="20" x2="6" y2="16"></line>
-        </svg>
-        Stats
-      </a>
-    </li>
-    <li>
-      <a href="#settings">
-        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="3"></circle>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-        </svg>
-        Settings
-      </a>
-    </li>
-    <li>
-      <a href="#signout">
-        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-          <polyline points="16 17 21 12 16 7"></polyline>
-          <line x1="21" y1="12" x2="9" y2="12"></line>
-        </svg>
-        Sign Out
-      </a>
-    </li>
-  </ul>
-</li>
-
+      <li><a href="#" class="nav-btn" onclick="navigateToCommunity()">Community</a></li>
+    <li><a href="#" onclick="openLogin()" class="nav-btn login-btn">Login</a></li>
   </ul>
 </nav>
 
+
     </header>
     
+   <section class="popular-authors">
+  <h2>Popular Authors</h2>
+  
+  <article class="author-card">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Stephen_King_2007-09-22.jpg" alt="Stephen King" class="author-photo" />
+    <div class="author-info">
+      <h3>Stephen King</h3>
+      <p class="author-books"><strong>Important books:</strong> The Shining, It, Carrie</p>
+      <p class="author-description">Known as the “King of Horror,” Stephen King has written numerous bestselling novels exploring suspense and supernatural themes.</p>
+    </div>
+  </article>
+
+  <article class="author-card">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/9/97/J._K._Rowling_2010.jpg" alt="J.K. Rowling" class="author-photo" />
+    <div class="author-info">
+      <h3>J.K. Rowling</h3>
+      <p class="author-books"><strong>Important books:</strong> Harry Potter series</p>
+      <p class="author-description">British author famous for the Harry Potter fantasy series that captivated readers worldwide.</p>
+    </div>
+  </article>
+
+  <article class="author-card">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/0/09/Yuval_Noah_Harari_CE21.jpg" alt="Yuval Noah Harari" class="author-photo" />
+    <div class="author-info">
+      <h3>Yuval Noah Harari</h3>
+      <p class="author-books"><strong>Important books:</strong> Sapiens, Homo Deus</p>
+      <p class="author-description">Historian and philosopher, known for his thought-provoking books about human history and future trends.</p>
+    </div>
+  </article>
+
+  <article class="author-card">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/1/12/Paulo_Coelho_by_Gage_Skidmore.jpg" alt="Paulo Coelho" class="author-photo" />
+    <div class="author-info">
+      <h3>Paulo Coelho</h3>
+      <p class="author-books"><strong>Important books:</strong> The Alchemist, Eleven Minutes</p>
+      <p class="author-description">Brazilian author whose spiritual and philosophical novels have inspired millions worldwide.</p>
+    </div>
+  </article>
+
+  <article class="author-card">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/Michelle_Obama_official_portrait_2013_cropped.jpg" alt="Michelle Obama" class="author-photo" />
+    <div class="author-info">
+      <h3>Michelle Obama</h3>
+      <p class="author-books"><strong>Important books:</strong> Becoming</p>
+      <p class="author-description">Former First Lady of the U.S., sharing her inspiring life story and advocacies.</p>
+    </div>
+  </article>
+
+  <article class="author-card">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/8/88/George_Orwell_press_photo.jpg" alt="George Orwell" class="author-photo" />
+    <div class="author-info">
+      <h3>George Orwell</h3>
+      <p class="author-books"><strong>Important books:</strong> 1984, Animal Farm</p>
+      <p class="author-description">English novelist and critic, known for his sharp social commentary and dystopian works.</p>
+    </div>
+  </article>
+
+  <article class="author-card">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/9/9b/Agatha_Christie.png" alt="Agatha Christie" class="author-photo" />
+    <div class="author-info">
+      <h3>Agatha Christie</h3>
+      <p class="author-books"><strong>Important books:</strong> Murder on the Orient Express, And Then There Were None</p>
+      <p class="author-description">The “Queen of Mystery,” celebrated for her detective novels featuring Hercule Poirot and Miss Marple.</p>
+    </div>
+  </article>
+</section>
+
+
+   <div class="login-overlay" id="loginOverlay">
+    <div class="login-container">
+        <button class="close-btn" onclick="closeLogin()">×</button>
+        <h2>Login</h2>
+        <form id="loginForm" onsubmit="return handleLogin(event)">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" placeholder="Enter your username" required>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            <button type="submit">Login</button>
+        </form>
+        <p>Don't have an account? <a href="../signup/signup.html">Sign up</a></p>
+    </div>
+</div>
+
+
 
     <div class="girlreadingimg-container">
         <div class="intro-text1">
@@ -332,7 +314,6 @@
       <div class="book-author">Mary Shelley</div>
     </div>
   </div>
-
   <button class="arrow-btn right" onclick="scrollRight()">›</button>
 </div>
 
