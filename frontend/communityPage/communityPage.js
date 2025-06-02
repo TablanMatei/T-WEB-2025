@@ -135,25 +135,41 @@ function displayGroups(groups) {
 function createGroupCard(group) {
     const groupCard = document.createElement('div');
     groupCard.className = 'group-card';
-    groupCard.dataset.category = 'books'; // Default category
+    groupCard.dataset.category = 'books';
+
+    // Fă întregul card clickable
+    groupCard.style.cursor = 'pointer';
+    groupCard.onclick = () => navigateToGroup(group.id, group.name);
 
     const createdDate = new Date(group.created_at).toLocaleDateString();
 
-    groupCard.innerHTML = `  
-        <div class="group-header">  
-            <div class="group-icon">📚</div>  
-            <div class="group-info">  
-                <h3>${group.name}</h3>  
-                <span class="group-meta">${group.member_count} Members · Created by ${group.creator_name} · ${createdDate}</span>  
-            </div>  
-        </div>  
-        <p class="group-description">  
-            ${group.description || 'No description available.'}  
-        </p>  
-        <button class="join-btn" onclick="joinGroup(${group.id})">Join Group</button>  
+    groupCard.innerHTML = `    
+        <div class="group-header">    
+            <div class="group-icon"></div>    
+            <div class="group-info">    
+                <h3>${group.name}</h3>    
+                <span class="group-meta">${group.member_count} Members · Created by ${group.creator_name} · ${createdDate}</span>    
+            </div>    
+        </div>    
+        <p class="group-description">    
+            ${group.description || 'No description available.'}    
+        </p>    
+        <button class="join-btn" onclick="event.stopPropagation(); joinGroup(${group.id})">Join Group</button>    
     `;
 
     return groupCard;
+}
+
+// Adaugă această funcție nouă pentru navigare:
+function navigateToGroup(groupId, groupName) {
+    // Salvează informațiile grupului în localStorage pentru a le folosi în groupPage
+    localStorage.setItem('currentGroup', JSON.stringify({
+        id: groupId,
+        name: groupName
+    }));
+
+    // Navighează către pagina grupului
+    window.location.href = '../groupPage/groupPage.html';
 }
 
 // Funcție pentru alăturarea la grup
@@ -164,7 +180,7 @@ async function joinGroup(groupId) {
     }
 
     try {
-        const response = await fetch('/backend/community/join_group.php', {
+        const response = await fetch('../../backend/community/join_group.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

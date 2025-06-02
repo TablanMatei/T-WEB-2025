@@ -9,7 +9,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once '../config.php';
-/** @var PDO $pdo */
+
+
+$pdo = getDbConnection();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['success' => false, 'error' => 'Method not allowed']);
@@ -34,8 +36,8 @@ try {
         exit;
     }
 
-    // Adaugă utilizatorul la grup
-    $sql = "INSERT INTO group_members (group_id, user_id) VALUES (?, ?)";
+    // Adaugă utilizatorul la grup cu rol de membru
+    $sql = "INSERT INTO group_members (group_id, user_id, role) VALUES (?, ?, 'member')";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$input['group_id'], $input['user_id']]);
 

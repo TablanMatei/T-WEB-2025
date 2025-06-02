@@ -9,8 +9,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once '../config.php';
-
-// Folosește funcția din config.php pentru a obține conexiunea
 $pdo = getDbConnection();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -20,35 +18,53 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $input = json_decode(file_get_contents('php://input'), true);
 
-if (!isset($input['name']) || !isset($input['user_id'])) {
+if (!isset($input['name']) || !isset($input['description']) || !isset($input['user_id'])) {
     echo json_encode(['success' => false, 'error' => 'Missing required fields']);
     exit;
 }
 
 try {
-    $pdo->beginTransaction();
+    // Extrage genurile și vârsta din descriere
+    $description = $input['description'];
+    $genres = '';
+    $minAge = null;
+    $maxAge = null;
+    $cleanDescription = $description;
 
-    // Pentru PostgreSQL, convertește boolean la string
-    $isPrivate = isset($input['is_private']) && $input['is_private'] ? 'true' : 'false';
+    // Extrage genurile (caută "Preferred Genres: ...")
+    if (preg_match('/Preferred Genres:\s*([^\n\r]+)/', $description, $matches)) {
+        $genres = trim($matches[1]);
+        $cleanDescription = str_replace($matches[0], '', $cleanDescription);
+    }
 
-    // Inserează grupul
-    $sql = "INSERT INTO groups (name, description, created_by, is_private) VALUES (?, ?, ?, ?::boolean)";
+    // Extrage vârsta (caută "Age Range: X - Y")
+    if (preg_match('/Age Range:\s*(\d+)\s*-\s*(\d+)/', $description, $matches)) {
+        $minAge = (int)$matches[1];
+        $maxAge = (int)$matches[2];
+        $cleanDescription = str_replace($matches[0], '', $cleanDescription);
+    }
+
+    // Curăță descrierea de spații extra
+    $cleanDescription = trim(preg_replace('/\s+/', ' ', $cleanDescription));
+
+    // Inserează grupul în baza de date
+    $sql = "INSERT INTO groups (name, description, created_by, genres, min_age, max_age) VALUES (?, ?, ?, ?, ?, ?)";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([
         $input['name'],
-        isset($input['description']) ? $input['description'] : '',
+        $cleanDescription,
         $input['user_id'],
-        $isPrivate
+        $genres,
+        $minAge,
+        $maxAge
     ]);
 
     $groupId = $pdo->lastInsertId();
 
-    // Adaugă creatorul ca membru cu rol de admin
+    // Adaugă creatorul ca admin al grupului
     $sql = "INSERT INTO group_members (group_id, user_id, role) VALUES (?, ?, 'admin')";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$groupId, $input['user_id']]);
-
-    $pdo->commit();
 
     echo json_encode([
         'success' => true,
@@ -57,7 +73,6 @@ try {
     ]);
 
 } catch (PDOException $e) {
-    $pdo->rollBack();
     echo json_encode([
         'success' => false,
         'error' => 'Database error: ' . $e->getMessage()
