@@ -38,12 +38,10 @@
 
 <div id="searchPopup" class="search-popup" style="display: none;">
     <div class="category-list" id="categoryList">
-        <span class="active" onclick="setCategory('Books')">Books</span>
-        <span onclick="setCategory('Authors')">Authors</span>
-        <span onclick="setCategory('Series')">Series</span>
-        <span onclick="setCategory('Characters')">Characters</span>
-        <span onclick="setCategory('Users')">Users</span>
-        <span onclick="setCategory('Publishers')">Publishers</span>
+        <span class="active" onclick="setCategory('Books', this)">Books</span>
+        <span onclick="setCategory('Authors', this)">Authors</span>
+        <span onclick="setCategory('Users', this)">Users</span>
+        <span onclick="setCategory('Publishers', this)">Publishers</span>
     </div>
     <div class="popular-list" id="popularList"></div>
 </div>

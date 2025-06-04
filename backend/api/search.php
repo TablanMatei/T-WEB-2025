@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once '../config.php';
-/** @var PDO $pdo */
+$pdo = getDbConnection();
 
 try {
     $method = $_SERVER['REQUEST_METHOD'];
@@ -60,8 +60,12 @@ function getPopularItems($pdo, $category, $limit) {
                     LIMIT :limit";
             break;
 
-        case 'Series':
-            return [];
+        case 'Users':
+            $sql = "SELECT user_id as id, username as name, real_name   
+        FROM users   
+        ORDER BY username ASC   
+        LIMIT :limit";
+            break;
 
         case 'Publishers':
             $sql = "SELECT publisher as name, COUNT(*) as book_count 
@@ -100,6 +104,12 @@ function getPopularItems($pdo, $category, $limit) {
                 $author['description'] = 'Author information not available.';
             }
         }
+        elseif ($category === 'Users') {
+            foreach ($results as &$user) {
+                $user['book_count'] = 0; // Placeholder pentru frontend
+                $user['description'] = isset($user['real_name']) ? $user['real_name'] : 'User';
+            }
+        }
 
         return $results;
     } catch (Exception $e) {
@@ -134,8 +144,19 @@ function searchItems($pdo, $query, $category, $limit, $offset) {
                     LIMIT :limit OFFSET :offset";
             break;
 
-        case 'Series':
-            return [];
+        case 'Users':
+            $sql = "SELECT user_id as id, username as name, real_name   
+        FROM users   
+        WHERE username ILIKE :query OR real_name ILIKE :query  
+        ORDER BY   
+            CASE   
+                WHEN username ILIKE :query THEN 1  
+                WHEN real_name ILIKE :query THEN 2  
+                ELSE 3  
+            END,  
+            username ASC  
+        LIMIT :limit OFFSET :offset";
+            break;
 
         case 'Publishers':
             $sql = "SELECT publisher as name, COUNT(*) as book_count 
@@ -173,6 +194,12 @@ function searchItems($pdo, $query, $category, $limit, $offset) {
                 $author['birth_year'] = null;
                 $author['book_count'] = 0;
                 $author['description'] = 'Author information not available.';
+            }
+        }
+        elseif ($category === 'Users') {
+            foreach ($results as &$user) {
+                $user['book_count'] = 0; // Placeholder pentru frontend
+                $user['description'] = isset($user['real_name']) ? $user['real_name'] : 'User';
             }
         }
 
