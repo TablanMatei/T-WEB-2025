@@ -1,24 +1,24 @@
 function openLogin() {
-  const loginOverlay = document.getElementById("loginOverlay");
-  if (loginOverlay) {
-    loginOverlay.style.display = "flex";
-  }
-  document.body.classList.add("blur-effect");
+    const loginOverlay = document.getElementById("loginOverlay");
+    if (loginOverlay) {
+        loginOverlay.style.display = "flex";
+    }
+    document.body.classList.add("blur-effect");
 }
 
 function closeLogin() {
-  const loginOverlay = document.getElementById("loginOverlay");
-  if (loginOverlay) {
-    loginOverlay.style.display = "none";
-  }
-  document.body.classList.remove("blur-effect");
+    const loginOverlay = document.getElementById("loginOverlay");
+    if (loginOverlay) {
+        loginOverlay.style.display = "none";
+    }
+    document.body.classList.remove("blur-effect");
 }
 
 function toggleAnimation() {
-  const container = document.getElementById('cards-container');
-  if (container) {
-    container.classList.toggle('paused');
-  }
+    const container = document.getElementById('cards-container');
+    if (container) {
+        container.classList.toggle('paused');
+    }
 }
 function scrollLeft() {
     const container = document.getElementById('cards-container');
@@ -39,13 +39,13 @@ function scrollRight() {
 
 
 const data = {
-        Books: ['The Great Gatsby', '1984', 'To Kill a Mockingbird', 'Pride and Prejudice', 'Harry Potter'],
-        Authors: ['George Orwell', 'Jane Austen', 'J.K. Rowling', 'F. Scott Fitzgerald', 'Homer'],
-        Series: ['Harry Potter', 'The Lord of the Rings', 'A Song of Ice and Fire', 'Percy Jackson', 'Narnia'],
-        Characters: ['Sherlock Holmes', 'Harry Potter', 'Elizabeth Bennet', 'Frodo Baggins', 'Hermione Granger'],
-        Users: ['booklover123', 'readingaddict', 'fictionfan', 'classicreader', 'fantasyfan'],
-        Publishers: ['Penguin Books', 'HarperCollins', 'Bloomsbury', 'Random House', 'Simon & Schuster'],
-    };
+    Books: ['The Great Gatsby', '1984', 'To Kill a Mockingbird', 'Pride and Prejudice', 'Harry Potter'],
+    Authors: ['George Orwell', 'Jane Austen', 'J.K. Rowling', 'F. Scott Fitzgerald', 'Homer'],
+    Series: ['Harry Potter', 'The Lord of the Rings', 'A Song of Ice and Fire', 'Percy Jackson', 'Narnia'],
+    Characters: ['Sherlock Holmes', 'Harry Potter', 'Elizabeth Bennet', 'Frodo Baggins', 'Hermione Granger'],
+    Users: ['booklover123', 'readingaddict', 'fictionfan', 'classicreader', 'fantasyfan'],
+    Publishers: ['Penguin Books', 'HarperCollins', 'Bloomsbury', 'Random House', 'Simon & Schuster'],
+};
 
 function togglePopup() {
     const popup = document.getElementById('searchPopup');
@@ -242,10 +242,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-// Funcție pentru actualizarea interfeței după login
-// În script.js, în funcția updateUIAfterLogin, înlocuiește partea cu dropdown-ul:
 
-// În script.js, înlocuiește funcția updateUIAfterLogin cu:
 
 function updateUIAfterLogin(user) {
     const loginButton = document.querySelector('.login-btn');
@@ -550,25 +547,134 @@ function navigateToCommunity() {
     }
 }
 
-// Event listeners
+// Funcții pentru gestionarea genurilor
+let genresData = {};
+
+// Încarcă genurile de la backend
+async function loadGenresFromDatabase() {
+    try {
+        const response = await fetch('http://localhost:9000/backend/api/get_genres.php');
+        const data = await response.json();
+
+        if (data.success) {
+            genresData = data.genres;
+            updateGenresDisplay();
+        } else {
+            console.error('Error loading genres:', data.error);
+            // Fallback la genurile statice
+        }
+    } catch (error) {
+        console.error('Error fetching genres:', error);
+        // Fallback la genurile statice
+    }
+}
+
+function updateGenresDisplay() {
+    const genresSection = document.querySelector('.genres-section');
+    if (!genresSection || !genresData.length) return;
+
+    // Elimină mesajul de loading
+    const loadingMessage = genresSection.querySelector('.loading-message');
+    if (loadingMessage) {
+        loadingMessage.remove();
+    }
+
+    // Sortează genurile după numărul de cărți (descrescător)
+    const sortedGenres = genresData.sort((a, b) => b.book_count - a.book_count);
+
+    // Limitează la primele 25 de genuri pentru performanță
+    const topGenres = sortedGenres.slice(0, 25);
+
+    // Creează blocurile pentru fiecare gen
+    topGenres.forEach(genreData => {
+        createGenreBlock(capitalizeFirst(genreData.genre_name), genreData);
+    });
+}
+
+// Creează un bloc de gen
+async function createGenreBlock(genreName, genreData) {
+    const genresSection = document.querySelector('.genres-section');
+
+    // Încarcă cărțile pentru acest gen
+    const books = await loadBooksForGenre(genreData.genre_name);
+
+    const genreBlock = document.createElement('div');
+    genreBlock.className = 'genre-block';
+
+    genreBlock.innerHTML = `
+        <h3>${capitalizeFirst(genreName)} <span class="genre-count">(${genreData.book_count} books)</span></h3>
+        <div class="genre-books" id="genre-${genreData.genre_name.replace(/\s+/g, '-')}">
+            ${books.length > 0 ? books.map(book => createBookItem(book)).join('') : '<p>No books available for this genre.</p>'}
+        </div>
+    `;
+
+    genresSection.appendChild(genreBlock);
+}
+
+// Încarcă cărțile pentru un gen specific
+async function loadBooksForGenre(genre) {
+    try {
+        const response = await fetch(`http://localhost:9000/backend/api/get_genres.php?genre=${encodeURIComponent(genre)}&limit=7`);
+        const data = await response.json();
+
+        if (data.success) {
+            return data.books;
+        } else {
+            console.error('Error loading books for genre:', data.error);
+            return [];
+        }
+    } catch (error) {
+        console.error('Error fetching books for genre:', error);
+        return [];
+    }
+}
+
+// Creează un item de carte
+function createBookItem(book) {
+    const rating = book.avg_rating ? `⭐ ${parseFloat(book.avg_rating).toFixed(1)}` : 'No rating';
+    return `
+        <div class="book-item dynamic-book" onclick="selectBook(${book.id})">
+            <div class="book-placeholder">📚</div>
+            <p class="book-title-dynamic">${book.title}</p>
+            <p class="book-author-dynamic">${book.author}</p>
+            <p class="book-year-dynamic">${book.publication_year || 'N/A'}</p>
+            <p class="book-rating-dynamic">${rating}</p>
+        </div>
+    `;
+}
+
+// Funcție helper pentru capitalizare
+function capitalizeFirst(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+// Actualizează event listener-ul DOMContentLoaded existent
 document.addEventListener('DOMContentLoaded', function() {
+    // Cod existent pentru search
     const searchInput = document.querySelector('.search-container input');
     const searchButton = document.querySelector('.search-container button');
 
-    // Real-time search
-    searchInput.addEventListener('input', performSearch);
-
-    // Search button click
-    searchButton.addEventListener('click', function(e) {
-        e.preventDefault();
-        performSearch();
-    });
-
-    // Enter key search
-    searchInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
+    if (searchInput && searchButton) {
+        searchInput.addEventListener('input', performSearch);
+        searchButton.addEventListener('click', function(e) {
             e.preventDefault();
             performSearch();
-        }
-    });
+        });
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                performSearch();
+            }
+        });
+    }
+
+    // Verifică login status
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (isLoggedIn === 'true' && user.username) {
+        updateUIAfterLogin(user);
+    }
+
+    // Încarcă genurile de la backend
+    loadGenresFromDatabase();
 });
