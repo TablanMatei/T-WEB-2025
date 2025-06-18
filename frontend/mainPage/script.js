@@ -85,6 +85,9 @@ document.addEventListener('click', (e) => {
         popup.style.display = 'none';
         resetToBooks();
     }
+    if (libraryModal && e.target === libraryModal) {
+        closeLibraryModal();
+    }
 });
 
 // Funcție încarcă items populare cu debugging
@@ -196,24 +199,24 @@ async function performSearch() {
         const data = JSON.parse(text);
 
         if (data.success) {
-            displaySearchResults(data.data, currentCategory);
+            displaySearchResults(data.data, currentCategory, query);
         } else {
             console.error('Search error:', data.error);
+            displayNoResults(query);
         }
     } catch (error) {
         console.error('Error in performSearch:', error);
     }
 }
 
-function displaySearchResults(results, category) {
+function displaySearchResults(results, category, query) {
     const popularList = document.getElementById('popularList');
     if (!popularList) return;
 
     if (results.length === 0) {
-        popularList.innerHTML = '<div class="no-results">No results found</div>';
+        displayNoResults(query);
         return;
     }
-
     let html = `<h4>Search Results (${results.length})</h4><div class="search-results">`;
 
     results.forEach(item => {
@@ -255,6 +258,198 @@ function displaySearchResults(results, category) {
     html += '</div>';
     popularList.innerHTML = html;
 }
+
+function displayNoResults(query) {
+    const popularList = document.getElementById('popularList');
+    if (!popularList) return;
+
+    popularList.innerHTML = `  
+        <div class="no-results">  
+            <h4>No results found for "${query}"</h4>  
+            <p>We couldn't find any books matching your search.</p>  
+            <button class="library-recommend-btn" onclick="recommendLibraries()">  
+                📍 Find nearby libraries  
+            </button>  
+        </div>  
+    `;
+}
+
+// FUNCȚII PENTRU RECOMANDAREA BIBLIOTECILOR
+function recommendLibraries() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                showLibraryModal(lat, lng);
+            },
+            (error) => {
+                console.log('Geolocation error:', error);
+                showLocationInputModal();
+            }
+        );
+    } else {
+        showLocationInputModal();
+    }
+}
+
+function showLibraryModal(lat, lng) {
+    const modal = document.getElementById('libraryModal');
+    if (!modal) {
+        createLibraryModal();
+    }
+
+    const libraryList = document.getElementById('libraryList');
+    libraryList.innerHTML = '<div class="loading">Finding nearby libraries...</div>';
+
+    document.getElementById('libraryModal').style.display = 'block';
+
+    findNearbyLibraries(lat, lng);
+}
+
+async function findNearbyLibraries(lat, lng) {
+    try {
+        // Overpass API query pentru biblioteci
+        /// PENTRU A VEDEA LCOATIILE GASITE:
+        /// https://overpass-turbo.eu/
+
+        const query = `
+            [out:json][timeout:25];
+            (
+              node["amenity"="library"](around:5000,47.1585,27.6014);
+              way["amenity"="library"](around:5000,47.1585,27.6014);
+            );
+            out center meta;
+        `;
+
+        const response = await fetch('https://overpass-api.de/api/interpreter', {
+            method: 'POST',
+            body: query
+        });
+
+        const data = await response.json();
+
+        if (data.elements && data.elements.length > 0) {
+            const libraries = data.elements.slice(0, 10).map(element => {
+                const elementLat = element.lat || element.center?.lat;
+                const elementLng = element.lon || element.center?.lon;
+
+                return {
+                    name: element.tags?.name || 'Library',
+                    address: `${element.tags?.['addr:street'] || ''} ${element.tags?.['addr:housenumber'] || ''}`.trim() || 'Address not available',
+                    distance: calculateDistance(lat, lng, elementLat, elementLng),
+                    type: element.tags?.library || 'Public Library'
+                };
+            });
+            libraries.sort((a, b) => {
+                const distA = parseFloat(a.distance.replace(' km', ''));
+                const distB = parseFloat(b.distance.replace(' km', ''));
+                return distA - distB;
+            });
+            displayLibraries(libraries, lat, lng);
+        } else {
+            showMockLibraries(lat, lng);
+        }
+    } catch (error) {
+        console.error('Error finding libraries:', error);
+        showMockLibraries(lat, lng);
+    }
+}
+
+function showMockLibraries(lat, lng) {
+    const libraries = [
+        { name: 'Biblioteca 1', address: 'Strada 1', distance: '0.5 km' },
+        { name: 'Biblioteca 2', address: 'Strada 2', distance: '1.2 km' },
+        { name: 'Biblioteca 3', address: 'Strada 3', distance: '2.1 km' }
+    ];
+    displayLibraries(libraries, lat, lng);
+}
+
+function calculateDistance(lat1, lng1, lat2, lng2) {
+    const R = 6371; // Earth's radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLng/2) * Math.sin(dLng/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const distance = R * c;
+    return distance.toFixed(1) + ' km';
+}
+
+function showLocationInputModal() {
+    const modal = document.getElementById('libraryModal');
+    if (!modal) {
+        createLibraryModal();
+    }
+
+    const libraryList = document.getElementById('libraryList');
+    libraryList.innerHTML = `  
+        <div class="location-input">  
+            <h4>Enter your location</h4>  
+            <input type="text" id="cityInput" placeholder="Enter your city">  
+            <button onclick="searchLibrariesByCity()">Find Libraries</button>  
+        </div>  
+    `;
+
+    document.getElementById('libraryModal').style.display = 'block';
+}
+
+function displayLibraries(libraries, lat, lng) {
+    const libraryList = document.getElementById('libraryList');
+    let html = '<h4>Nearby Libraries</h4>';
+
+    libraries.forEach(library => {
+        html += `  
+            <div class="library-item">  
+                <div class="library-info">  
+                    <h5>${library.name}</h5>  
+                    <p>${library.address}</p>  
+                    <span class="distance">${library.distance}</span>  
+                </div>  
+                <div class="library-actions">  
+                    <button onclick="openInMaps('${library.address}')">View on Maps</button>  
+                </div>  
+            </div>  
+        `;
+    });
+
+    libraryList.innerHTML = html;
+}
+
+function createLibraryModal() {
+    const modalHTML = `  
+        <div id="libraryModal" class="library-modal">  
+            <div class="library-modal-content">  
+                <span class="library-close" onclick="closeLibraryModal()">&times;</span>  
+                <div id="libraryList"></div>  
+            </div>  
+        </div>  
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+function closeLibraryModal() {
+    document.getElementById('libraryModal').style.display = 'none';
+}
+
+function openInMaps(address) {
+    const encodedAddress = encodeURIComponent(address);
+    window.open(`https://www.google.com/maps/search/${encodedAddress}`, '_blank');
+}
+
+function searchLibrariesByCity() {
+    const city = document.getElementById('cityInput').value.trim();
+    if (city) {
+        // Simulare căutare după oraș
+        const libraries = [
+            { name: `${city} Biblioteca 1`, address: `Main Street, ${city}`, distance: 'City center' },
+            { name: `${city} Public Library`, address: `Library Ave, ${city}`, distance: 'Downtown' }
+        ];
+        displayLibraries(libraries);
+    }
+}
+
 
 // Helper functions
 function selectBook(bookId) {
