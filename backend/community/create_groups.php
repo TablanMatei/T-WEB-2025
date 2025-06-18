@@ -48,9 +48,11 @@ try {
     $cleanDescription = trim(preg_replace('/\s+/', ' ', $cleanDescription));
 
     // Inserează grupul în baza de date
-    $sql = "INSERT INTO groups (name, description, created_by, genres, min_age, max_age) VALUES (?, ?, ?, ?, ?, ?)";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([
+    $insertGroupStmt = $pdo->prepare("
+        INSERT INTO groups (name, description, created_by, genres, min_age, max_age, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+    ");
+    $insertGroupStmt->execute([
         $input['name'],
         $cleanDescription,
         $input['user_id'],
@@ -59,16 +61,26 @@ try {
         $maxAge
     ]);
 
-    $groupId = $pdo->lastInsertId();
+    // Obține ID-ul grupului nou creat
+    $group_id = $pdo->lastInsertId();
 
     // Adaugă creatorul ca admin al grupului
-    $sql = "INSERT INTO group_members (group_id, user_id, role) VALUES (?, ?, 'admin')";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$groupId, $input['user_id']]);
+    $insertMemberStmt = $pdo->prepare("
+        INSERT INTO group_members (group_id, user_id, role, joined_at)
+        VALUES (?, ?, 'admin', CURRENT_TIMESTAMP)
+    ");
+    $insertMemberStmt->execute([$group_id, $input['user_id']]);
+
+    // Inserează notificarea
+    $insertNotificationStmt = $pdo->prepare("
+        INSERT INTO notifications (user_id, type, message, created_at)
+        VALUES (?, 'group_created', 'Your reading group has been created successfully!', CURRENT_TIMESTAMP)
+    ");
+    $insertNotificationStmt->execute([$input['user_id']]);
 
     echo json_encode([
         'success' => true,
-        'group_id' => $groupId,
+        'group_id' => $group_id,
         'message' => 'Group created successfully'
     ]);
 

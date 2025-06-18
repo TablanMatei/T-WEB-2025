@@ -1,20 +1,14 @@
 <?php
-session_start();
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Origin: http://localhost:9000');
 header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Credentials: true');
 
-//require_once '../config/database.php';
 require_once '../config.php';
-/** @var PDO $pdo */
+$pdo = getDbConnection();
 
-if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'error' => 'Not authenticated']);
-    exit;
-}
-
-// Citește JSON data (exact ca în register.php)
+// Citește JSON data
 $input = json_decode(file_get_contents('php://input'), true);
 
 if (!$input) {
@@ -22,49 +16,77 @@ if (!$input) {
     exit;
 }
 
-try {
-    $user_id = $_SESSION['user_id'];
+// Verifică user_id în loc de sesiune
+if (!isset($input['user_id']) || empty($input['user_id'])) {
+    echo json_encode(['success' => false, 'error' => 'User ID required']);
+    exit;
+}
 
-    // Prepare update query (similar cu register.php)
-    $stmt = $pdo->prepare("
+try {
+    $user_id = $input['user_id'];
+
+    // Verifică dacă userul există
+    $checkStmt = $pdo->prepare("SELECT user_id FROM users WHERE user_id = ?");
+    $checkStmt->execute([$user_id]);
+
+    if (!$checkStmt->fetch()) {
+        echo json_encode(['success' => false, 'error' => 'User not found']);
+        exit;
+    }
+
+    // Verifică dacă username-ul este deja folosit de alt user
+    if (!empty($input['username'])) {
+        $usernameCheckStmt = $pdo->prepare("SELECT 1 FROM users WHERE username = ? AND user_id != ?");
+        $usernameCheckStmt->execute([$input['username'], $user_id]);
+
+        if ($usernameCheckStmt->fetch()) {
+            echo json_encode([
+                'success' => false,
+                'error' => 'Username already exists'
+            ]);
+            exit;
+        }
+    }
+
+    // Update user
+    $updateStmt = $pdo->prepare("
         UPDATE users SET 
-            username = ?, 
-            real_name = ?, 
-            description = ?, 
-            location = ?, 
-            birthdate = ?, 
-            pronouns = ?, 
+            username = ?,
+            real_name = ?,
+            description = ?,
+            location = ?,
+            birthdate = ?,
+            pronouns = ?,
             website = ?
         WHERE user_id = ?
     ");
 
-    $stmt->execute([
-        $input['username'],
-        $input['real_name'],
-        $input['description'],
-        $input['location'],
-        $input['birthdate'],
-        $input['pronouns'],
-        $input['website'],
+    $updateStmt->execute([
+        isset($input['username']) ? $input['username'] : '',
+        isset($input['real_name']) ? $input['real_name'] : '',
+        isset($input['description']) ? $input['description'] : '',
+        isset($input['location']) ? $input['location'] : '',
+        !empty($input['birthdate']) ? $input['birthdate'] : null,
+        isset($input['pronouns']) ? $input['pronouns'] : '',
+        isset($input['website']) ? $input['website'] : '',
         $user_id
     ]);
 
-    // Returnează datele actualizate (similar cu login.php)
-    $stmt = $pdo->prepare("
+    // Returnează datele actualizate
+    $selectStmt = $pdo->prepare("
         SELECT user_id, username, real_name, email, description, 
                birthdate, gender, location, pronouns, website, 
-               profile_picture, created_at 
+               profile_picture, updated_at
         FROM users 
         WHERE user_id = ?
     ");
-
-    $stmt->execute([$user_id]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    $selectStmt->execute([$user_id]);
+    $user_data = $selectStmt->fetch(PDO::FETCH_ASSOC);
 
     echo json_encode([
         'success' => true,
         'message' => 'Profile updated successfully',
-        'user' => $user
+        'user' => $user_data
     ]);
 
 } catch (PDOException $e) {

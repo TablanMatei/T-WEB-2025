@@ -20,26 +20,19 @@ $groupId = $_GET['group_id'];
 
 try {
     // Obține detaliile grupului
-    $sql = "
-        SELECT 
-            g.id,
-            g.name,
-            g.description,
-            g.genres,
-            g.min_age,
-            g.max_age,
-            g.created_at,
-            g.is_private,
-            u.username as creator_name,
-            u.real_name as creator_real_name
+    $groupStmt = $pdo->prepare("
+        SELECT g.id, g.name, g.description, g.genres, g.min_age, g.max_age,
+               g.created_at, g.is_private, u.username as creator_name, 
+               u.real_name as creator_real_name, COUNT(gm.user_id) as total_members
         FROM groups g
         LEFT JOIN users u ON g.created_by = u.user_id
+        LEFT JOIN group_members gm ON g.id = gm.group_id
         WHERE g.id = ?
-    ";
-
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$groupId]);
-    $group = $stmt->fetch(PDO::FETCH_ASSOC);
+        GROUP BY g.id, g.name, g.description, g.genres, g.min_age, g.max_age, 
+                 g.created_at, g.is_private, u.username, u.real_name
+    ");
+    $groupStmt->execute([$groupId]);
+    $group = $groupStmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$group) {
         echo json_encode(['success' => false, 'error' => 'Group not found']);
@@ -47,21 +40,15 @@ try {
     }
 
     // Obține membrii grupului
-    $sql = "
-        SELECT 
-            u.username,
-            u.real_name,
-            gm.role,
-            gm.joined_at
+    $membersStmt = $pdo->prepare("
+        SELECT u.username, u.real_name, gm.role, gm.joined_at
         FROM group_members gm
         JOIN users u ON gm.user_id = u.user_id
         WHERE gm.group_id = ?
         ORDER BY gm.joined_at ASC
-    ";
-
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$groupId]);
-    $members = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    ");
+    $membersStmt->execute([$groupId]);
+    $members = $membersStmt->fetchAll(PDO::FETCH_ASSOC);
 
     echo json_encode([
         'success' => true,

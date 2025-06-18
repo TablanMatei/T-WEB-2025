@@ -85,7 +85,14 @@ document.addEventListener('click', (e) => {
         resetToBooks();
     }
 });
-window.onload = () => setCategory('Books');
+window.onload = () => {
+    currentCategory = 'Books';
+    const categories = document.querySelectorAll('.category-list span');
+    categories.forEach(cat => cat.classList.remove('active'));
+    const booksCategory = document.querySelector('.category-list span');
+    if (booksCategory) booksCategory.classList.add('active');
+    loadPopularItems('Books');
+};
 
 // Funcție pentru gestionare login
 async function handleLogin(event) {
@@ -553,7 +560,7 @@ let genresData = {};
 // Încarcă genurile de la backend
 async function loadGenresFromDatabase() {
     try {
-        const response = await fetch('http://localhost:9000/backend/api/get_genres.php');
+        const response = await fetch('/backend/api/get_genres.php');
         const data = await response.json();
 
         if (data.success) {
@@ -561,6 +568,8 @@ async function loadGenresFromDatabase() {
             updateGenresDisplay();
         } else {
             console.error('Error loading genres:', data.error);
+            console.error('Debug info:', data.debug);
+            console.error('SQL State:', data.sql_state);
             // Fallback la genurile statice
         }
     } catch (error) {
@@ -614,13 +623,21 @@ async function createGenreBlock(genreName, genreData) {
 // Încarcă cărțile pentru un gen specific
 async function loadBooksForGenre(genre) {
     try {
-        const response = await fetch(`http://localhost:9000/backend/api/get_genres.php?genre=${encodeURIComponent(genre)}&limit=7`);
+        const url = `/backend/api/get_genres.php?genre=${encodeURIComponent(genre)}&limit=7`;
+        console.log('Loading books for genre:', genre);
+        console.log('URL:', url);
+
+        const response = await fetch(url);
         const data = await response.json();
 
+        console.log('Response for genre', genre, ':', data);
+
         if (data.success) {
+            console.log('Books found:', data.books.length);
             return data.books;
         } else {
             console.error('Error loading books for genre:', data.error);
+            console.error('Debug:', data.debug);
             return [];
         }
     } catch (error) {
@@ -631,18 +648,15 @@ async function loadBooksForGenre(genre) {
 
 // Creează un item de carte
 function createBookItem(book) {
-    const rating = book.avg_rating ? `⭐ ${parseFloat(book.avg_rating).toFixed(1)}` : 'No rating';
-    return `
-        <div class="book-item dynamic-book" onclick="selectBook(${book.id})">
-            <div class="book-placeholder">📚</div>
-            <p class="book-title-dynamic">${book.title}</p>
-            <p class="book-author-dynamic">${book.author}</p>
-            <p class="book-year-dynamic">${book.publication_year || 'N/A'}</p>
-            <p class="book-rating-dynamic">${rating}</p>
-        </div>
+    return `  
+        <div class="book-item dynamic-book" onclick="selectBook(${book.id})">  
+            <div class="book-placeholder">📚</div>  
+            <p class="book-title-dynamic">${book.title}</p>  
+            <p class="book-author-dynamic">${book.author}</p>  
+            <p class="book-year-dynamic">${book.publication_year || 'N/A'}</p>  
+        </div>  
     `;
 }
-
 // Funcție helper pentru capitalizare
 function capitalizeFirst(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);

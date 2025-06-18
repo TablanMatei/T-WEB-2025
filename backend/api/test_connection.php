@@ -7,13 +7,17 @@ try {
     $pdo = getDbConnection();
     echo "Conexiune reușită la Railway!<br>";
 
-    // Testează o query simplă
+    // Testează query-ul pentru utilizatori
     $stmt = $pdo->query("SELECT COUNT(*) as total FROM users");
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
     echo " Query test reușită - Total utilizatori: " . $result['total'] . "<br>";
 
     // Testează structura tabelelor
-    $stmt = $pdo->query("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'");
+    $stmt = $pdo->query("
+        SELECT table_name 
+        FROM information_schema.tables 
+        WHERE table_schema = 'public'
+    ");
     $tables = $stmt->fetchAll(PDO::FETCH_COLUMN);
     echo " Tabele găsite: " . implode(", ", $tables) . "<br>";
 

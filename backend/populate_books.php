@@ -39,36 +39,64 @@ function insertBook($pdo, $book) {
         if (!$title) return; // Skip books without title
 
         // Verifică dacă cartea există deja
-        $stmt = $pdo->prepare("SELECT book_id FROM books WHERE title = :title LIMIT 1");
-        $stmt->execute(['title' => $title]);
-        if ($stmt->fetchColumn()) {
+        $checkStmt = $pdo->prepare("SELECT book_id FROM books WHERE title = ? LIMIT 1");
+        $checkStmt->execute([$title]);
+        $existingBook = $checkStmt->fetch();
+
+        if ($existingBook) {
             return; // Cartea există deja
         }
 
         // Inserează cartea
-        $stmt = $pdo->prepare("INSERT INTO books (title, year, publisher) VALUES (:title, :year, :publisher) RETURNING book_id");
-        $stmt->execute(['title' => $title, 'year' => $year, 'publisher' => $publisher]);
-        $book_id = $stmt->fetchColumn();
+        $insertBookStmt = $pdo->prepare("
+            INSERT INTO books (title, year, publisher, created_at)
+            VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+        ");
+        $insertBookStmt->execute([$title, $year ? (int)$year : null, $publisher]);
+        $book_id = $pdo->lastInsertId();
 
-        // Inserează autorii și legăturile
-        foreach ($authors as $author) {
-            if (empty($author)) continue;
+        $authors_count = 0;
 
-            $stmt = $pdo->prepare("SELECT author_id FROM authors WHERE name = :name");
-            $stmt->execute(['name' => $author]);
-            $author_id = $stmt->fetchColumn();
+        // Procesează autorii
+        if (!empty($authors)) {
+            foreach ($authors as $author_name) {
+                if (!empty(trim($author_name))) {
+                    // Caută sau creează autorul
+                    $findAuthorStmt = $pdo->prepare("SELECT author_id FROM authors WHERE name = ?");
+                    $findAuthorStmt->execute([$author_name]);
+                    $author = $findAuthorStmt->fetch();
 
-            if (!$author_id) {
-                $stmt = $pdo->prepare("INSERT INTO authors (name) VALUES (:name) RETURNING author_id");
-                $stmt->execute(['name' => $author]);
-                $author_id = $stmt->fetchColumn();
+                    if (!$author) {
+                        // Creează autorul nou
+                        $insertAuthorStmt = $pdo->prepare("
+                            INSERT INTO authors (name, created_at)
+                            VALUES (?, CURRENT_TIMESTAMP)
+                        ");
+                        $insertAuthorStmt->execute([$author_name]);
+                        $author_id = $pdo->lastInsertId();
+                    } else {
+                        $author_id = $author['author_id'];
+                    }
+
+                    // Creează legătura carte-autor (evită duplicatele)
+                    try {
+                        $insertBookAuthorStmt = $pdo->prepare("
+                            INSERT INTO book_authors (book_id, author_id)
+                            VALUES (?, ?)
+                        ");
+                        $insertBookAuthorStmt->execute([$book_id, $author_id]);
+                        $authors_count++;
+                    } catch (PDOException $e) {
+                        // Ignoră erorile de duplicate key
+                        if ($e->getCode() != '23505') { // 23505 = unique violation
+                            throw $e;
+                        }
+                    }
+                }
             }
-
-            $stmt = $pdo->prepare("INSERT INTO book_authors (book_id, author_id) VALUES (:book_id, :author_id) ON CONFLICT DO NOTHING");
-            $stmt->execute(['book_id' => $book_id, 'author_id' => $author_id]);
         }
 
-        echo "Adăugat: $title<br>";
+        echo "Adăugat: $title (cu $authors_count autori)<br>";
 
     } catch (Exception $e) {
         echo "Eroare la inserarea cărții '$title': " . $e->getMessage() . "<br>";
@@ -77,14 +105,12 @@ function insertBook($pdo, $book) {
 
 // Subiecte pentru căutare
 $subjects = ['fiction', 'science', 'history', 'novel', 'romance', 'fantasy', 'biography', 'children', 'mystery', 'thriller'];
-//$subjects = ['fantasy', 'biography', 'children', 'mystery', 'thriller'];
-// La începutul scriptului, adaugă:s
+
+// La începutul scriptului, adaugă:
 ini_set('max_execution_time', 0);
 ini_set('memory_limit', '512M');
 
-
 $booksPerSubject = 300;
-
 $totalProcessed = 0;
 $maxBooksPerRun = 500;
 
@@ -99,6 +125,11 @@ foreach ($subjects as $query) {
         if ($books && isset($books['items'])) {
             foreach ($books['items'] as $book) {
                 insertBook($pdo, $book);
+                $totalProcessed++;
+
+                if ($totalProcessed >= $maxBooksPerRun) {
+                    break 2;
+                }
             }
             echo "Procesat batch pentru '$query' (startIndex=$start) - " . count($books['items']) . " cărți<br>";
         } else {
@@ -108,33 +139,31 @@ foreach ($subjects as $query) {
 
         sleep(1);
 
-
         if (ob_get_level()) {
             ob_flush();
         }
         flush();
     }
 
-    foreach ($books['items'] as $book) {
-        insertBook($pdo, $book);
-        $totalProcessed++;
-
-        if ($totalProcessed >= $maxBooksPerRun) {
-            break 2;
-        }
-    }
-
     echo "<hr>";
 }
 
 // Statistici finale
-$stmt = $pdo->query("SELECT COUNT(*) FROM books");
-$totalBooks = $stmt->fetchColumn();
+$totalBooksStmt = $pdo->query("SELECT COUNT(*) FROM books");
+$totalBooks = $totalBooksStmt->fetchColumn();
 
-$stmt = $pdo->query("SELECT COUNT(*) FROM authors");
-$totalAuthors = $stmt->fetchColumn();
+$totalAuthorsStmt = $pdo->query("SELECT COUNT(*) FROM authors");
+$totalAuthors = $totalAuthorsStmt->fetchColumn();
+
+$booksWithAuthorsStmt = $pdo->query("SELECT COUNT(DISTINCT ba.book_id) FROM book_authors ba");
+$booksWithAuthors = $booksWithAuthorsStmt->fetchColumn();
+
+$recentAdditionsStmt = $pdo->query("SELECT COUNT(*) FROM books WHERE created_at > CURRENT_TIMESTAMP - INTERVAL '1 hour'");
+$recentAdditions = $recentAdditionsStmt->fetchColumn();
 
 echo "<h2>Populare finalizată!</h2>";
 echo "<p><strong>Total cărți:</strong> $totalBooks</p>";
 echo "<p><strong>Total autori:</strong> $totalAuthors</p>";
+echo "<p><strong>Cărți cu autori:</strong> $booksWithAuthors</p>";
+echo "<p><strong>Adăugate recent:</strong> $recentAdditions</p>";
 ?>

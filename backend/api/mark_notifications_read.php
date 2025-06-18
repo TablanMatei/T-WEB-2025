@@ -35,15 +35,31 @@ try {
     // Marchează notificarea ca citită
     $stmt = $pdo->prepare("
         UPDATE notifications 
-        SET is_read = 1 
+        SET is_read = TRUE, read_at = CURRENT_TIMESTAMP
         WHERE id = ? AND user_id = ?
     ");
-
     $stmt->execute([$notification_id, $user_id]);
+    $affected_rows = $stmt->rowCount();
+
+    if ($affected_rows === 0) {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Notification not found or access denied',
+            'remaining_unread' => 0
+        ]);
+        exit;
+    }
+
+    // Obține numărul de notificări necitite rămase
+    $unread_stmt = $pdo->prepare("SELECT COUNT(*) as unread_count FROM notifications WHERE user_id = ? AND is_read = FALSE");
+    $unread_stmt->execute([$user_id]);
+    $unread_result = $unread_stmt->fetch(PDO::FETCH_ASSOC);
+    $unread_count = $unread_result['unread_count'];
 
     echo json_encode([
         'success' => true,
-        'message' => 'Notification marked as read'
+        'message' => 'Notification marked as read',
+        'remaining_unread' => $unread_count
     ]);
 
 } catch (PDOException $e) {

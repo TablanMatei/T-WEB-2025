@@ -12,21 +12,46 @@ try {
 // Adaugă coloana genre dacă nu există
 try {
     $pdo->exec("ALTER TABLE books ADD COLUMN genre VARCHAR(255)");
-    echo " Coloana 'genre' a fost adăugată.";
+    echo "Coloana 'genre' a fost adăugată.<br>";
 } catch (PDOException $e) {
     if (strpos($e->getMessage(), 'already exists') !== false || strpos($e->getMessage(), 'duplicate column') !== false) {
-        echo "Coloana 'genre' există deja.";
+        echo "Coloana 'genre' există deja.<br>";
     } else {
-        echo "Eroare la adăugarea coloanei: " . $e->getMessage();
+        echo "Eroare la adăugarea coloanei: " . $e->getMessage() . "<br>";
     }
 }
 
+// Adaugă coloana genre_updated_at dacă nu există
+try {
+    $pdo->exec("ALTER TABLE books ADD COLUMN genre_updated_at TIMESTAMP");
+    echo "Coloana 'genre_updated_at' a fost adăugată.<br>";
+} catch (PDOException $e) {
+    if (strpos($e->getMessage(), 'already exists') !== false || strpos($e->getMessage(), 'duplicate column') !== false) {
+        echo "Coloana 'genre_updated_at' există deja.<br>";
+    }
+}
+
+// Creează tabela de log dacă nu există
+try {
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS genre_update_log (
+            id SERIAL PRIMARY KEY,
+            book_id INTEGER,
+            old_genre VARCHAR(255),
+            new_genre VARCHAR(255),
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ");
+    echo "Tabela 'genre_update_log' verificată/creată.<br>";
+} catch (PDOException $e) {
+    echo "Eroare la crearea tabelei de log: " . $e->getMessage() . "<br>";
+}
+
 function searchBookOnGoogleBooks($title, $author = null) {
-    // Curăță titlul pentru căutare mai bună
     $cleanTitle = preg_replace('/[^\w\s]/', '', $title);
     $cleanTitle = trim($cleanTitle);
 
-    $query = '"' . $cleanTitle . '"'; // Folosește ghilimele pentru căutare exactă
+    $query = '"' . $cleanTitle . '"';
     if ($author) {
         $cleanAuthor = explode(',', $author)[0]; // Ia doar primul autor
         $query .= ' inauthor:"' . trim($cleanAuthor) . '"';
@@ -77,20 +102,26 @@ ini_set('memory_limit', '512M');
 
 // Obține cărțile fără gen, începând cu cele mai populare
 $stmt = $pdo->prepare("
-    SELECT b.book_id, b.title, STRING_AGG(a.name, ', ') as authors
-    FROM books b
-    LEFT JOIN book_authors ba ON b.book_id = ba.book_id
-    LEFT JOIN authors a ON ba.author_id = a.author_id
-    WHERE (b.genre IS NULL OR b.genre = '')
-    GROUP BY b.book_id, b.title
-    ORDER BY b.title
+    SELECT b.book_id, b.title,   
+           STRING_AGG(a.name, ', ') as authors,  
+           CASE   
+               WHEN b.year > 2000 THEN 1  
+               WHEN b.year > 1990 THEN 2  
+               ELSE 3  
+           END as processing_priority  
+    FROM books b  
+    LEFT JOIN book_authors ba ON b.book_id = ba.book_id  
+    LEFT JOIN authors a ON ba.author_id = a.author_id  
+    WHERE (b.genre IS NULL OR b.genre = '')  
+    GROUP BY b.book_id, b.title, b.year  
+    ORDER BY processing_priority, b.title  
     LIMIT 2000
 ");
+
 $stmt->execute();
 $books = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 echo "<h2>Actualizez " . count($books) . " cărți cu genuri din Google Books API...</h2>";
-echo "<p><em>Acest proces poate dura câteva minute...</em></p>";
 
 $updated = 0;
 $failed = 0;
@@ -109,8 +140,21 @@ foreach ($books as $index => $book) {
 
     if ($genre) {
         try {
-            $updateStmt = $pdo->prepare("UPDATE books SET genre = :genre WHERE book_id = :book_id");
-            $updateStmt->execute(['genre' => $genre, 'book_id' => $book['book_id']]);
+            // Actualizează cartea
+            $updateStmt = $pdo->prepare("
+                UPDATE books 
+                SET genre = ?, genre_updated_at = CURRENT_TIMESTAMP 
+                WHERE book_id = ?
+            ");
+            $updateStmt->execute([$genre, $book['book_id']]);
+
+            // Adaugă în log
+            $logStmt = $pdo->prepare("
+                INSERT INTO genre_update_log (book_id, old_genre, new_genre, updated_at)
+                VALUES (?, NULL, ?, CURRENT_TIMESTAMP)
+            ");
+            $logStmt->execute([$book['book_id'], $genre]);
+
             echo "Actualizat cu genul: " . htmlspecialchars($genre);
             $updated++;
         } catch (PDOException $e) {
@@ -122,11 +166,10 @@ foreach ($books as $index => $book) {
         $failed++;
     }
 
-    echo "</div>";
+    echo "<br>";
 
-
+    // Pauză pentru a nu suprasolicita API-ul
     sleep(2);
-
 
     if (ob_get_level()) {
         ob_flush();
@@ -141,12 +184,11 @@ $booksWithGenres = $stmt->fetchColumn();
 $stmt = $pdo->query("SELECT COUNT(*) FROM books");
 $totalBooks = $stmt->fetchColumn();
 
-echo "<div style='margin: 20px 0; padding: 20px; background: #f0f8ff; border: 1px solid #007cba;'>";
-echo "<h2>📊 Rezultate finale:</h2>";
-echo "<p>✅ <strong>Actualizate cu succes:</strong> $updated cărți</p>";
-echo "<p>❌ <strong>Eșuate:</strong> $failed cărți</p>";
-echo "<p>📚 <strong>Total cărți cu genuri:</strong> $booksWithGenres din $totalBooks</p>";
-echo "<p>📈 <strong>Progres:</strong> " . round(($booksWithGenres / $totalBooks) * 100, 1) . "%</p>";
+//echo "<h2>Rezultate finale:</h2>";
+echo "<p><strong>Actualizate cu succes:</strong> $updated cărți</p>";
+echo "<p><strong>Eșuate:</strong> $failed cărți</p>";
+echo "<p><strong>Total cărți cu genuri:</strong> $booksWithGenres din $totalBooks</p>";
+echo "<p><strong>Progres:</strong> " . round(($booksWithGenres / $totalBooks) * 100, 1) . "%</p>";
 echo "</div>";
 
 echo "<p><em>Scriptul s-a finalizat. Poți rula din nou pentru a actualiza mai multe cărți.</em></p>";

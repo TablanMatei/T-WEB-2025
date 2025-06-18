@@ -13,7 +13,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 try {
-    // Folosește funcția din config.php
     $pdo = getDbConnection();
 
     $input = json_decode(file_get_contents('php://input'), true);
@@ -25,8 +24,13 @@ try {
         exit;
     }
 
-    $stmt = $pdo->prepare("SELECT user_id, username, email, password FROM users WHERE username = :username");
-    $stmt->execute(['username' => $username]);
+    // Obține datele utilizatorului
+    $stmt = $pdo->prepare("
+        SELECT u.user_id, u.username, u.email, u.password
+        FROM users u 
+        WHERE u.username = ? OR u.email = ?
+    ");
+    $stmt->execute([$username, $username]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$user) {
@@ -34,6 +38,7 @@ try {
         exit;
     }
 
+    // Verifică parola
     if (password_verify($password, $user['password'])) {
         // Login reușit
         echo json_encode([

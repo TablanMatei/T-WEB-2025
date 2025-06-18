@@ -45,168 +45,195 @@ try {
 }
 
 function getPopularItems($pdo, $category, $limit) {
-    switch ($category) {
-        case 'Books':
-            $sql = "SELECT book_id as id, title, year, publisher 
-                    FROM books 
-                    ORDER BY title ASC 
-                    LIMIT :limit";
-            break;
+    if ($category === 'Books') {
+        $stmt = $pdo->prepare("
+            SELECT b.book_id as id, 
+                   b.title, 
+                   b.title as name,
+                   'Unknown' as author,
+                   b.year,
+                   b.year as publication_year,
+                   b.publisher,
+                   NULL as real_name,
+                   NULL as username,
+                   NULL as nationality,
+                   NULL as birth_year,
+                   0 as book_count,
+                   NULL as description
+            FROM books b ORDER BY b.title ASC LIMIT ?
+        ");
+        $stmt->execute([$limit]);
 
-        case 'Authors':
-            $sql = "SELECT author_id as id, name 
-                    FROM authors 
-                    ORDER BY name ASC 
-                    LIMIT :limit";
-            break;
+    } elseif ($category === 'Authors') {
+        $stmt = $pdo->prepare("
+            SELECT a.author_id as id,
+                   NULL as title,
+                   a.name,
+                   NULL as author,
+                   NULL as year,
+                   NULL as publication_year,
+                   NULL as publisher,
+                   NULL as real_name,
+                   NULL as username,
+                   'Unknown' as nationality,
+                   NULL as birth_year,
+                   0 as book_count,
+                   'Author information not available.' as description
+            FROM authors a ORDER BY a.name ASC LIMIT ?
+        ");
+        $stmt->execute([$limit]);
 
-        case 'Users':
-            $sql = "SELECT user_id as id, username as name, real_name   
-        FROM users   
-        ORDER BY username ASC   
-        LIMIT :limit";
-            break;
+    } elseif ($category === 'Users') {
+        $stmt = $pdo->prepare("
+            SELECT u.user_id as id,
+                   NULL as title,
+                   u.username as name,
+                   NULL as author,
+                   NULL as year,
+                   NULL as publication_year,
+                   NULL as publisher,
+                   u.real_name,
+                   u.username,
+                   NULL as nationality,
+                   NULL as birth_year,
+                   0 as book_count,
+                   COALESCE(u.real_name, 'User') as description
+            FROM users u ORDER BY u.username ASC LIMIT ?
+        ");
+        $stmt->execute([$limit]);
 
-        case 'Publishers':
-            $sql = "SELECT publisher as name, COUNT(*) as book_count 
-                    FROM books 
-                    WHERE publisher IS NOT NULL AND publisher != ''
-                    GROUP BY publisher 
-                    ORDER BY book_count DESC 
-                    LIMIT :limit";
-            break;
-
-        default:
-            return [];
+    } elseif ($category === 'Publishers') {
+        $stmt = $pdo->prepare("
+            SELECT ROW_NUMBER() OVER (ORDER BY COUNT(*) DESC) as id,
+                   NULL as title,
+                   b.publisher as name,
+                   NULL as author,
+                   NULL as year,
+                   NULL as publication_year,
+                   b.publisher,
+                   NULL as real_name,
+                   NULL as username,
+                   NULL as nationality,
+                   NULL as birth_year,
+                   COUNT(*) as book_count,
+                   NULL as description
+            FROM books b 
+            WHERE b.publisher IS NOT NULL AND b.publisher != ''
+            GROUP BY b.publisher 
+            ORDER BY COUNT(*) DESC 
+            LIMIT ?
+        ");
+        $stmt->execute([$limit]);
     }
 
-    try {
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
-        $stmt->execute();
-
-        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        // Normalizez datele pentru frontend
-        if ($category === 'Books') {
-            foreach ($results as &$book) {
-                $book['author'] = 'Unknown';
-                $book['publication_year'] = $book['year'];
-                $book['average_rating'] = null;
-                $book['image_url'] = null;
-            }
-        } elseif ($category === 'Authors') {
-            foreach ($results as &$author) {
-                // Adaug câmpuri placeholder pentru frontend
-                $author['nationality'] = 'Unknown';
-                $author['birth_year'] = null;
-                $author['book_count'] = 0;
-                $author['description'] = 'Author information not available.';
-            }
-        }
-        elseif ($category === 'Users') {
-            foreach ($results as &$user) {
-                $user['book_count'] = 0; // Placeholder pentru frontend
-                $user['description'] = isset($user['real_name']) ? $user['real_name'] : 'User';
-            }
-        }
-
-        return $results;
-    } catch (Exception $e) {
-        error_log("Error in getPopularItems: " . $e->getMessage());
-        return [];
-    }
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 function searchItems($pdo, $query, $category, $limit, $offset) {
     $searchTerm = '%' . $query . '%';
 
-    switch ($category) {
-        case 'Books':
-            $sql = "SELECT book_id as id, title, year, publisher 
-                    FROM books 
-                    WHERE title ILIKE :query OR publisher ILIKE :query
-                    ORDER BY 
-                        CASE 
-                            WHEN title ILIKE :query THEN 1
-                            WHEN publisher ILIKE :query THEN 2
-                            ELSE 3
-                        END,
-                        title ASC
-                    LIMIT :limit OFFSET :offset";
-            break;
+    if ($category === 'Books') {
+        $stmt = $pdo->prepare("
+            SELECT b.book_id as id, 
+                   b.title, 
+                   b.title as name,
+                   'Unknown' as author,
+                   b.year,
+                   b.year as publication_year,
+                   b.publisher,
+                   NULL as real_name,
+                   NULL as username,
+                   NULL as nationality,
+                   NULL as birth_year,
+                   0 as book_count,
+                   NULL as description,
+                   CASE 
+                       WHEN b.title ILIKE ? THEN 1
+                       WHEN b.publisher ILIKE ? THEN 2
+                       ELSE 3
+                   END as relevance_score
+            FROM books b 
+            WHERE b.title ILIKE ? OR b.publisher ILIKE ?
+            ORDER BY relevance_score, b.title ASC
+            LIMIT ? OFFSET ?
+        ");
+        $stmt->execute([$query, $query, $searchTerm, $searchTerm, $limit, $offset]);
 
-        case 'Authors':
-            $sql = "SELECT author_id as id, name 
-                    FROM authors 
-                    WHERE name ILIKE :query
-                    ORDER BY name ASC
-                    LIMIT :limit OFFSET :offset";
-            break;
+    } elseif ($category === 'Authors') {
+        $stmt = $pdo->prepare("
+            SELECT a.author_id as id,
+                   NULL as title,
+                   a.name,
+                   NULL as author,
+                   NULL as year,
+                   NULL as publication_year,
+                   NULL as publisher,
+                   NULL as real_name,
+                   NULL as username,
+                   'Unknown' as nationality,
+                   NULL as birth_year,
+                   0 as book_count,
+                   'Author information not available.' as description,
+                   1 as relevance_score
+            FROM authors a 
+            WHERE a.name ILIKE ?
+            ORDER BY a.name ASC
+            LIMIT ? OFFSET ?
+        ");
+        $stmt->execute([$searchTerm, $limit, $offset]);
 
-        case 'Users':
-            $sql = "SELECT user_id as id, username as name, real_name   
-        FROM users   
-        WHERE username ILIKE :query OR real_name ILIKE :query  
-        ORDER BY   
-            CASE   
-                WHEN username ILIKE :query THEN 1  
-                WHEN real_name ILIKE :query THEN 2  
-                ELSE 3  
-            END,  
-            username ASC  
-        LIMIT :limit OFFSET :offset";
-            break;
+    } elseif ($category === 'Users') {
+        $stmt = $pdo->prepare("
+            SELECT u.user_id as id,
+                   NULL as title,
+                   u.username as name,
+                   NULL as author,
+                   NULL as year,
+                   NULL as publication_year,
+                   NULL as publisher,
+                   u.real_name,
+                   u.username,
+                   NULL as nationality,
+                   NULL as birth_year,
+                   0 as book_count,
+                   COALESCE(u.real_name, 'User') as description,
+                   CASE 
+                       WHEN u.username ILIKE ? THEN 1
+                       WHEN u.real_name ILIKE ? THEN 2
+                       ELSE 3
+                   END as relevance_score
+            FROM users u 
+            WHERE u.username ILIKE ? OR u.real_name ILIKE ?
+            ORDER BY relevance_score, u.username ASC
+            LIMIT ? OFFSET ?
+        ");
+        $stmt->execute([$query, $query, $searchTerm, $searchTerm, $limit, $offset]);
 
-        case 'Publishers':
-            $sql = "SELECT publisher as name, COUNT(*) as book_count 
-                    FROM books 
-                    WHERE publisher ILIKE :query AND publisher IS NOT NULL AND publisher != ''
-                    GROUP BY publisher 
-                    ORDER BY book_count DESC 
-                    LIMIT :limit OFFSET :offset";
-            break;
-
-        default:
-            return [];
+    } elseif ($category === 'Publishers') {
+        $stmt = $pdo->prepare("
+            SELECT ROW_NUMBER() OVER (ORDER BY COUNT(*) DESC) as id,
+                   NULL as title,
+                   b.publisher as name,
+                   NULL as author,
+                   NULL as year,
+                   NULL as publication_year,
+                   b.publisher,
+                   NULL as real_name,
+                   NULL as username,
+                   NULL as nationality,
+                   NULL as birth_year,
+                   COUNT(*) as book_count,
+                   NULL as description,
+                   1 as relevance_score
+            FROM books b 
+            WHERE b.publisher ILIKE ? AND b.publisher IS NOT NULL AND b.publisher != ''
+            GROUP BY b.publisher 
+            ORDER BY COUNT(*) DESC 
+            LIMIT ? OFFSET ?
+        ");
+        $stmt->execute([$searchTerm, $limit, $offset]);
     }
 
-    try {
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(':query', $searchTerm);
-        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
-        $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
-        $stmt->execute();
-
-        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        // Normalizez datele
-        if ($category === 'Books') {
-            foreach ($results as &$book) {
-                $book['author'] = 'Unknown';
-                $book['publication_year'] = $book['year'];
-                $book['average_rating'] = null;
-                $book['image_url'] = null;
-            }
-        } elseif ($category === 'Authors') {
-            foreach ($results as &$author) {
-                $author['nationality'] = 'Unknown';
-                $author['birth_year'] = null;
-                $author['book_count'] = 0;
-                $author['description'] = 'Author information not available.';
-            }
-        }
-        elseif ($category === 'Users') {
-            foreach ($results as &$user) {
-                $user['book_count'] = 0; // Placeholder pentru frontend
-                $user['description'] = isset($user['real_name']) ? $user['real_name'] : 'User';
-            }
-        }
-
-        return $results;
-    } catch (Exception $e) {
-        error_log("Error in searchItems: " . $e->getMessage());
-        return [];
-    }
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 ?>

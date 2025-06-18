@@ -1,15 +1,19 @@
 <?php
-session_start();
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET');
+header('Access-Control-Allow-Origin: http://localhost:9000');
+header('Access-Control-Allow-Methods: GET, POST');
+header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Credentials: true');
 require_once '../config.php';
-//require_once '../config/database.php';
-/** @var PDO $pdo */
 
-// Verifică sesiunea (similar cu logout.php)
-if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'error' => 'Not authenticated']);
+$pdo = getDbConnection();
+
+// Primește user_id din POST în loc de sesiune
+$input = json_decode(file_get_contents('php://input'), true);
+$user_id = isset($input['user _id']) ? $input['user_id'] : null;
+
+if (!$user_id) {
+    echo json_encode(['success' => false, 'error' => 'User ID required']);
     exit;
 }
 
@@ -17,12 +21,12 @@ try {
     $stmt = $pdo->prepare("
         SELECT user_id, username, real_name, email, description, 
                birthdate, gender, location, pronouns, website, 
-               profile_picture, created_at 
+               profile_picture, updated_at 
         FROM users 
         WHERE user_id = ?
     ");
 
-    $stmt->execute([$_SESSION['user_id']]);
+    $stmt->execute([$user_id]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($user) {
@@ -35,6 +39,6 @@ try {
     }
 
 } catch (PDOException $e) {
-    echo json_encode(['success' => false, 'error' => 'Database error']);
+    echo json_encode(['success' => false, 'error' => 'Database error: ' . $e->getMessage()]);
 }
 ?>

@@ -54,49 +54,53 @@ if (!empty($gender) && !in_array($gender, $validGenders)) {
 
 try {
     // Verifică dacă username-ul există deja
-    $stmt = $pdo->prepare("SELECT user_id FROM users WHERE username = :username");
-    $stmt->execute(array('username' => $username));
-    if ($stmt->fetch()) {
+    $checkUsernameStmt = $pdo->prepare("SELECT 1 FROM users WHERE username = ?");
+    $checkUsernameStmt->execute([$username]);
+    if ($checkUsernameStmt->fetch()) {
         jsonResponse(array('error' => 'Username already exists'), 409);
     }
 
     // Verifică dacă email-ul există deja
-    $stmt = $pdo->prepare("SELECT user_id FROM users WHERE email = :email");
-    $stmt->execute(array('email' => $email));
-    if ($stmt->fetch()) {
+    $checkEmailStmt = $pdo->prepare("SELECT 1 FROM users WHERE email = ?");
+    $checkEmailStmt->execute([$email]);
+    if ($checkEmailStmt->fetch()) {
         jsonResponse(array('error' => 'Email already exists'), 409);
     }
 
-    // Hash-uiește parola
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-    // Inserează utilizatorul
-    $stmt = $pdo->prepare("  
-    INSERT INTO users (username, email, password, real_name, description, birthdate, gender)   
-    VALUES (:username, :email, :password, :real_name, :description, :birthdate, :gender)   
-    RETURNING user_id  
-");
+    // Inserează utilizatorul nou
+    $insertStmt = $pdo->prepare("
+        INSERT INTO users (username, email, password, real_name, description, birthdate, gender)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ");
+    $insertStmt->execute([
+        $username,
+        $email,
+        $hashedPassword,
+        $realName,
+        $description,
+        !empty($birthdate) ? $birthdate : null,
+        !empty($gender) ? $gender : null
+    ]);
 
-    $stmt->execute(array(
-        'username' => $username,
-        'email' => $email,
-        'password' => $hashedPassword,  // ← SCHIMBAT DIN password_hash ÎN password
-        'real_name' => $realName,
-        'description' => $description,
-        'birthdate' => !empty($birthdate) ? $birthdate : null,
-        'gender' => !empty($gender) ? $gender : null
-    ));
+    // Obține ID-ul utilizatorului nou creat
+    $user_id = $pdo->lastInsertId();
 
-    $userId = $stmt->fetchColumn();
+    // Inserează notificarea de bun venit
+    $notificationStmt = $pdo->prepare("
+        INSERT INTO notifications (user_id, type, message, created_at)
+        VALUES (?, 'welcome', 'Welcome to Biblioxy!', CURRENT_TIMESTAMP)
+    ");
+    $notificationStmt->execute([$user_id]);
 
     jsonResponse(array(
         'success' => true,
         'message' => 'User registered successfully',
-        'user_id' => $userId
+        'user_id' => $user_id
     ), 201);
 
 } catch (PDOException $e) {
-    //jsonResponse(array('error' => 'Registration failed'), 500);
     jsonResponse(array(
         'error' => 'Registration failed',
         'debug' => $e->getMessage(),
