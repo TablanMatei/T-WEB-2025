@@ -273,36 +273,89 @@ function displayUserBooks(books) {
 
     if (books.length === 0) {
         booksContainer.innerHTML = `
-            <div class="no-books-message">
-                <h3>No finished books yet!</h3>
-                <p>Complete reading books from the <a href="../genresPage/genresPage.html">Genres page</a> or <a href="../mainPage/index.html">search for books</a>.</p>
-            </div>
-        `;
+      <div class="no-books-message">
+        <h3>No finished books yet!</h3>
+        <p>Complete reading books from the <a href="../genresPage/genresPage.html">Genres page</a> or <a href="../mainPage/index.html">search for books</a>.</p>
+      </div>`;
         return;
     }
 
     booksContainer.innerHTML = books.map(book => `
-        <article class="book-card-item">
-            <div class="book-placeholder">📚</div>
-            <h3 class="book-title">${book.title}</h3>
-            <p class="book-author">${book.author}</p>
-            <p class="book-year">${book.publication_year || 'N/A'}</p>
-            <p class="book-finished">Finished: ${new Date(book.date_added).toLocaleDateString()}</p>
-            ${book.rating ? `<div class="book-rating">${'★'.repeat(book.rating)}${'☆'.repeat(5-book.rating)}</div>` : ''}
-            <div class="book-actions">
-                <button onclick="changeBookStatus(${book.book_id}, 'currently_reading')" class="btn-reading">
-                    Read Again
-                </button>
-                <button onclick="changeBookStatus(${book.book_id}, 'want_to_read')" class="btn-want">
-                    Move to Want to Read
-                </button>
-                <button onclick="removeFromList(${book.book_id})" class="btn-remove">
-                    Remove
-                </button>
-            </div>
-        </article>
-    `).join('');
+    <article class="book-card-item">
+      <div class="book-placeholder">📚</div>
+      <h3 class="book-title">${book.title}</h3>
+      <p class="book-author">${book.author}</p>
+      <p class="book-year">${book.publication_year || 'N/A'}</p>
+      <p class="book-finished">Finished: ${new Date(book.date_added).toLocaleDateString()}</p>
+      ${book.rating ? `<div class="book-rating">${'★'.repeat(book.rating)}${'☆'.repeat(5 - book.rating)}</div>` : ''}
+      
+      
+
+      <div class="book-actions">
+        <button onclick="changeBookStatus(${book.book_id}, 'currently_reading')" class="btn-reading">Read Again</button>
+        <button onclick="changeBookStatus(${book.book_id}, 'want_to_read')" class="btn-want">Move to Want to Read</button>
+        <button onclick="removeFromList(${book.book_id})" class="btn-remove">Remove</button>
+        
+        <div class="review-section">
+        <textarea placeholder="Write a short review..." id="review-${book.book_id}">${book.review || ''}</textarea>
+        <select id="rating-${book.book_id}">
+          <option value="">Rate this book</option>
+          ${[1, 2, 3, 4, 5].map(n => `<option value="${n}" ${book.rating == n ? 'selected' : ''}>${n} ★</option>`).join('')}
+        </select>
+        <button onclick="submitReview(${book.book_id})">Submit Review</button>
+      </div>
+      
+      </div>
+    </article>
+  `).join('');
 }
+
+async function submitReview(bookId) {
+    try {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!user.user_id) {
+            alert('Please login first');
+            return;
+        }
+
+        const review = document.getElementById(`review-${bookId}`).value.trim();
+        const rating = document.getElementById(`rating-${bookId}`).value;
+
+        if (!review && !rating) {
+            alert('Please add a review or select a rating.');
+            return;
+        }
+
+        const response = await fetch('http://localhost:9000/backend/api/update_review_rating.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                user_id: user.user_id,
+                book_id: bookId,
+                review,
+                rating: rating ? parseInt(rating) : null
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            alert('Review submitted successfully!');
+            if (typeof loadUserBooks === 'function') {
+                loadUserBooks();
+            }
+        } else {
+            alert('Error submitting review: ' + (data.error || 'Unknown error'));
+        }
+
+    } catch (error) {
+        console.error('Error submitting review:', error);
+        alert('Network error. Please try again.');
+    }
+}
+
 
 function displayMessage(message) {
     const booksContainer = document.querySelector('.book-cards-container') ||
