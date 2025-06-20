@@ -47,6 +47,16 @@
 
     <nav>
         <ul id="navList">
+            <!-- RSS Button -->
+            <li>
+                <a href="../../backend/rss_feed.php" class="rss-button" target="_blank" title="RSS Feed - Anunțuri Comunitate">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="#ff6600">
+                        <circle cx="6.18" cy="17.82" r="2.18"/>
+                        <path d="M4 4.44v2.83c7.03 0 12.73 5.7 12.73 12.73h2.83c0-8.59-6.97-15.56-15.56-15.56z"/>
+                        <path d="M4 10.1v2.83c2.76 0 5.07 2.31 5.07 5.07h2.83c0-4.35-3.55-7.9-7.9-7.9z"/>
+                    </svg>
+                </a>
+            </li>
             <li class="dropdown">
                 <a href="#discover" class="nav-btn">DISCOVER
                     <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -91,6 +101,7 @@
                     </li>
                 </ul>
             </li>
+
 
             <li><a href="#" class="nav-btn" onclick="navigateToCommunity()">Community</a></li>
             <li><a href="#" onclick="openLogin()" class="nav-btn login-btn">Login</a></li>

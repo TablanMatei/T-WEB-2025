@@ -5,13 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="11112695-32c3-4b25-80c9-16f957f723d9" name="Changes" comment="Frontend - finishedBooksPAge">
-      <change afterPath="$PROJECT_DIR$/backend/api/update_review_rating.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/community/get_group_books.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/announcements_manager.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/rss_feed.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/finishedBooksPage/finishedBooksPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/finishedBooksPage/finishedBooksPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/groupPage/groupPage.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/groupPage/groupPage.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/groupPage/groupPage.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/groupPage/groupPage.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/groupPage/groupPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/groupPage/groupPage.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/api/update_review_rating.php" beforeDir="false" afterPath="$PROJECT_DIR$/backend/api/update_review_rating.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/community/create_groups.php" beforeDir="false" afterPath="$PROJECT_DIR$/backend/community/create_groups.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/mainPage/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/mainPage/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/mainPage/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/mainPage/style.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,12 +39,12 @@
     &quot;assignee&quot;: &quot;TablanMatei&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/TablanMatei/T-WEB-2025.git&quot;,
-    &quot;accountId&quot;: &quot;5defed38-b4a4-469f-b74f-bb00f4ea7d27&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/TablanMatei/T-WEB-2025",
+    "accountId": "5defed38-b4a4-469f-b74f-bb00f4ea7d27"
   }
-}</component>
+}]]></component>
   <component name="PhpWorkspaceProjectConfiguration" interpreter_name="PHP" />
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
@@ -90,8 +90,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-b26f3e71634d-JavaScript-PS-251.26094.133" />
-        <option value="bundled-php-predefined-a98d8de5180a-c5828cf854d9-com.jetbrains.php.sharedIndexes-PS-251.26094.133" />
+        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-PS-243.25659.45" />
+        <option value="bundled-php-predefined-a98d8de5180a-1ec7b7818973-com.jetbrains.php.sharedIndexes-PS-243.25659.45" />
       </set>
     </attachedChunks>
   </component>
@@ -120,6 +120,7 @@
       <workItem from="1750371170148" duration="1394000" />
       <workItem from="1750410015433" duration="12301000" />
       <workItem from="1750440746823" duration="2790000" />
+      <workItem from="1750460049411" duration="3434000" />
     </task>
     <task id="LOCAL-00001" summary="Fixed duplicated folders">
       <option name="closed" value="true" />

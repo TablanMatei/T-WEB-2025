@@ -9,6 +9,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once '../config.php';
+require_once '../announcements_manager.php';
+
 $pdo = getDbConnection();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -24,6 +26,8 @@ if (!isset($input['name']) || !isset($input['description']) || !isset($input['us
 }
 
 try {
+    $announcementManager = new AnnouncementManager();
+
     // Extrage genurile și vârsta din descriere
     $description = $input['description'];
     $genres = '';
@@ -77,6 +81,9 @@ try {
         VALUES (?, 'group_created', 'Your reading group has been created successfully!', CURRENT_TIMESTAMP)
     ");
     $insertNotificationStmt->execute([$input['user_id']]);
+
+    // **ADAUGĂ ANUNȚUL RSS**
+    $announcementManager->addNewGroupAnnouncement($input['user_id'], $input['name'], $group_id);
 
     echo json_encode([
         'success' => true,
