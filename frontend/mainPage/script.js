@@ -85,6 +85,9 @@ document.addEventListener('click', (e) => {
         popup.style.display = 'none';
         resetToBooks();
     }
+
+    // Fix pentru libraryModal - obține elementul direct
+    const libraryModal = document.getElementById('libraryModal');
     if (libraryModal && e.target === libraryModal) {
         closeLibraryModal();
     }
@@ -468,75 +471,8 @@ function searchByName(name, category) {
     setCategory('Books');
     performSearch();
 }
-window.addEventListener('DOMContentLoaded', () => {
-    if (localStorage.getItem('isLoggedIn') === 'true') {
-        addDashboardDropdown();
-    }
-});
 
 // LOGIN FUNCTIONS
-function addDashboardDropdown() {
-    const navList = document.getElementById('navList');
-    if (!navList) return;
-
-    const dropdownHTML = `
-    <li class="dropdown">
-    <a href="#dashboard" class="nav-btn">DASHBOARD
-    <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M6 9l6 6 6-6"></path>
-    </svg>
-    </a>
-    <ul class="dropdown-menu">
-    <li>
-    <a href="../currentlyReadingPage/currentlyReadingPage.html">
-    <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <circle cx="12" cy="12" r="10"></circle>
-    <polyline points="12 6 12 12 16 14"></polyline>
-    </svg>
-    Currently Reading
-    </a>
-    </li>
-    <li>
-    <a href="../wantToReadPage/wantToReadPage.html">
-    <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M12 20l9-5-9-5-9 5 9 5z"></path>
-    <path d="M12 12v8"></path>
-    <path d="M12 12L3 7"></path>
-    <path d="M12 12l9-5"></path>
-    </svg>
-    Want to Read
-    </a>
-    </li>
-    <li>
-    <a href="../finishedBooksPage/finishedBooksPage.html">
-    <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <polyline points="20 6 9 17 4 12"></polyline>
-    </svg>
-    Finished Books
-    </a>
-    </li>
-    <li>
-    <a href="#reading-stats">
-    <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <line x1="12" y1="20" x2="12" y2="10"></line>
-    <line x1="18" y1="20" x2="18" y2="4"></line>
-    <line x1="6" y1="20" x2="6" y2="16"></line>
-    </svg>
-    Book Stats
-    </a>
-    </li>
-    </ul>
-    </li>
-    `;
-
-    const discoverItem = navList.querySelector('li.dropdown');
-    if (discoverItem) {
-        discoverItem.insertAdjacentHTML('afterend', dropdownHTML);
-    } else {
-        navList.insertAdjacentHTML('beforeend', dropdownHTML);
-    }
-}
-
 async function handleLogin(event) {
     event.preventDefault();
 
@@ -574,7 +510,6 @@ async function handleLogin(event) {
 
             showLoginMessage('Login successful!', 'success');
             updateUIAfterLogin(result.user);
-            addDashboardDropdown();
 
             setTimeout(() => {
                 closeLogin();
@@ -669,6 +604,9 @@ function updateUIAfterLogin(user) {
             setupNavigationLinks();
         }
     }
+
+    // Adaugă dashboard dropdown
+    addDashboardDropdown();
 }
 
 function setupNavigationLinks() {
@@ -769,4 +707,215 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Setează categoria default
     setCategory('Books');
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+    if (localStorage.getItem('isLoggedIn') === 'true') {
+        addDashboardDropdown();
+    }
+});
+
+// LOGIN FUNCTIONS
+function addDashboardDropdown() {
+    const navList = document.getElementById('navList');
+    if (!navList) return;
+    if (navList.querySelector('li.dropdown a[href="#dashboard"]')) {
+        return; // Nu adăuga din nou dacă există deja
+    }
+    const dropdownHTML = `  
+    <li class="dropdown">  
+    <a href="#dashboard" class="nav-btn">DASHBOARD  
+    <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">  
+    <path d="M6 9l6 6 6-6"></path>  
+    </svg>  
+    </a>  
+    <ul class="dropdown-menu">  
+    <li>  
+    <a href="../currentlyReadingPage/currentlyReadingPage.html">  
+    <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">  
+    <circle cx="12" cy="12" r="10"></circle>  
+    <polyline points="12 6 12 12 16 14"></polyline>  
+    </svg>  
+    Currently Reading  
+    </a>  
+    </li>  
+    <li>  
+    <a href="../wantToReadPage/wantToReadPage.html">  
+    <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">  
+    <path d="M12 20l9-5-9-5-9 5 9 5z"></path>  
+    <path d="M12 12v8"></path>  
+    <path d="M12 12L3 7"></path>  
+    <path d="M12 12l9-5"></path>  
+    </svg>  
+    Want to Read  
+    </a>  
+    </li>  
+    <li>  
+    <a href="../finishedBooksPage/finishedBooksPage.html">  
+    <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">  
+    <polyline points="20 6 9 17 4 12"></polyline>  
+    </svg>  
+    Finished Books  
+    </a>  
+    </li>  
+    <li>  
+    <a href="#reading-stats">  
+    <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">  
+    <line x1="12" y1="20" x2="12" y2="10"></line>  
+    <line x1="18" y1="20" x2="18" y2="4"></line>  
+    <line x1="6" y1="20" x2="6" y2="16"></line>  
+    </svg>  
+    Book Stats  
+    </a>  
+    </li>  
+    </ul>  
+    </li>  
+    `;
+
+    const discoverItem = navList.querySelector('li.dropdown');
+    if (discoverItem) {
+        discoverItem.insertAdjacentHTML('afterend', dropdownHTML);
+    } else {
+        navList.insertAdjacentHTML('beforeend', dropdownHTML);
+    }
+}
+
+/* Funcții pentru gestionarea statusului cărților */
+function toggleStatusSlider(button, bookId) {
+    const slider = button.nextElementSibling;
+    const allSliders = document.querySelectorAll('.status-slider');
+
+    // Închide toate celelalte slidere
+    allSliders.forEach(s => {
+        if (s !== slider) {
+            s.classList.remove('show');
+        }
+    });
+
+    // Toggle slider-ul curent
+    slider.classList.toggle('show');
+
+    // Încarcă statusul actual al cărții
+    loadCurrentBookStatus(bookId, slider);
+}
+
+async function loadCurrentBookStatus(bookId, slider) {
+    try {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!user.id) return;
+
+        const response = await fetch(`/backend/api/get_book_status.php?user_id=${user.id}&book_id=${bookId}`);
+        const data = await response.json();
+
+        // Resetează selecțiile
+        slider.querySelectorAll('.status-option').forEach(option => {
+            option.classList.remove('selected');
+        });
+
+        // Marchează statusul curent
+        if (data.success && data.status) {
+            const currentOption = slider.querySelector(`[data-status="${data.status}"]`);
+            if (currentOption) {
+                currentOption.classList.add('selected');
+            }
+
+            // Actualizează textul butonului
+            const button = slider.previousElementSibling;
+            updateButtonText(button, data.status);
+        }
+    } catch (error) {
+        console.error('Error loading book status:', error);
+    }
+}
+
+async function setBookStatus(bookId, status, optionElement) {
+    try {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!user.id) {
+            alert('Please login to add books to your lists');
+            return;
+        }
+
+        const response = await fetch('/backend/api/update_book_status.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                user_id: user.id,
+                book_id: bookId,
+                status: status
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Actualizează UI
+            const slider = optionElement.closest('.status-slider');
+            const button = slider.previousElementSibling;
+
+            // Resetează selecțiile
+            slider.querySelectorAll('.status-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+
+            // Marchează opțiunea selectată
+            optionElement.classList.add('selected');
+
+            // Actualizează textul butonului
+            updateButtonText(button, status);
+
+            // Închide slider-ul
+            slider.classList.remove('show');
+
+            // Afișează mesaj de succes
+            showStatusMessage('Book added to your list!', 'success');
+
+        } else {
+            showStatusMessage(data.error || 'Error updating book status', 'error');
+        }
+
+    } catch (error) {
+        console.error('Error setting book status:', error);
+        showStatusMessage('Network error. Please try again.', 'error');
+    }
+}
+
+function updateButtonText(button, status) {
+    const statusText = button.querySelector('.status-text');
+    const statusMap = {
+        'want_to_read': 'Want to Read',
+        'currently_reading': 'Reading',
+        'finished': 'Finished'
+    };
+
+    statusText.textContent = statusMap[status] || 'Add to List';
+
+    if (status) {
+        button.classList.add('active');
+    } else {
+        button.classList.remove('active');
+    }
+}
+
+function showStatusMessage(message, type) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `status-message ${type}`;
+    messageDiv.textContent = message;
+
+    document.body.appendChild(messageDiv);
+
+    setTimeout(() => {
+        messageDiv.remove();
+    }, 3000);
+}
+
+// Event listener pentru închiderea slider-elor când se face click în afara lor
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.book-status-container')) {
+        document.querySelectorAll('.status-slider').forEach(slider => {
+            slider.classList.remove('show');
+        });
+    }
 });

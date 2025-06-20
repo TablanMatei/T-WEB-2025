@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="11112695-32c3-4b25-80c9-16f957f723d9" name="Changes" comment="Frontend - finishedBooksPAge">
+      <change afterPath="$PROJECT_DIR$/backend/api/get_book_status.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/api/get_user_books.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/api/remove_book_status.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/api/update_book_status.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/currentlyReadingPage/currentlyReadingPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/currentlyReadingPage/currentlyReadingPage.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/finishedBooksPage/finishedBooksPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/finishedBooksPage/finishedBooksPage.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/genresPage/genresPage.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/genresPage/genresPage.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/genresPage/genresPage.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/genresPage/genresPage.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/genresPage/genresPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/genresPage/genresPage.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/mainPage/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/mainPage/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/mainPage/script.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/mainPage/script.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/mainPage/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/mainPage/style.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/wantToReadPage/wantToReadPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/wantToReadPage/wantToReadPage.js" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerSettings">
+    <execution />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="CSS File" />
+        <option value="HTML File" />
+        <option value="JavaScript File" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;TablanMatei&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/TablanMatei/T-WEB-2025.git&quot;,
+    &quot;accountId&quot;: &quot;5defed38-b4a4-469f-b74f-bb00f4ea7d27&quot;
+  }
+}</component>
+  <component name="PhpWorkspaceProjectConfiguration" interpreter_name="PHP" />
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="2xs9j7WiCKhoPWDZ5YKbtYgbITq" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;PHP Built-in Web Server.Unnamed.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Matei/PhpstormProjects/T-WEB-2025/frontend/mainPage&quot;,
+    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.language&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Matei\PhpstormProjects\T-WEB-2025\frontend\mainPage" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Matei\PhpstormProjects\T-WEB-2025\frontend" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="Unnamed" type="PhpBuiltInWebServerConfigurationType" factoryName="PHP Built-in Web Server" nameIsGenerated="true" document_root="$PROJECT_DIR$" port="9000">
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-PS-243.25659.45" />
+        <option value="bundled-php-predefined-a98d8de5180a-1ec7b7818973-com.jetbrains.php.sharedIndexes-PS-243.25659.45" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="11112695-32c3-4b25-80c9-16f957f723d9" name="Changes" comment="" />
+      <created>1748716047917</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1748716047917</updated>
+      <workItem from="1748716049644" duration="2677000" />
+      <workItem from="1748780057325" duration="1417000" />
+      <workItem from="1748810643870" duration="7850000" />
+      <workItem from="1748852709146" duration="3554000" />
+      <workItem from="1748895544790" duration="8145000" />
+      <workItem from="1748971353581" duration="731000" />
+      <workItem from="1749025543498" duration="4789000" />
+      <workItem from="1749041766899" duration="644000" />
+      <workItem from="1749045445220" duration="2194000" />
+      <workItem from="1749135995471" duration="590000" />
+      <workItem from="1750260390853" duration="10722000" />
+      <workItem from="1750281508359" duration="615000" />
+      <workItem from="1750322098040" duration="3719000" />
+      <workItem from="1750353873784" duration="1425000" />
+      <workItem from="1750371170148" duration="1394000" />
+      <workItem from="1750410015433" duration="12301000" />
+    </task>
+    <task id="LOCAL-00001" summary="Fixed duplicated folders">
+      <option name="closed" value="true" />
+      <created>1748726938621</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1748726938621</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Integrare creare grup">
+      <option name="closed" value="true" />
+      <created>1748821696869</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1748821696869</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Integrare join grup + bug fixed">
+      <option name="closed" value="true" />
+      <created>1748855107492</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1748855107492</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Integrare genresPage">
+      <option name="closed" value="true" />
+      <created>1749035405815</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1749035405815</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Integrare functie Search">
+      <option name="closed" value="true" />
+      <created>1749047274904</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1749047274904</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Restore dupa versiunea pt SGBD">
+      <option name="closed" value="true" />
+      <created>1750263550057</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1750263550058</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Recomandare Biblioteci API">
+      <option name="closed" value="true" />
+      <created>1750275800905</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1750275800907</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Frontend - curenttlyReading &amp; wantToRead">
+      <option name="closed" value="true" />
+      <created>1750372333239</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1750372333239</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Frontend - finishedBooksPAge">
+      <option name="closed" value="true" />
+      <created>1750412219328</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1750412219328</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Fixed duplicated folders" />
+    <MESSAGE value="Integrare creare grup" />
+    <MESSAGE value="Integrare join grup + bug fixed" />
+    <MESSAGE value="Integrare genresPage" />
+    <MESSAGE value="Integrare functie Search" />
+    <MESSAGE value="Restore dupa versiunea pt SGBD" />
+    <MESSAGE value="Recomandare Biblioteci API" />
+    <MESSAGE value="Frontend - curenttlyReading &amp; wantToRead" />
+    <MESSAGE value="Frontend - finishedBooksPAge" />
+    <option name="LAST_COMMIT_MESSAGE" value="Frontend - finishedBooksPAge" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+</project>

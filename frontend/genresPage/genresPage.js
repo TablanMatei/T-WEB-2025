@@ -647,14 +647,33 @@ async function loadBooksForGenre(genre) {
 }
 
 // Creează un item de carte
+// Înlocuiește funcția createBookItem existentă cu aceasta:
 function createBookItem(book) {
     return `  
-        <div class="book-item dynamic-book" onclick="selectBook(${book.id})">  
-            <div class="book-placeholder">📚</div>  
-            <p class="book-title-dynamic">${book.title}</p>  
-            <p class="book-author-dynamic">${book.author}</p>  
-            <p class="book-year-dynamic">${book.publication_year || 'N/A'}</p>  
-        </div>  
+    <div class="book-item dynamic-book">  
+        <div class="book-placeholder">📚</div>  
+        <p class="book-title-dynamic">${book.title}</p>  
+        <p class="book-author-dynamic">${book.author}</p>  
+        <p class="book-year-dynamic">${book.publication_year || 'N/A'}</p>  
+        
+        <div class="book-status-container">
+            <button class="book-status-btn" onclick="toggleStatusSlider(this, ${book.id})">
+                <span class="status-text">Add to List</span>
+                <span class="dropdown-arrow">▼</span>
+            </button>
+            <div class="status-slider">
+                <div class="status-option" data-status="want_to_read" onclick="setBookStatus(${book.id}, 'want_to_read', this)">
+                    <span class="status-icon">📚</span>Want to Read
+                </div>
+                <div class="status-option" data-status="currently_reading" onclick="setBookStatus(${book.id}, 'currently_reading', this)">
+                    <span class="status-icon">📖</span>Currently Reading
+                </div>
+                <div class="status-option" data-status="finished" onclick="setBookStatus(${book.id}, 'finished', this)">
+                    <span class="status-icon">✅</span>Finished
+                </div>
+            </div>
+        </div>
+    </div>  
     `;
 }
 // Funcție helper pentru capitalizare
@@ -692,3 +711,165 @@ document.addEventListener('DOMContentLoaded', function() {
     // Încarcă genurile de la backend
     loadGenresFromDatabase();
 });
+
+/* slecatare status carti*/
+// Funcții pentru gestionarea statusului cărților
+function toggleStatusSlider(button, bookId) {
+    const slider = button.nextElementSibling;
+    const allSliders = document.querySelectorAll('.status-slider');
+
+    // Închide toate celelalte slidere
+    allSliders.forEach(s => {
+        if (s !== slider) {
+            s.classList.remove('show');
+        }
+    });
+
+    // Toggle slider-ul curent
+    slider.classList.toggle('show');
+
+    // Încarcă statusul actual al cărții
+    loadCurrentBookStatus(bookId, slider);
+}
+
+async function loadCurrentBookStatus(bookId, slider) {
+    try {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!user.user_id) return;
+
+        const userId = user.user_id;
+        const url = `http://localhost:9000/backend/api/get_book_status.php?user_id=${userId}&book_id=${bookId}`;
+
+        console.log('Calling URL:', url); // DEBUG
+
+        const response = await fetch(url);
+
+        // ADAUGĂ ACESTE LINII PENTRU DEBUG:
+        const responseText = await response.text();
+        console.log('Response status:', response.status);
+        console.log('Response text:', responseText);
+
+        // Încearcă să parsezi JSON doar dacă răspunsul pare să fie JSON
+        if (responseText.trim().startsWith('{') || responseText.trim().startsWith('[')) {
+            const data = JSON.parse(responseText);
+            // restul codului...
+        } else {
+            console.error('Backend returned non-JSON response:', responseText);
+            return;
+        }
+
+    } catch (error) {
+        console.error('Error loading book status:', error);
+    }
+}
+
+async function setBookStatus(bookId, status, optionElement) {
+    try {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!user.user_id) {
+            alert('Please login to add books to your lists');
+            return;
+        }
+
+        console.log('Setting book status:', { bookId, status, userId: user.user_id });
+
+        const response = await fetch('http://localhost:9000/backend/api/update_book_status.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                user_id: user.user_id,
+                book_id: bookId,
+                status: status
+            })
+        });
+
+        const responseText = await response.text();
+        console.log('Response status:', response.status);
+        console.log('Response text:', responseText);
+
+        // Încearcă să parsezi JSON doar dacă răspunsul pare să fie JSON
+        if (responseText.trim().startsWith('{') || responseText.trim().startsWith('[')) {
+            const data = JSON.parse(responseText);
+
+            if (data.success) {
+                // Actualizează UI
+                const slider = optionElement.closest('.status-slider');
+                const button = slider.previousElementSibling;
+
+                // Resetează selecțiile
+                slider.querySelectorAll('.status-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+
+                // Marchează opțiunea selectată
+                optionElement.classList.add('selected');
+
+                // Actualizează textul butonului
+                updateButtonText(button, status);
+
+                // Închide slider-ul
+                slider.classList.remove('show');
+
+                // Afișează mesaj de succes
+                showStatusMessage('Book added to your list!', 'success');
+
+                // ADAUGĂ ACEASTĂ LINIE PENTRU ACTUALIZARE AUTOMATĂ:
+                if (typeof(Storage) !== "undefined") {
+                    localStorage.setItem('bookStatusUpdated', Date.now());
+                }
+
+            } else {
+                showStatusMessage(data.error || 'Error updating book status', 'error');
+            }
+        } else {
+            console.error('Backend returned non-JSON response:', responseText);
+            showStatusMessage('Server error. Please try again.', 'error');
+            return;
+        }
+
+    } catch (error) {
+        console.error('Error setting book status:', error);
+        showStatusMessage('Network error. Please try again.', 'error');
+    }
+}
+function updateButtonText(button, status) {
+    const statusText = button.querySelector('.status-text');
+    const statusMap = {
+        'want_to_read': 'Want to Read',
+        'currently_reading': 'Reading',
+        'finished': 'Finished'
+    };
+
+    statusText.textContent = statusMap[status] || 'Add to List';
+
+    if (status) {
+        button.classList.add('active');
+    } else {
+        button.classList.remove('active');
+    }
+}
+
+function showStatusMessage(message, type) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `status-message ${type}`;
+    messageDiv.textContent = message;
+
+    document.body.appendChild(messageDiv);
+
+    setTimeout(() => {
+        messageDiv.remove();
+    }, 3000);
+}
+
+
+
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.book-status-container')) {
+        document.querySelectorAll('.status-slider').forEach(slider => {
+            slider.classList.remove('show');
+        });
+    }
+});
+

@@ -8,14 +8,12 @@
     <link rel="stylesheet" href="library_styles.css">
     <script src="script.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
-
 </head>
 <body>
 <header>
     <h2>
-        <a href="/frontend/mainPage/index.html" style="text-decoration: none; color: inherit; display: flex; align-items: center;">
+        <a href="index.html" style="text-decoration: none; color: inherit; display: flex; align-items: center;">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="48" height="48" class="biblioxy-mini-logo">
-
                 <polygon points="60,10 73,42 115,42 80,68 93,110 60,85 27,110 40,68 5,42 47,42" fill="#facc15" stroke="#1f2937" stroke-width="3" />
                 <g transform="rotate(5 60 65)">
                     <rect x="45" y="50" width="30" height="30" fill="#ffff" stroke="#1f2937" stroke-width="3" rx="2" />
@@ -49,8 +47,6 @@
 
     <nav>
         <ul id="navList">
-
-
             <li class="dropdown">
                 <a href="#discover" class="nav-btn">DISCOVER
                     <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -93,7 +89,6 @@
                             Popular Authors
                         </a>
                     </li>
-
                 </ul>
             </li>
 
@@ -101,8 +96,6 @@
             <li><a href="#" onclick="openLogin()" class="nav-btn login-btn">Login</a></li>
         </ul>
     </nav>
-
-
 </header>
 
 <div class="login-overlay" id="loginOverlay">
@@ -120,14 +113,11 @@
     </div>
 </div>
 
-
-
 <div class="girlreadingimg-container">
     <div class="intro-text1">
         Biblioxy - the perfect place for enjoying online reading...
     </div>
     <img src="girlreading.jpg" alt="Girl Reading">
-
     <div class="intro-text2">
         and so much more!
     </div>
@@ -155,6 +145,7 @@
         </div>
     </div>
 </div>
+
 <div>
     <h3 class="picknewbook-text">Having a hard time picking a new book to read?</h3>
     <div class="picknewbook-description">
@@ -167,94 +158,327 @@
     <h4>Trending on Biblioxy</h4>
 </div>
 
-
 <div class="cards-wrapper">
     <button class="arrow-btn left" onclick="scrollLeft()">‹</button>
 
     <div class="cards-container" id="cards-container">
-        <div class="book-card" onclick="toggleAnimation()">
+        <div class="book-card">
             <img src="bookcovers/thegreatgatsby.jpg" alt="Book 1">
             <div class="book-title">The Great Gatsby</div>
             <div class="book-author">F. Scott Fitzgerald</div>
+            <div class="book-status-container">
+                <button class="book-status-btn" onclick="toggleStatusSlider(this, 1)">
+                    <span class="status-text">Add to List</span>
+                    <span class="dropdown-arrow">▼</span>
+                </button>
+                <div class="status-slider">
+                    <div class="status-option" data-status="want_to_read" onclick="setBookStatus(1, 'want_to_read', this)">
+                        <span class="status-icon">📚</span>Want to Read
+                    </div>
+                    <div class="status-option" data-status="currently_reading" onclick="setBookStatus(1, 'currently_reading', this)">
+                        <span class="status-icon">📖</span>Currently Reading
+                    </div>
+                    <div class="status-option" data-status="finished" onclick="setBookStatus(1, 'finished', this)">
+                        <span class="status-icon">✅</span>Finished
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="book-card" onclick="toggleAnimation()">
+        <div class="book-card">
             <img src="bookcovers/1984.jpg" alt="Book 2">
             <div class="book-title">1984</div>
             <div class="book-author">George Orwell</div>
+            <div class="book-status-container">
+                <button class="book-status-btn" onclick="toggleStatusSlider(this, 2)">
+                    <span class="status-text">Add to List</span>
+                    <span class="dropdown-arrow">▼</span>
+                </button>
+                <div class="status-slider">
+                    <div class="status-option" data-status="want_to_read" onclick="setBookStatus(2, 'want_to_read', this)">
+                        <span class="status-icon">📚</span>Want to Read
+                    </div>
+                    <div class="status-option" data-status="currently_reading" onclick="setBookStatus(2, 'currently_reading', this)">
+                        <span class="status-icon">📖</span>Currently Reading
+                    </div>
+                    <div class="status-option" data-status="finished" onclick="setBookStatus(2, 'finished', this)">
+                        <span class="status-icon">✅</span>Finished
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="book-card" onclick="toggleAnimation()">
+        <div class="book-card">
             <img src="bookcovers/tokillamockingbird.jpg" alt="Book 3">
             <div class="book-title">To Kill a Mockingbird</div>
             <div class="book-author">Harper Lee</div>
+            <div class="book-status-container">
+                <button class="book-status-btn" onclick="toggleStatusSlider(this, 3)">
+                    <span class="status-text">Add to List</span>
+                    <span class="dropdown-arrow">▼</span>
+                </button>
+                <div class="status-slider">
+                    <div class="status-option" data-status="want_to_read" onclick="setBookStatus(3, 'want_to_read', this)">
+                        <span class="status-icon">📚</span>Want to Read
+                    </div>
+                    <div class="status-option" data-status="currently_reading" onclick="setBookStatus(3, 'currently_reading', this)">
+                        <span class="status-icon">📖</span>Currently Reading
+                    </div>
+                    <div class="status-option" data-status="finished" onclick="setBookStatus(3, 'finished', this)">
+                        <span class="status-icon">✅</span>Finished
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="book-card" onclick="toggleAnimation()">
+        <div class="book-card">
             <img src="bookcovers/prideandprejudice.jpg" alt="Book 4">
             <div class="book-title">Pride and Prejudice</div>
             <div class="book-author">Jane Austen</div>
+            <div class="book-status-container">
+                <button class="book-status-btn" onclick="toggleStatusSlider(this, 4)">
+                    <span class="status-text">Add to List</span>
+                    <span class="dropdown-arrow">▼</span>
+                </button>
+                <div class="status-slider">
+                    <div class="status-option" data-status="want_to_read" onclick="setBookStatus(4, 'want_to_read', this)">
+                        <span class="status-icon">📚</span>Want to Read
+                    </div>
+                    <div class="status-option" data-status="currently_reading" onclick="setBookStatus(4, 'currently_reading', this)">
+                        <span class="status-icon">📖</span>Currently Reading
+                    </div>
+                    <div class="status-option" data-status="finished" onclick="setBookStatus(4, 'finished', this)">
+                        <span class="status-icon">✅</span>Finished
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="book-card" onclick="toggleAnimation()">
+        <div class="book-card">
             <img src="bookcovers/harrypotter.jpg" alt="Book 5">
             <div class="book-title">Harry Potter Series</div>
             <div class="book-author">J.K. Rowling</div>
+            <div class="book-status-container">
+                <button class="book-status-btn" onclick="toggleStatusSlider(this, 5)">
+                    <span class="status-text">Add to List</span>
+                    <span class="dropdown-arrow">▼</span>
+                </button>
+                <div class="status-slider">
+                    <div class="status-option" data-status="want_to_read" onclick="setBookStatus(5, 'want_to_read', this)">
+                        <span class="status-icon">📚</span>Want to Read
+                    </div>
+                    <div class="status-option" data-status="currently_reading" onclick="setBookStatus(5, 'currently_reading', this)">
+                        <span class="status-icon">📖</span>Currently Reading
+                    </div>
+                    <div class="status-option" data-status="finished" onclick="setBookStatus(5, 'finished', this)">
+                        <span class="status-icon">✅</span>Finished
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="book-card" onclick="toggleAnimation()">
+        <div class="book-card">
             <img src="bookcovers/warandpeace.jpg" alt="Book 6">
             <div class="book-title">War and Peace</div>
             <div class="book-author">Leo Tolstoy</div>
+            <div class="book-status-container">
+                <button class="book-status-btn" onclick="toggleStatusSlider(this, 6)">
+                    <span class="status-text">Add to List</span>
+                    <span class="dropdown-arrow">▼</span>
+                </button>
+                <div class="status-slider">
+                    <div class="status-option" data-status="want_to_read" onclick="setBookStatus(6, 'want_to_read', this)">
+                        <span class="status-icon">📚</span>Want to Read
+                    </div>
+                    <div class="status-option" data-status="currently_reading" onclick="setBookStatus(6, 'currently_reading', this)">
+                        <span class="status-icon">📖</span>Currently Reading
+                    </div>
+                    <div class="status-option" data-status="finished" onclick="setBookStatus(6, 'finished', this)">
+                        <span class="status-icon">✅</span>Finished
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="book-card" onclick="toggleAnimation()">
+        <div class="book-card">
             <img src="bookcovers/frankenstein.jpg" alt="Book 7">
             <div class="book-title">Frankenstein</div>
             <div class="book-author">Mary Shelley</div>
+            <div class="book-status-container">
+                <button class="book-status-btn" onclick="toggleStatusSlider(this, 7)">
+                    <span class="status-text">Add to List</span>
+                    <span class="dropdown-arrow">▼</span>
+                </button>
+                <div class="status-slider">
+                    <div class="status-option" data-status="want_to_read" onclick="setBookStatus(7, 'want_to_read', this)">
+                        <span class="status-icon">📚</span>Want to Read
+                    </div>
+                    <div class="status-option" data-status="currently_reading" onclick="setBookStatus(7, 'currently_reading', this)">
+                        <span class="status-icon">📖</span>Currently Reading
+                    </div>
+                    <div class="status-option" data-status="finished" onclick="setBookStatus(7, 'finished', this)">
+                        <span class="status-icon">✅</span>Finished
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-
-    <div class="cards-container" id="cards-container">
-        <div class="book-card" onclick="toggleAnimation()">
+        <!-- Duplicate cards for infinite scroll effect -->
+        <div class="book-card">
             <img src="bookcovers/thegreatgatsby.jpg" alt="Book 1">
             <div class="book-title">The Great Gatsby</div>
             <div class="book-author">F. Scott Fitzgerald</div>
+            <div class="book-status-container">
+                <button class="book-status-btn" onclick="toggleStatusSlider(this, 8)">
+                    <span class="status-text">Add to List</span>
+                    <span class="dropdown-arrow">▼</span>
+                </button>
+                <div class="status-slider">
+                    <div class="status-option" data-status="want_to_read" onclick="setBookStatus(8, 'want_to_read', this)">
+                        <span class="status-icon">📚</span>Want to Read
+                    </div>
+                    <div class="status-option" data-status="currently_reading" onclick="setBookStatus(8, 'currently_reading', this)">
+                        <span class="status-icon">📖</span>Currently Reading
+                    </div>
+                    <div class="status-option" data-status="finished" onclick="setBookStatus(8, 'finished', this)">
+                        <span class="status-icon">✅</span>Finished
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="book-card" onclick="toggleAnimation()">
+        <div class="book-card">
             <img src="bookcovers/1984.jpg" alt="Book 2">
             <div class="book-title">1984</div>
             <div class="book-author">George Orwell</div>
+            <div class="book-status-container">
+                <button class="book-status-btn" onclick="toggleStatusSlider(this, 9)">
+                    <span class="status-text">Add to List</span>
+                    <span class="dropdown-arrow">▼</span>
+                </button>
+                <div class="status-slider">
+                    <div class="status-option" data-status="want_to_read" onclick="setBookStatus(9, 'want_to_read', this)">
+                        <span class="status-icon">📚</span>Want to Read
+                    </div>
+                    <div class="status-option" data-status="currently_reading" onclick="setBookStatus(9, 'currently_reading', this)">
+                        <span class="status-icon">📖</span>Currently Reading
+                    </div>
+                    <div class="status-option" data-status="finished" onclick="setBookStatus(9, 'finished', this)">
+                        <span class="status-icon">✅</span>Finished
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="book-card" onclick="toggleAnimation()">
+        <div class="book-card">
             <img src="bookcovers/tokillamockingbird.jpg" alt="Book 3">
             <div class="book-title">To Kill a Mockingbird</div>
             <div class="book-author">Harper Lee</div>
+            <div class="book-status-container">
+                <button class="book-status-btn" onclick="toggleStatusSlider(this, 10)">
+                    <span class="status-text">Add to List</span>
+                    <span class="dropdown-arrow">▼</span>
+                </button>
+                <div class="status-slider">
+                    <div class="status-option" data-status="want_to_read" onclick="setBookStatus(10, 'want_to_read', this)">
+                        <span class="status-icon">📚</span>Want to Read
+                    </div>
+                    <div class="status-option" data-status="currently_reading" onclick="setBookStatus(10, 'currently_reading', this)">
+                        <span class="status-icon">📖</span>Currently Reading
+                    </div>
+                    <div class="status-option" data-status="finished" onclick="setBookStatus(10, 'finished', this)">
+                        <span class="status-icon">✅</span>Finished
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="book-card" onclick="toggleAnimation()">
+        <div class="book-card">
             <img src="bookcovers/prideandprejudice.jpg" alt="Book 4">
             <div class="book-title">Pride and Prejudice</div>
             <div class="book-author">Jane Austen</div>
+            <div class="book-status-container">
+                <button class="book-status-btn" onclick="toggleStatusSlider(this, 11)">
+                    <span class="status-text">Add to List</span>
+                    <span class="dropdown-arrow">▼</span>
+                </button>
+                <div class="status-slider">
+                    <div class="status-option" data-status="want_to_read" onclick="setBookStatus(11, 'want_to_read', this)">
+                        <span class="status-icon">📚</span>Want to Read
+                    </div>
+                    <div class="status-option" data-status="currently_reading" onclick="setBookStatus(11, 'currently_reading', this)">
+                        <span class="status-icon">📖</span>Currently Reading
+                    </div>
+                    <div class="status-option" data-status="finished" onclick="setBookStatus(11, 'finished', this)">
+                        <span class="status-icon">✅</span>Finished
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="book-card" onclick="toggleAnimation()">
+        <div class="book-card">
             <img src="bookcovers/harrypotter.jpg" alt="Book 5">
             <div class="book-title">Harry Potter Series</div>
             <div class="book-author">J.K. Rowling</div>
+            <div class="book-status-container">
+                <button class="book-status-btn" onclick="toggleStatusSlider(this, 12)">
+                    <span class="status-text">Add to List</span>
+                    <span class="dropdown-arrow">▼</span>
+                </button>
+                <div class="status-slider">
+                    <div class="status-option" data-status="want_to_read" onclick="setBookStatus(12, 'want_to_read', this)">
+                        <span class="status-icon">📚</span>Want to Read
+                    </div>
+                    <div class="status-option" data-status="currently_reading" onclick="setBookStatus(12, 'currently_reading', this)">
+                        <span class="status-icon">📖</span>Currently Reading
+                    </div>
+                    <div class="status-option" data-status="finished" onclick="setBookStatus(12, 'finished', this)">
+                        <span class="status-icon">✅</span>Finished
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="book-card" onclick="toggleAnimation()">
+        <div class="book-card">
             <img src="bookcovers/warandpeace.jpg" alt="Book 6">
             <div class="book-title">War and Peace</div>
             <div class="book-author">Leo Tolstoy</div>
+            <div class="book-status-container">
+                <button class="book-status-btn" onclick="toggleStatusSlider(this, 13)">
+                    <span class="status-text">Add to List</span>
+                    <span class="dropdown-arrow">▼</span>
+                </button>
+                <div class="status-slider">
+                    <div class="status-option" data-status="want_to_read" onclick="setBookStatus(13, 'want_to_read', this)">
+                        <span class="status-icon">📚</span>Want to Read
+                    </div>
+                    <div class="status-option" data-status="currently_reading" onclick="setBookStatus(13, 'currently_reading', this)">
+                        <span class="status-icon">📖</span>Currently Reading
+                    </div>
+                    <div class="status-option" data-status="finished" onclick="setBookStatus(13, 'finished', this)">
+                        <span class="status-icon">✅</span>Finished
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="book-card" onclick="toggleAnimation()">
+        <div class="book-card">
             <img src="bookcovers/frankenstein.jpg" alt="Book 7">
             <div class="book-title">Frankenstein</div>
             <div class="book-author">Mary Shelley</div>
+            <div class="book-status-container">
+                <button class="book-status-btn" onclick="toggleStatusSlider(this, 14)">
+                    <span class="status-text">Add to List</span>
+                    <span class="dropdown-arrow">▼</span>
+                </button>
+                <div class="status-slider">
+                    <div class="status-option" data-status="want_to_read" onclick="setBookStatus(14, 'want_to_read', this)">
+                        <span class="status-icon">📚</span>Want to Read
+                    </div>
+                    <div class="status-option" data-status="currently_reading" onclick="setBookStatus(14, 'currently_reading', this)">
+                        <span class="status-icon">📖</span>Currently Reading
+                    </div>
+                    <div class="status-option" data-status="finished" onclick="setBookStatus(14, 'finished', this)">
+                        <span class="status-icon">✅</span>Finished
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <button class="arrow-btn right" onclick="scrollRight()">›</button>
 </div>
 
-
-
-
 <footer>
     <p>© 2025 Book Tracker. All rights reserved.</p>
 </footer>
 </body>
 </html>
+
