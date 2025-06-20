@@ -872,3 +872,251 @@ footer {
     font-size: 1.8rem;
   }
 }
+
+/* Stiluri pentru secțiunea cărților citite de grup */
+.group-books-section {
+    max-width: 1200px;
+    margin: 60px auto;
+    padding: 40px 20px;
+    background: linear-gradient(145deg, #f9f6f1, #fef3de);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.group-books-section .section-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #5a3e2b;
+    text-align: center;
+    margin-bottom: 12px;
+    font-family: 'Playfair Display', serif;
+}
+
+.group-books-section .section-subtitle {
+    font-size: 1.1rem;
+    color: #7a6b5d;
+    text-align: center;
+    margin-bottom: 40px;
+    font-style: italic;
+}
+
+.group-books-wrapper {
+    overflow-x: auto;
+    padding-bottom: 20px;
+}
+
+.group-books-container {
+    display: flex;
+    gap: 24px;
+    scroll-behavior: smooth;
+    min-height: 400px;
+    align-items: flex-start;
+}
+
+.group-book-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    min-width: 280px;
+    max-width: 280px;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.group-book-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.18);
+}
+
+.group-book-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #7a4e3e, #a3634e, #d4a574);
+}
+
+.group-book-cover {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.group-book-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #4a403a;
+    margin-bottom: 8px;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.group-book-author {
+    font-size: 0.95rem;
+    color: #8b7e74;
+    margin-bottom: 12px;
+    font-style: italic;
+}
+
+.group-book-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #fef3de, #ffcd8a);
+    border-radius: 8px;
+}
+
+.group-book-rating {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    color: #7a4e3e;
+}
+
+.group-book-rating .stars {
+    color: #ffd700;
+    font-size: 1.1rem;
+}
+
+.group-book-readers {
+    font-size: 0.85rem;
+    color: #a3634e;
+    font-weight: 600;
+}
+
+.group-book-readers-list {
+    font-size: 0.8rem;
+    color: #8b7e74;
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+.group-book-readers-list strong {
+    color: #5a3e2b;
+}
+
+.group-book-genre {
+    display: inline-block;
+    background: #7a4e3e;
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.loading-message {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #7a6b5d;
+    font-style: italic;
+    padding: 60px 20px;
+    width: 100%;
+}
+
+.no-books-message {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #7a6b5d;
+    padding: 60px 20px;
+    width: 100%;
+}
+
+.no-books-message h3 {
+    color: #5a3e2b;
+    margin-bottom: 12px;
+    font-family: 'Playfair Display', serif;
+}
+
+/* Scrollbar pentru secțiunea cărților */
+.group-books-wrapper::-webkit-scrollbar {
+    height: 8px;
+}
+
+.group-books-wrapper::-webkit-scrollbar-thumb {
+    background-color: #7a4e3e;
+    border-radius: 8px;
+}
+
+.group-books-wrapper::-webkit-scrollbar-track {
+    background-color: #eae3dc;
+    border-radius: 8px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .group-books-section {
+        margin: 40px 10px;
+        padding: 30px 15px;
+    }
+
+    .group-books-section .section-title {
+        font-size: 1.8rem;
+    }
+
+    .group-book-card {
+        min-width: 240px;
+        max-width: 240px;
+    }
+}
+
+/* Animație pentru încărcare */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.group-book-card {
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.group-book-card:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.group-book-card:nth-child(3) {
+    animation-delay: 0.2s;
+}
+
+.group-book-card:nth-child(4) {
+    animation-delay: 0.3s;
+}
+
+.group-book-card:nth-child(5) {
+    animation-delay: 0.4s;
+}
+
+.no-cover-placeholder {
+    width: 100%;
+    height: 200px;
+    background: #f0f0f0;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    color: #999;
+}
