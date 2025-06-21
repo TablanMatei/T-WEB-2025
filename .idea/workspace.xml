@@ -4,16 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="11112695-32c3-4b25-80c9-16f957f723d9" name="Changes" comment="Quick fix signup page">
-      <change afterPath="$PROJECT_DIR$/backend/admin/get_stats.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/admin/manage_groups.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/admin/manage_users.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/adminPanel/adminPanel.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/adminPanel/adminPanel.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/adminPanel/adminPanel.js" afterDir="false" />
+    <list default="true" id="11112695-32c3-4b25-80c9-16f957f723d9" name="Changes" comment="Admin Panel added">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/auth/login.php" beforeDir="false" afterPath="$PROJECT_DIR$/backend/auth/login.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/mainPage/script.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/mainPage/script.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/announcements_manager.php" beforeDir="false" afterPath="$PROJECT_DIR$/backend/announcements_manager.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/api/get_popular_authors.php" beforeDir="false" afterPath="$PROJECT_DIR$/backend/api/get_popular_authors.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/api/get_top_rated_books.php" beforeDir="false" afterPath="$PROJECT_DIR$/backend/api/get_top_rated_books.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -123,7 +118,7 @@
       <workItem from="1750410015433" duration="12301000" />
       <workItem from="1750440746823" duration="2790000" />
       <workItem from="1750460049411" duration="3503000" />
-      <workItem from="1750502532659" duration="6683000" />
+      <workItem from="1750502532659" duration="10358000" />
     </task>
     <task id="LOCAL-00001" summary="Fixed duplicated folders">
       <option name="closed" value="true" />
@@ -229,7 +224,15 @@
       <option name="project" value="LOCAL" />
       <updated>1750504947968</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Admin Panel added">
+      <option name="closed" value="true" />
+      <created>1750518727195</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1750518727195</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -259,7 +262,8 @@
     <MESSAGE value="RSS Feed" />
     <MESSAGE value="Securitate: SQL Injection &amp; XSS" />
     <MESSAGE value="Quick fix signup page" />
-    <option name="LAST_COMMIT_MESSAGE" value="Quick fix signup page" />
+    <MESSAGE value="Admin Panel added" />
+    <option name="LAST_COMMIT_MESSAGE" value="Admin Panel added" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

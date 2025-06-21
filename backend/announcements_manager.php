@@ -72,7 +72,7 @@ class AnnouncementManager {
     public function addTopBookAnnouncement($book_title, $book_id) {
         $title = "Cartea săptămânii: {$book_title}";
         $description = "Această carte a ajuns cea mai apreciată de pe site!";
-        $link = "/frontend/bookDetails/bookDetails.html?id={$book_id}";
+        $link = "/frontend/topRatedPage/topRatedPage.html";
 
         return $this->addAnnouncement('top_book', null, $title, $description, $link);
     }
@@ -80,7 +80,7 @@ class AnnouncementManager {
     public function addTopAuthorAnnouncement($author_name, $author_id) {
         $title = "Autorul lunii: {$author_name}";
         $description = "Acest autor a ajuns cel mai citit de pe site!";
-        $link = "/frontend/authorDetails/authorDetails.html?id={$author_id}";
+        $link = "/frontend/popularAuthorsPage/popularAuthorsPage.html";
 
         return $this->addAnnouncement('top_author', null, $title, $description, $link);
     }
