@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Biblioxy - Discover the World of Great Books</title>
     <link rel="stylesheet" href="topRatedPage.css">
-     <script src="topRatedPage.css"></script>
+     <script src="topRatedPage.js"></script>
      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 
 </head>
@@ -104,68 +104,18 @@
 
 
     </header>
-    
+
+
     <section class="top-rated-books">
-  <h2>Top Rated Books</h2>
-  <div class="books-container">
-    <article class="book">
-      <img src="https://images-na.ssl-images-amazon.com/images/I/81eB+7+CkUL.jpg" alt="Atomic Habits" class="book-cover" />
-      <div class="book-details">
-        <h3>Atomic Habits</h3>
-        <p class="author">James Clear</p>
-        <p class="rating">⭐ 4.8</p>
-        <p class="genre">Self-help</p>
-        <p class="description">An easy & proven way to build good habits and break bad ones.</p>
-      </div>
-    </article>
+        <h2>Top Rated Books</h2>
+        <div class="books-container" id="topRatedContainer"></div>
 
-    <article class="book">
-      <img src="https://images-na.ssl-images-amazon.com/images/I/71aFt4+OTOL.jpg" alt="The Alchemist" class="book-cover" />
-      <div class="book-details">
-        <h3>The Alchemist</h3>
-        <p class="author">Paulo Coelho</p>
-        <p class="rating">⭐ 4.7</p>
-        <p class="genre">Fiction, Philosophy</p>
-        <p class="description">A mystical story about following your dreams and listening to your heart.</p>
-      </div>
-    </article>
+        <!-- Cărțile se vor adăuga aici din JS -->
+        </div>
+    </section>
 
-    <article class="book">
-      <img src="https://images-na.ssl-images-amazon.com/images/I/81bsw6fnUiL.jpg" alt="1984" class="book-cover" />
-      <div class="book-details">
-        <h3>1984</h3>
-        <p class="author">George Orwell</p>
-        <p class="rating">⭐ 4.6</p>
-        <p class="genre">Dystopian, Political Fiction</p>
-        <p class="description">A chilling depiction of a totalitarian regime and surveillance state.</p>
-      </div>
-    </article>
 
-    <article class="book">
-      <img src="https://images-na.ssl-images-amazon.com/images/I/81m0hFb5HrL.jpg" alt="Becoming" class="book-cover" />
-      <div class="book-details">
-        <h3>Becoming</h3>
-        <p class="author">Michelle Obama</p>
-        <p class="rating">⭐ 4.9</p>
-        <p class="genre">Biography, Memoir</p>
-        <p class="description">The inspiring memoir of the former First Lady of the United States.</p>
-      </div>
-    </article>
-
-    <article class="book">
-      <img src="https://images-na.ssl-images-amazon.com/images/I/71jzTfT9nQL.jpg" alt="Sapiens" class="book-cover" />
-      <div class="book-details">
-        <h3>Sapiens</h3>
-        <p class="author">Yuval Noah Harari</p>
-        <p class="rating">⭐ 4.7</p>
-        <p class="genre">History, Science</p>
-        <p class="description">A brief history of humankind, exploring how biology and history have defined us.</p>
-      </div>
-    </article>
-  </div>
-</section>
-
-   <div class="login-overlay" id="loginOverlay">
+    <div class="login-overlay" id="loginOverlay">
     <div class="login-container">
         <button class="close-btn" onclick="closeLogin()">×</button>
         <h2>Login</h2>
