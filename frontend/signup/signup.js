@@ -116,7 +116,7 @@ async function submitForm() {
 
             // Redirect după 2 secunde
             setTimeout(() => {
-                window.location.href = 'frontend/mainPage/index.html'; // pagina principala
+                window.location.href = '/frontend/mainPage/index.html'; // pagina principala
             }, 2000);
         } else {
             (result.error || 'Registration failed. Please try again.', "error");
