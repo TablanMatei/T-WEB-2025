@@ -41,6 +41,13 @@ function scrollRight() {
 let currentCategory = 'Books';
 let searchResults = [];
 
+// Funcție minimală pentru prevenirea XSS Cross Site
+function sanitizeHtml(str) {
+    const temp = document.createElement('div');
+    temp.textContent = str;
+    return temp.innerHTML;
+}
+
 function togglePopup() {
     const popup = document.getElementById('searchPopup');
     const isVisible = popup.style.display !== 'none';
@@ -592,7 +599,8 @@ function logout() {
 function updateUIAfterLogin(user) {
     const loginButton = document.querySelector('.login-btn');
     if (loginButton) {
-        loginButton.innerHTML = user.username + ' <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>';
+        loginButton.innerHTML = sanitizeHtml(user.username) + ' <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>';
+        /// PROTECTIE XSS
 
         loginButton.onclick = () => toggleUserMenu();
 

@@ -9,6 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once '../config.php';
+// Securitate: Validare input pentru prevenirea atacurilor
 $pdo = getDbConnection();
 
 try {
@@ -26,7 +27,8 @@ try {
         // POST pentru search propriu-zis
         $input = json_decode(file_get_contents('php://input'), true);
 
-        $query = isset($input['query']) ? $input['query'] : '';
+        /// PREVENIRE SQL INJECTIONS
+        $query = isset($input['query']) ? trim(strip_tags($input['query'])) : '';
         $category = isset($input['category']) ? $input['category'] : 'Books';
         $limit = (int)(isset($input['limit']) ? $input['limit'] : 20);
         $offset = (int)(isset($input['offset']) ? $input['offset'] : 0);

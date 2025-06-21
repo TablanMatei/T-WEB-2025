@@ -10,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once '../config.php';
 require_once '../announcements_manager.php';
+// Securitate: Folosim prepared statements pentru prevenirea SQL injection
 
 $pdo = getDbConnection();
 
