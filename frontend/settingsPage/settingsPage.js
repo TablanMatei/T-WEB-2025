@@ -85,7 +85,7 @@ document.addEventListener('click', (e) => {
         resetToBooks();
     }
 });
-window.onload = () => setCategory('Books');
+
 
 // Funcție pentru gestionare login
 async function handleLogin(event) {
@@ -231,22 +231,18 @@ function logout() {
     }
 }
 
-// Verifică dacă utilizatorul este deja logat la încărcarea paginii
-document.addEventListener('DOMContentLoaded', function() {
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
 
-    if (isLoggedIn === 'true' && user.username) {
-        updateUIAfterLogin(user);
-    }
-});
 
 
 // Funcție pentru actualizarea interfeței după login
 function updateUIAfterLogin(user) {
     const loginButton = document.querySelector('.login-btn');
     if (loginButton) {
-        // Creează dropdown pentru utilizator logat
+        // Transformă butonul în dropdown
+        const parentLi = loginButton.parentElement;
+        parentLi.className = 'dropdown profile';
+
+        // Actualizează conținutul butonului
         loginButton.innerHTML = `
             ${user.username} 
             <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -254,19 +250,20 @@ function updateUIAfterLogin(user) {
             </svg>
         `;
 
-        // Schimbă funcționalitatea
-        loginButton.onclick = () => toggleUserMenu();
 
-        // Adaugă dropdown menu pentru user
-        if (!document.querySelector('.user-dropdown')) {
-            const userDropdown = document.createElement('div');
-            userDropdown.className = 'user-dropdown';
-            userDropdown.innerHTML = `
-                <a href="#profile">My Profile</a>
-                <a href="#settings">Settings</a>
-                <a href="#" onclick="logout()">Logout</a>
+        loginButton.removeAttribute('onclick');
+
+
+        if (!parentLi.querySelector('.dropdown-menu')) {
+            const dropdownMenu = document.createElement('ul');
+            dropdownMenu.className = 'dropdown-menu';
+            dropdownMenu.innerHTML = `
+                <li><a href="#profile">My Profile</a></li>
+                <li><a href="#settings">Settings</a></li>
+                <li><a href="#notifications">Notifications</a></li>
+                <li><a href="#" onclick="logout()">Logout</a></li>
             `;
-            loginButton.parentNode.appendChild(userDropdown);
+            parentLi.appendChild(dropdownMenu);
         }
     }
 }
@@ -295,17 +292,24 @@ document.addEventListener('click', function(e) {
 let currentCategory = 'Books';
 let searchResults = [];
 
-// Funcție existentă - o actualizez
 
-
-// Funcție existentă - o actualizez
-function setCategory(category) {
+function setCategory(category, targetElement = null) {
     currentCategory = category;
 
     // Update active category
     const categories = document.querySelectorAll('.category-list span');
     categories.forEach(cat => cat.classList.remove('active'));
-    event.target.classList.add('active');
+
+    // Dacă avem un element target (din click), îl marcăm ca activ
+    if (targetElement) {
+        targetElement.classList.add('active');
+    } else {
+        // Dacă nu avem target (apel din onload), găsim elementul pentru categoria respectivă
+        const categoryElement = Array.from(categories).find(cat => cat.textContent.trim() === category);
+        if (categoryElement) {
+            categoryElement.classList.add('active');
+        }
+    }
 
     // Load popular items for this category
     loadPopularItems(category);
@@ -431,7 +435,6 @@ function displaySearchResults(results, category) {
 // Funcție pentru selectare autor
 function selectAuthor(authorId) {
     console.log('Selected author:', authorId);
-    // TODO: Redirect to author details page sau show books by author
     alert(`Selected author ID: ${authorId}. În viitor va deschide pagina autorului.`);
 }
 
@@ -476,7 +479,6 @@ async function performSearch() {
 // Funcții helper
 function selectBook(bookId) {
     console.log('Selected book:', bookId);
-    // TODO: Redirect to book details page
     alert(`Selected book ID: ${bookId}`);
 }
 
@@ -518,15 +520,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const isLoggedIn = localStorage.getItem('isLoggedIn');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
 
+    console.log('isLoggedIn:', isLoggedIn);
+    console.log('user object:', user);
+
     if (isLoggedIn === 'true' && user.username) {
         updateUIAfterLogin(user);
+        updateSettingsNavigation();
     } else {
-        // Redirect la main page dacă nu e logat
         window.location.href = '/frontend/mainPage/index.html';
     }
-
-    // Actualizează link-urile pentru navigare
-    updateSettingsNavigation();
 });
 
 // Funcție pentru actualizarea navigării
@@ -555,4 +557,92 @@ function updateSettingsNavigation() {
         });
     });
 
+}
+
+// Funcție pentru exportul datelor
+async function exportData(format) {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    if (!user.user_id) {
+        alert('Nu ești logat! Te rog să te loghezi din nou.');
+        return;
+    }
+
+    // Găsește butonul și schimbă textul
+    const button = document.querySelector(`.${format}-btn`);
+    const originalText = button.innerHTML;
+
+    button.disabled = true;
+    button.innerHTML = '⏳ Exporting...';
+
+    try {
+        const response = await fetch(`/backend/export/export_user_data.php?format=${format}&user_id=${user.user_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // Obține numele fișierului din header
+        const contentDisposition = response.headers.get('Content-Disposition');
+        let filename = `user_data_${user.username}_${new Date().toISOString().split('T')[0]}.${format}`;
+
+        if (contentDisposition) {
+            const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+            if (filenameMatch) {
+                filename = filenameMatch[1];
+            }
+        }
+
+        // Descarcă fișierul
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
+        // Afișează mesaj de succes
+        showExportMessage(`✅ ${format.toUpperCase()} export completed successfully!`, 'success');
+
+    } catch (error) {
+        console.error('Export error:', error);
+        showExportMessage(`❌ Export failed: ${error.message}`, 'error');
+    } finally {
+        // Resetează butonul
+        button.disabled = false;
+        button.innerHTML = originalText;
+    }
+}
+
+// Funcție pentru afișarea mesajelor de export
+function showExportMessage(message, type) {
+    // Elimină mesajul anterior dacă există
+    const existingMessage = document.querySelector('.export-message');
+    if (existingMessage) {
+        existingMessage.remove();
+    }
+
+    // Creează noul mesaj
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `export-message ${type}`;
+    messageDiv.textContent = message;
+
+    document.body.appendChild(messageDiv);
+
+    // Elimină mesajul după 4 secunde
+    setTimeout(() => {
+        if (messageDiv.parentNode) {
+            messageDiv.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => messageDiv.remove(), 300);
+        }
+    }, 4000);
 }

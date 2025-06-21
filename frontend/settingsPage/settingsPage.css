@@ -752,3 +752,112 @@ footer {
 .setting-item:hover .arrow {
   transform: translateX(4px);
 }
+
+/* Stiluri pentru secțiunea de export */
+.export-section {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+}
+
+.export-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+.export-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    min-width: 120px;
+}
+
+.csv-btn {
+    background: #10b981;
+    color: white;
+}
+
+.csv-btn:hover {
+    background: #059669;
+    transform: translateY(-2px);
+}
+
+.json-btn {
+    background: #3b82f6;
+    color: white;
+}
+
+.json-btn:hover {
+    background: #2563eb;
+    transform: translateY(-2px);
+}
+
+.xml-btn {
+    background: #f59e0b;
+    color: white;
+}
+
+.xml-btn:hover {
+    background: #d97706;
+    transform: translateY(-2px);
+}
+
+.export-btn:active {
+    transform: translateY(0);
+}
+
+/* Loading state pentru butoane */
+.export-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* Animații pentru mesajele de export */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+/* Stiluri pentru mesajele de export */
+.export-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 500;
+    z-index: 1000;
+    animation: slideIn 0.3s ease;
+}
+
+.export-message.success {
+    background: #10b981;
+}
+
+.export-message.error {
+    background: #ef4444;
+}
