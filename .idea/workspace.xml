@@ -4,12 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="11112695-32c3-4b25-80c9-16f957f723d9" name="Changes" comment="RSS Feed">
+    <list default="true" id="11112695-32c3-4b25-80c9-16f957f723d9" name="Changes" comment="Securitate: SQL Injection &amp; XSS">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/api/search.php" beforeDir="false" afterPath="$PROJECT_DIR$/backend/api/search.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/community/create_groups.php" beforeDir="false" afterPath="$PROJECT_DIR$/backend/community/create_groups.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/finishedBooksPage/finishedBooksPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/finishedBooksPage/finishedBooksPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/mainPage/script.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/mainPage/script.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -119,7 +115,7 @@
       <workItem from="1750410015433" duration="12301000" />
       <workItem from="1750440746823" duration="2790000" />
       <workItem from="1750460049411" duration="3503000" />
-      <workItem from="1750502532659" duration="1374000" />
+      <workItem from="1750502532659" duration="2231000" />
     </task>
     <task id="LOCAL-00001" summary="Fixed duplicated folders">
       <option name="closed" value="true" />
@@ -201,7 +197,15 @@
       <option name="project" value="LOCAL" />
       <updated>1750463533974</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="Securitate: SQL Injection &amp; XSS">
+      <option name="closed" value="true" />
+      <created>1750504125696</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1750504125697</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -229,7 +233,8 @@
     <MESSAGE value="Frontend - curenttlyReading &amp; wantToRead" />
     <MESSAGE value="Frontend - finishedBooksPAge" />
     <MESSAGE value="RSS Feed" />
-    <option name="LAST_COMMIT_MESSAGE" value="RSS Feed" />
+    <MESSAGE value="Securitate: SQL Injection &amp; XSS" />
+    <option name="LAST_COMMIT_MESSAGE" value="Securitate: SQL Injection &amp; XSS" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
