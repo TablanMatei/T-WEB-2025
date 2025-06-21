@@ -108,7 +108,7 @@ header h2 svg {
     position: absolute;
     top: 80px;
     left: 345px;
-     width: 450px; 
+    width: 450px;
     background-color: #2e2a27;
     color: #fef3de;
     border-radius: 12px;
@@ -126,7 +126,7 @@ header h2 svg {
     margin-bottom: 15px;
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none;
-     border-bottom: 3px solid #555;   
+    border-bottom: 3px solid #555;
 }
 .category-list::-webkit-scrollbar {
     display: none; /* Chrome, Safari */
@@ -162,13 +162,13 @@ header h2 svg {
     background-color: #5a504d;
 }
 nav ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  gap: 20px;
-  align-items: center;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 nav ul li {
     display: inline;
@@ -187,142 +187,142 @@ nav ul li a:hover {
 
 
 .dropdown {
-  position: relative;
+    position: relative;
 }
 
 /* Dropdown menu hidden by default */
 .dropdown-menu {
-  position: absolute;
-  top:  100%;
-  left: -60px;
-  background-color: #f5efe6;
-  border-radius: 16px;
-  padding: 8px 0;
-  box-shadow:
-    0 10px 20px rgba(184, 122, 97, 0.25),
-    0 4px 10px rgba(184, 122, 97, 0.15);
-  min-width: 260px;
-  z-index: 100;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(10px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  border: 1px solid rgba(184, 122, 97, 0.3);
-  user-select: none;
-  white-space: nowrap;
-  display: block; /* Important pentru animație */
+    position: absolute;
+    top:  100%;
+    left: -60px;
+    background-color: #f5efe6;
+    border-radius: 16px;
+    padding: 8px 0;
+    box-shadow:
+            0 10px 20px rgba(184, 122, 97, 0.25),
+            0 4px 10px rgba(184, 122, 97, 0.15);
+    min-width: 260px;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    border: 1px solid rgba(184, 122, 97, 0.3);
+    user-select: none;
+    white-space: nowrap;
+    display: block; /* Important pentru animație */
 }
 .dropdown-menu::before {
-  content: "";
-  position: absolute;
-  top: -12px; /* deasupra dropdown-ului */
-  left: 50%;   /* la mijloc pe orizontală */
-  transform: translateX(-50%);
-  width: 40px;  /* lățime mai mare, dreptunghi */
-  height: 12px; 
-  background: #f5efe6;
-  border-radius: 8px; /* colțuri rotunjite */
-  box-shadow:
-    0 3px 6px rgba(184, 122, 97, 0.25);
-  border: 1px solid rgba(184, 122, 97, 0.3);
-  pointer-events: none;
-  z-index: 101;
+    content: "";
+    position: absolute;
+    top: -12px; /* deasupra dropdown-ului */
+    left: 50%;   /* la mijloc pe orizontală */
+    transform: translateX(-50%);
+    width: 40px;  /* lățime mai mare, dreptunghi */
+    height: 12px;
+    background: #f5efe6;
+    border-radius: 8px; /* colțuri rotunjite */
+    box-shadow:
+            0 3px 6px rgba(184, 122, 97, 0.25);
+    border: 1px solid rgba(184, 122, 97, 0.3);
+    pointer-events: none;
+    z-index: 101;
 }
 
 /* Show dropdown on hover */
 .dropdown:hover .dropdown-menu {
-  display: block;
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0);
+    display: block;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
 }
 
 /* Dropdown menu items */
 .dropdown-menu li {
-  padding: 12px 28px;
-  cursor: pointer;
-  font-weight: 600;
-  color: #7a4e3e; /* maro mediu */
-  letter-spacing: 0.02em;
-  user-select: none;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  transition: background-color 0.3s ease, color 0.3s ease;
+    padding: 12px 28px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #7a4e3e; /* maro mediu */
+    letter-spacing: 0.02em;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .dropdown-menu li a {
-  color: inherit;
-  text-decoration: none;
-  flex-grow: 1;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  white-space: nowrap;
+    color: inherit;
+    text-decoration: none;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    white-space: nowrap;
 }
 
 .dropdown-menu li:hover,
 .dropdown-menu li a:hover {
-  background-color: #b87a61; /* maro deschis */
-  color: #f5efe6; /* bej */
-  transition: background-color 0.3s ease, color 0.3s ease;
+    background-color: #b87a61; /* maro deschis */
+    color: #f5efe6; /* bej */
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Icon style */
 .icon {
-  width: 20px;
-  height: 20px;
-  stroke: #7a4e3e;
-  flex-shrink: 0;
-  transition: stroke 0.3s ease;
+    width: 20px;
+    height: 20px;
+    stroke: #7a4e3e;
+    flex-shrink: 0;
+    transition: stroke 0.3s ease;
 }
 
 .dropdown-menu li:hover .icon,
 .dropdown-menu li a:hover .icon {
-  stroke: #f5efe6;
+    stroke: #f5efe6;
 }
 .dropdown:hover .dropdown-menu,
 .dropdown:focus-within .dropdown-menu {
-  display: block;
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0);
+    display: block;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
 }
 
 
 
 
 .nav-btn {
-  text-decoration: none;
-  background-color: #f4caaf;
-  color: #73342e;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: background-color 0.3s, transform 0.3s;
+    text-decoration: none;
+    background-color: #f4caaf;
+    color: #73342e;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.3s, transform 0.3s;
 }
 .nav-btn:hover {
-  background-color: #a3624f; /* maro mai închis */
-  box-shadow: 0 10px 25px rgba(163, 98, 79, 0.4);
-  transform: translateY(-2px) scale(1.05);
+    background-color: #a3624f; /* maro mai închis */
+    box-shadow: 0 10px 25px rgba(163, 98, 79, 0.4);
+    transform: translateY(-2px) scale(1.05);
 }
 .dropdown-arrow {
-  width: 16px;
-  height: 16px;
-  transition: transform 0.3s;
-  margin-top: 2px; /* Aici ajustezi alinierea */
+    width: 16px;
+    height: 16px;
+    transition: transform 0.3s;
+    margin-top: 2px; /* Aici ajustezi alinierea */
 }
 
 .dropdown:hover .dropdown-arrow {
-  transform: rotate(180deg);
+    transform: rotate(180deg);
 }
 
 .nav-btn:active {
-  transform: translateY(1px) scale(0.95);
-  box-shadow: 0 4px 10px rgba(120, 70, 50, 0.2);
+    transform: translateY(1px) scale(0.95);
+    box-shadow: 0 4px 10px rgba(120, 70, 50, 0.2);
 }
 .login-btn {
     background-color: #2e2a27;
@@ -375,7 +375,7 @@ footer {
 }
 .login {
     background: url("loginBookPic.jpg") no-repeat center center;
-     background-size: cover;
+    background-size: cover;
     background-blend-mode: overlay;
     background-color: rgba(0,0,0,0.6); /* Adjust transparency */
     padding: 30px;
@@ -519,20 +519,20 @@ footer {
 }
 
 .girlreadingimg-container {
-  background: linear-gradient(to right, #fef3de, #ffcd8a);
-  width: 100%;
-  padding: 30px 40px;
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  justify-content: flex-start;
-  padding-left: 200px;
+    background: linear-gradient(to right, #fef3de, #ffcd8a);
+    width: 100%;
+    padding: 30px 40px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    justify-content: flex-start;
+    padding-left: 200px;
 }
 
 .girlreadingimg-container img {
-  width: 250px;
-  border-radius: 12px;
-  margin-left: 0; 
+    width: 250px;
+    border-radius: 12px;
+    margin-left: 0;
 }
 
 .intro-text1{
@@ -554,120 +554,120 @@ footer {
     padding-left: 70px;
 }
 @keyframes fadeInUp {
-  0% {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @keyframes pulse {
-  0%, 100% {
-    transform: translateY(-12px) scale(1.07) rotate(1deg);
-    box-shadow: 0 30px 50px rgba(0,0,0,0.35);
-  }
-  50% {
-    transform: translateY(-15px) scale(1.1) rotate(2deg);
-    box-shadow: 0 35px 60px rgba(0,0,0,0.45);
-  }
+    0%, 100% {
+        transform: translateY(-12px) scale(1.07) rotate(1deg);
+        box-shadow: 0 30px 50px rgba(0,0,0,0.35);
+    }
+    50% {
+        transform: translateY(-15px) scale(1.1) rotate(2deg);
+        box-shadow: 0 35px 60px rgba(0,0,0,0.45);
+    }
 }
 
 @keyframes glow {
-  0%, 100% {
-    box-shadow: 0 30px 50px rgba(0,0,0,0.35);
-  }
-  50% {
-    box-shadow: 0 30px 60px rgba(115,52,46,0.7);
-  }
+    0%, 100% {
+        box-shadow: 0 30px 50px rgba(0,0,0,0.35);
+    }
+    50% {
+        box-shadow: 0 30px 60px rgba(115,52,46,0.7);
+    }
 }
 
 .about-container {
-  display: flex;
-  gap: 30px;
-  padding: 60px 80px;
-  justify-content: center;
-  background: linear-gradient(145deg, #2e2a27, #3c3532);
-  width: calc(100vw - 160px);
-  margin: 40px auto;
-  box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-  overflow-x: hidden;
+    display: flex;
+    gap: 30px;
+    padding: 60px 80px;
+    justify-content: center;
+    background: linear-gradient(145deg, #2e2a27, #3c3532);
+    width: calc(100vw - 160px);
+    margin: 40px auto;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+    overflow-x: hidden;
 }
 
 .box-find {
     animation: fadeInUp 0.8s ease forwards;
-  background: linear-gradient(145deg, #fef3de, #ffcd8a);
-  border: none;
-  border-radius: 15px;
-  padding: 35px 25px 20px;
-  width: 160px;
-  height: 180px;
-  box-shadow: 0 15px 30px rgba(0,0,0,0.3);
-  font-family: 'Playfair Display', serif;
-  font-weight: 600;
-  color: #73342e;
-  transition: transform 0.4s ease, box-shadow 0.4s ease;
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
+    background: linear-gradient(145deg, #fef3de, #ffcd8a);
+    border: none;
+    border-radius: 15px;
+    padding: 35px 25px 20px;
+    width: 160px;
+    height: 180px;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+    color: #73342e;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
 }
 
 .box-find:hover {
     animation: pulse 1.5s infinite;
-  transform: translateY(-12px) scale(1.07) rotate(1deg);
-  box-shadow: 0 30px 50px rgba(0,0,0,0.35);
+    transform: translateY(-12px) scale(1.07) rotate(1deg);
+    box-shadow: 0 30px 50px rgba(0,0,0,0.35);
 }
 
 .box-find::before {
-  content: "";
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%);
-  z-index: 1;
-  transition: transform 0.6s ease;
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%);
+    z-index: 1;
+    transition: transform 0.6s ease;
 }
 
 .box-find:hover::before {
-  transform: scale(1.3);
+    transform: scale(1.3);
 }
 
 .box-find .box-header {
-  margin: 0;
-  font-weight: bold;
-  font-size: 1.4rem;
-  z-index: 2;
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+    margin: 0;
+    font-weight: bold;
+    font-size: 1.4rem;
+    z-index: 2;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .box-find .box-icon {
-  font-size: 2.5rem;
-  color: #8a4f3d;
-  z-index: 2;
-  margin-bottom: 10px;
+    font-size: 2.5rem;
+    color: #8a4f3d;
+    z-index: 2;
+    margin-bottom: 10px;
 }
 
 .box-find div {
-  z-index: 2;
-  position: relative;
-  margin-top: 10px;
+    z-index: 2;
+    position: relative;
+    margin-top: 10px;
 }
 
 
 .align-text-box {
-  white-space: nowrap;
-  overflow: hidden;  
-  text-overflow: ellipsis; 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .picknewbook-text {
     font-family: 'Playfair Display', serif;
@@ -686,14 +686,14 @@ footer {
     line-height: 1.6;
     color: #4f3928;
     margin-left: 60px;
-    padding-left: 40px; 
+    padding-left: 40px;
     max-width: 600px;
 }
 
 
 
 .cards-wrapper {
-    width: 1000px; 
+    width: 1000px;
     overflow: hidden;
     margin: 20px auto;
     border-radius: 12px;
@@ -710,12 +710,12 @@ footer {
 }
 
 @keyframes scroll-left {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
 }
 
 
@@ -724,21 +724,21 @@ footer {
 }
 
 .cards-container::-webkit-scrollbar {
-  height: 8px;
+    height: 8px;
 }
 
 .cards-container::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
+    background: #f1f1f1;
+    border-radius: 4px;
 }
 
 .cards-container::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
+    background: #888;
+    border-radius: 4px;
 }
 
 .cards-container::-webkit-scrollbar-thumb:hover {
-  background: #555;
+    background: #555;
 }
 
 .book-card {
@@ -753,16 +753,16 @@ footer {
 }
 
 .book-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 14px 30px rgba(0,0,0,0.2);
-  transform: scale(1.05);
+    transform: translateY(-6px);
+    box-shadow: 0 14px 30px rgba(0,0,0,0.2);
+    transform: scale(1.05);
 }
 
 .book-card img {
-  width: 100%;
- 
-  border-radius: 8px;
-  margin-bottom: 10px;
+    width: 100%;
+
+    border-radius: 8px;
+    margin-bottom: 10px;
 }
 
 .book-title {
@@ -1126,4 +1126,256 @@ nav ul li {
         width: 20px;
         height: 20px;
     }
+}
+@media (max-width: 768px) {
+    header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+        gap: 12px;
+    }
+    header, nav {
+        overflow: visible !important;
+    }
+    header h2 {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .search-container {
+        display: flex;
+        align-items: center;
+        width: 90%;
+        gap: 8px;
+        margin: 10px 0;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .search-container input {
+        flex: 1;
+        padding: 6px 10px;
+        font-size: 14px;
+    }
+
+    .search-container button {
+        padding: 6px 12px;
+        font-size: 14px;
+        white-space: nowrap;
+    }
+
+    .search-icon {
+        display: none;
+    }
+
+    nav {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    #navList {
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        gap: 10px;
+        padding: 8px 10px;
+        overflow-x: auto;
+    }
+
+    #navList li {
+        flex-shrink: 0;
+    }
+
+    .nav-btn,
+    .login-btn,
+    .rss-button {
+        display: inline-block;
+        font-size: 14px;
+        padding: 6px 10px;
+        white-space: nowrap;
+        color: #333;
+        text-decoration: none;
+    }
+
+    .dropdown {
+        position: relative;
+    }
+
+    .dropdown-menu {
+        position: fixed; /* poziționare fixă relativ la viewport */
+        top: auto;
+        bottom: auto;
+        left: 10px !important; /* distanță mică de la stânga ecranului */
+        right: 10px !important; /* și de la dreapta, să ocupe aproape tot ecranul */
+        width: auto !important;
+        min-width: unset !important;
+        max-width: calc(100vw - 20px); /* să nu depășească ecranul */
+        border-radius: 12px;
+        box-shadow:
+                0 10px 20px rgba(184, 122, 97, 0.25),
+                0 4px 10px rgba(184, 122, 97, 0.15);
+        padding: 12px 0;
+        transform: translateY(0) !important;
+    }
+    .dropdown-menu::before {
+        display: none; /* ascunde săgeata dropdown-ului */
+    }
+
+    /* Ajustează poziția săgeții dacă o vrei vizibilă în alt mod */
+    .dropdown-arrow {
+        margin-top: 0;
+    }
+
+    /* Ajustează item-urile din meniu pentru mobil */
+    .dropdown-menu li {
+        padding: 14px 16px;
+        font-size: 1rem;
+    }
+    html, body {
+        overflow-x: hidden;
+    }
+
+    .dropdown-menu .icon {
+        display: none;
+    }
+
+    .search-popup {
+        width: 100%;
+        max-width: 100%;
+        left: 0;
+    }
+}
+@media (max-width: 768px) {
+    .girlreadingimg-container {
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        padding-left: 8px;
+        text-align: center;
+    }
+
+    .girlreadingimg-container img {
+        width: 180px;
+    }
+
+    .intro-text1,
+    .intro-text2 {
+        font-size: 1.8rem;
+        padding-left: 0;
+    }
+
+    .about-container {
+        flex-direction: column;
+        padding: 30px 20px;
+        width: 100%;
+    }
+
+    .box-find {
+        width: 100%;
+        max-width: 280px;
+        margin: 10px 0 10px 10px; /* mutat mai la stanga */
+    }
+
+    .box-find .box-header {
+        font-size: 1.2rem; /* poate mai mic pe mobil */
+        gap: 6px;          /* mai puțin spațiu între elemente */
+        justify-content: flex-start; /* aliniază conținutul la stânga */
+    }
+
+    .box-find .box-icon {
+        font-size: 2rem;   /* iconița puțin mai mică */
+        margin-bottom: 8px;
+    }
+
+    .box-find div {
+        margin-top: 8px;
+    }
+
+    .login-container {
+        width: 90%;
+        padding: 20px;
+    }
+
+
+    .nav-btn {
+        padding: 8px 12px;
+        font-size: 14px;
+        gap: 6px;
+    }
+
+    .login-btn {
+        padding: 8px 12px;
+        font-size: 14px;
+        margin: 0 0 0 10px; /* pune puțin spațiu față de alte butoane */
+        box-shadow: none;
+        display: inline-flex; /* asigură afișarea */
+        position: relative; /* să nu fie ascuns sub alte elemente */
+        z-index: 10; /* ca să fie deasupra */
+    }
+
+    /* Dacă navbar-ul e scrollabil pe orizontală, asigură vizibilitatea */
+    nav, #navList {
+        overflow-x: auto;
+    }
+
+    .arrow-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
+    }
+
+    .arrow-btn.left {
+        left: 0;
+    }
+
+    .arrow-btn.right {
+        right: 0;
+    }
+    nav ul#navList {
+        display: flex;
+        flex-wrap: wrap; /* permite mai multe rânduri */
+        gap: 8px;
+        padding: 0;
+        margin: 0;
+        justify-content: center;
+    }
+
+    nav ul#navList li {
+        flex: 1 1 45%; /* ocupă aproape jumătate din lățime pe rând */
+        list-style: none;
+        text-align: center;
+    }
+
+    /* Forțează Discover și Dashboard să fie pe primul rând */
+    nav ul#navList li:nth-child(1),
+    nav ul#navList li:nth-child(2) {
+        order: 1;
+    }
+
+    /* Community și Login pe al doilea rând */
+    nav ul#navList li:nth-child(3),
+    nav ul#navList li:nth-child(4) {
+        order: 2;
+    }
+
+    /* Stil butoane ca să arate bine în rânduri */
+    .nav-btn, .login-btn {
+        display: inline-block;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    nav {
+        overflow-x: visible; /* FĂRĂ scroll */
+    }
+
+    #navList {
+        max-width: 100%;
+    }
+
+    #navList li {
+        min-width: 45%;
+    }
+    
 }

@@ -5,11 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="11112695-32c3-4b25-80c9-16f957f723d9" name="Changes" comment="Improve RSS Feed">
-      <change afterPath="$PROJECT_DIR$/backend/export/export_user_data.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/settingsPage/settingsPage.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/settingsPage/settingsPage.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/settingsPage/settingsPage.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/settingsPage/settingsPage.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/settingsPage/settingsPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/settingsPage/settingsPage.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/mainPage/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/mainPage/style.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,7 +40,7 @@
     &quot;accountId&quot;: &quot;5defed38-b4a4-469f-b74f-bb00f4ea7d27&quot;
   }
 }</component>
-  <component name="PhpWorkspaceProjectConfiguration" interpreter_name="PHP" />
+  <component name="PhpWorkspaceProjectConfiguration" interpreter_name="$PROJECT_DIR$/../../../../Program Files/php/php.exe" />
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 0
@@ -88,8 +85,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-PS-243.25659.45" />
-        <option value="bundled-php-predefined-a98d8de5180a-1ec7b7818973-com.jetbrains.php.sharedIndexes-PS-243.25659.45" />
+        <option value="bundled-js-predefined-d6986cc7102b-b26f3e71634d-JavaScript-PS-251.26094.133" />
+        <option value="bundled-php-predefined-a98d8de5180a-c5828cf854d9-com.jetbrains.php.sharedIndexes-PS-251.26094.133" />
       </set>
     </attachedChunks>
   </component>
@@ -120,6 +117,7 @@
       <workItem from="1750440746823" duration="2790000" />
       <workItem from="1750460049411" duration="3503000" />
       <workItem from="1750502532659" duration="16507000" />
+      <workItem from="1750537897018" duration="5305000" />
     </task>
     <task id="LOCAL-00001" summary="Fixed duplicated folders">
       <option name="closed" value="true" />
