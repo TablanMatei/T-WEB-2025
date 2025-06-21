@@ -24,11 +24,12 @@ try {
         exit;
     }
 
+
     // Obține datele utilizatorului
     $stmt = $pdo->prepare("
-        SELECT u.user_id, u.username, u.email, u.password
-        FROM users u 
-        WHERE u.username = ? OR u.email = ?
+    SELECT u.user_id, u.username, u.email, u.password, u.role
+    FROM users u 
+    WHERE u.username = ? OR u.email = ?
     ");
     $stmt->execute([$username, $username]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -46,7 +47,8 @@ try {
             'user' => [
                 'user_id' => $user['user_id'],
                 'username' => $user['username'],
-                'email' => $user['email']
+                'email' => $user['email'],
+                'role' => $user['role']
             ]
         ]);
     } else {

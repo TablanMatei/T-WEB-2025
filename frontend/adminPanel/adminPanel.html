@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="adminPanel.css">
+  <script defer src="adminPanel.js"></script>
+</head>
+<body>
+<header>
+  <nav class="navbar">
+    <div class="logo">BookClub Admin</div>
+    <div class="nav-links">
+      <a href="/frontend/mainPage/index.html">Home</a>
+      <a href="#" id="logoutBtn">Logout</a>
+    </div>
+  </nav>
+</header>
+<main>
+  <section class="admin-dashboard">
+    <h1>Admin Dashboard</h1>
+    <div class="stats">
+      <div class="stat-card">
+        <h3>Total Users</h3>
+        <span id="totalUsers">-</span>
+      </div>
+      <div class="stat-card">
+        <h3>Total Groups</h3>
+        <span id="totalGroups">-</span>
+      </div>
+      <div class="stat-card">
+        <h3>Total Books</h3>
+        <span id="totalBooks">-</span>
+      </div>
+    </div>
+    <div class="admin-tabs">
+      <button class="tab-btn active" onclick="showTab('users')">Manage Users</button>
+      <button class="tab-btn" onclick="showTab('groups')">Manage Groups</button>
+    </div>
+
+    <div id="adminContent">
+      <!-- Users Tab -->
+      <div id="users-tab" class="tab-content active">
+        <h3>User Management</h3>
+        <div id="usersList" class="admin-list">
+          <div class="loading">Loading users...</div>
+        </div>
+      </div>
+
+      <!-- Groups Tab -->
+      <div id="groups-tab" class="tab-content">
+        <h3>Group Management</h3>
+        <div id="groupsList" class="admin-list">
+          <div class="loading">Loading groups...</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+</body>
+</html>

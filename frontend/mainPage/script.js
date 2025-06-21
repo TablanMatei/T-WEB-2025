@@ -515,6 +515,10 @@ async function handleLogin(event) {
             localStorage.setItem('user', JSON.stringify(result.user));
             localStorage.setItem('isLoggedIn', 'true');
 
+            ///DEBUG
+            console.log('User data saved:', result.user);
+            console.log('User role:', result.user.role);
+
             showLoginMessage('Login successful!', 'success');
             updateUIAfterLogin(result.user);
 
@@ -597,17 +601,27 @@ function logout() {
 }
 
 function updateUIAfterLogin(user) {
+    console.log('updateUIAfterLogin called with:', user);
+    console.log('User role check:', user.role);
+    console.log('Is admin?', user.role === 'admin');
+
     const loginButton = document.querySelector('.login-btn');
     if (loginButton) {
         loginButton.innerHTML = sanitizeHtml(user.username) + ' <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>';
-        /// PROTECTIE XSS
 
         loginButton.onclick = () => toggleUserMenu();
 
         if (!document.querySelector('.user-dropdown')) {
             const userDropdown = document.createElement('div');
             userDropdown.className = 'user-dropdown';
-            userDropdown.innerHTML = '<a href="#" id="profile-link">Edit Profile</a><a href="#" id="notifications-link">Notifications</a><a href="#" id="settings-link">Settings</a><a href="#" onclick="logout()">Logout</a>';
+
+            // Adaugă link Admin Panel dacă utilizatorul este admin
+            let adminLink = '';
+            if (user.role === 'admin') {
+                adminLink = '<a href="/frontend/adminPanel/adminPanel.html" id="admin-link">Admin Panel</a>';
+            }
+
+            userDropdown.innerHTML = '<a href="#" id="profile-link">Edit Profile</a><a href="#" id="notifications-link">Notifications</a><a href="#" id="settings-link">Settings</a>' + adminLink + '<a href="#" onclick="logout()">Logout</a>';
             loginButton.parentNode.appendChild(userDropdown);
             setupNavigationLinks();
         }
