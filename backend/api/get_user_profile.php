@@ -10,7 +10,7 @@ $pdo = getDbConnection();
 
 // Primește user_id din POST în loc de sesiune
 $input = json_decode(file_get_contents('php://input'), true);
-$user_id = isset($input['user _id']) ? $input['user_id'] : null;
+$user_id = isset($input['user_id']) ? $input['user_id'] : null;
 
 if (!$user_id) {
     echo json_encode(['success' => false, 'error' => 'User ID required']);

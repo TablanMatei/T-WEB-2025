@@ -88,7 +88,8 @@ async function loadUserProfileData() {
     try {
         // Obține user_id din localStorage
         const user = JSON.parse(localStorage.getItem('user') || '{}');
-
+        console.log('User from localStorage:', user);
+        console.log('Available keys:', Object.keys(user));
         if (!user.user_id) {
             showProfileMessage('User ID not found. Please login again.', 'error');
             return;

@@ -621,7 +621,8 @@ function updateUIAfterLogin(user) {
                 adminLink = '<a href="/frontend/adminPanel/adminPanel.html" id="admin-link">Admin Panel</a>';
             }
 
-            userDropdown.innerHTML = '<a href="#" id="profile-link">Edit Profile</a><a href="#" id="notifications-link">Notifications</a><a href="#" id="settings-link">Settings</a>' + adminLink + '<a href="#" onclick="logout()">Logout</a>';
+            userDropdown.innerHTML = '<a href="#" id="profile-link">Edit Profile</a><a href="#" id="settings-link">Settings</a>' + adminLink + '<a href="#" onclick="logout()">Logout</a>';
+            // userDropdown.innerHTML = '<a href="#" id="profile-link">Edit Profile</a><a href="#" id="notifications-link">Notifications</a><a href="#" id="settings-link">Settings</a>' + adminLink + '<a href="#" onclick="logout()">Logout</a>';
             loginButton.parentNode.appendChild(userDropdown);
             setupNavigationLinks();
         }
@@ -779,15 +780,16 @@ function addDashboardDropdown() {
     </svg>  
     Finished Books  
     </a>  
-    </li>  
-    <li>  
+    </li> 
+    <!-- 
+    <li> 
     <a href="#reading-stats">  
     <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">  
     <line x1="12" y1="20" x2="12" y2="10"></line>  
     <line x1="18" y1="20" x2="18" y2="4"></line>  
     <line x1="6" y1="20" x2="6" y2="16"></line>  
     </svg>  
-    Book Stats  
+    Book Stats -->
     </a>  
     </li>  
     </ul>  
