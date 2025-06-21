@@ -572,3 +572,41 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+function loadTopRatedBooks() {
+    const container = document.getElementById('topRatedContainer');
+    if (!container) return;
+
+    fetch('http://localhost:9000/backend/api/get_top_rated_books.php')
+        .then(res => {
+            if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+            return res.json();
+        })
+        .then(data => {
+            if (!data.success) {
+                container.innerHTML = `<p>Error from API: ${data.error || 'Unknown error'}</p>`;
+                return;
+            }
+
+            if (!data.books || data.books.length === 0) {
+                container.innerHTML = '<p>No top-rated books found.</p>';
+                return;
+            }
+
+            container.innerHTML = data.books.map(book => `
+        <article class="book">
+          <div class="book-details">
+            <h3>${book.title}</h3>
+            <p class="author">Published: ${book.year || 'N/A'}</p>
+            <p class="genre">${book.genre || 'Unknown Genre'}</p>
+            <p class="rating">⭐ ${book.avg_rating}</p>
+          </div>
+        </article>
+      `).join('');
+        })
+        .catch(err => {
+            container.innerHTML = `<p>Error loading books: ${err.message}</p>`;
+        });
+}
+
+// Apelează funcția când vrei, de exemplu la încărcarea paginii:
+document.addEventListener('DOMContentLoaded', loadTopRatedBooks);

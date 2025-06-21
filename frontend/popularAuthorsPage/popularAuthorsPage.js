@@ -572,3 +572,82 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+async function loadPopularAuthors() {
+    const container = document.getElementById('popularAuthorsContainer');
+    container.innerHTML = 'Loading popular authors...';
+
+    try {
+        const response = await fetch('../../backend/api/get_popular_authors.php');
+        const data = await response.json();
+
+        if (!data.success) {
+            container.innerHTML = 'Error loading authors: ' + (data.error || 'Unknown error');
+            return;
+        }
+
+        if (data.authors.length === 0) {
+            container.innerHTML = 'No popular authors found.';
+            return;
+        }
+
+        // ✅ AICI este codul pe care îl menționai
+        container.innerHTML = data.authors.map(author => `
+            <div class="author-card">
+                <h3>${author.name}</h3>
+                <p>Number of ratings: ${author.total_ratings}</p>
+                <p>Average rating: ${author.avg_rating} ★</p>
+                <button onclick="toggleBooks(${author.author_id}, this)">Show Books</button>
+                <div class="author-books-dropdown" id="books-${author.author_id}" style="display: none;">
+                    <p>Loading...</p>
+                </div>
+            </div>
+        `).join('');
+
+    } catch (error) {
+        console.error('Error loading authors:', error);
+        container.innerHTML = 'Failed to load popular authors.';
+    }
+}
+async function toggleBooks(authorId, button) {
+    const container = document.getElementById(`books-${authorId}`);
+    const isVisible = container.style.display === 'block';
+
+    if (isVisible) {
+        container.style.display = 'none';
+        button.textContent = 'Show Books';
+        return;
+    }
+
+    container.style.display = 'block';
+    button.textContent = 'Hide Books';
+    container.innerHTML = 'Loading...';
+
+    try {
+        const response = await fetch(`../../backend/api/get_books_by_author.php?author_id=${authorId}&limit=10`);
+
+        const data = await response.json();
+
+        if (!data.success) {
+            container.innerHTML = 'Error: ' + (data.error || 'Unknown error');
+            return;
+        }
+
+        if (data.books.length === 0) {
+            container.innerHTML = 'No books found.';
+            return;
+        }
+
+        container.innerHTML = data.books.map(book => `
+            <div class="book-item">
+                <strong>${book.title}</strong> (${book.year})<br/>
+                Genre: ${book.genre} | Rating: ${book.avg_rating ?? 'N/A'} ★
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error(error);
+        container.innerHTML = 'Failed to load books.';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadPopularAuthors);
