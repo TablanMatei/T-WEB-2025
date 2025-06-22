@@ -4,28 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="11112695-32c3-4b25-80c9-16f957f723d9" name="Changes" comment="Navigare intre pagini">
+    <list default="true" id="11112695-32c3-4b25-80c9-16f957f723d9" name="Changes" comment="Navigare intre pagini.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/communityPage/communityPage.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/communityPage/communityPage.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/communityPage/communityPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/communityPage/communityPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/createGroupPage/createGroupPage.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/createGroupPage/createGroupPage.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/createGroupPage/createGroupPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/createGroupPage/createGroupPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/currentlyReadingPage/currentlyReadingPage.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/currentlyReadingPage/currentlyReadingPage.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/currentlyReadingPage/currentlyReadingPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/currentlyReadingPage/currentlyReadingPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/finishedBooksPage/finishedBooksPage.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/finishedBooksPage/finishedBooksPage.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/finishedBooksPage/finishedBooksPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/finishedBooksPage/finishedBooksPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/genresPage/genresPage.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/genresPage/genresPage.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/genresPage/genresPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/genresPage/genresPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/groupPage/groupPage.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/groupPage/groupPage.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/groupPage/groupPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/groupPage/groupPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/popularAuthorsPage/popularAuthorsPage.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/popularAuthorsPage/popularAuthorsPage.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/popularAuthorsPage/popularAuthorsPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/popularAuthorsPage/popularAuthorsPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/settingsPage/settingsPage.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/settingsPage/settingsPage.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/settingsPage/settingsPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/settingsPage/settingsPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/topRatedPage/topRatedPage.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/topRatedPage/topRatedPage.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/topRatedPage/topRatedPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/topRatedPage/topRatedPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/wantToReadPage/wantToReadPage.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/wantToReadPage/wantToReadPage.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/wantToReadPage/wantToReadPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/wantToReadPage/wantToReadPage.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -137,6 +117,7 @@
       <workItem from="1750460049411" duration="3503000" />
       <workItem from="1750502532659" duration="21224000" />
       <workItem from="1750543635142" duration="2115000" />
+      <workItem from="1750593145832" duration="516000" />
     </task>
     <task id="LOCAL-00001" summary="Fixed duplicated folders">
       <option name="closed" value="true" />
@@ -274,7 +255,15 @@
       <option name="project" value="LOCAL" />
       <updated>1750588521444</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="Navigare intre pagini.">
+      <option name="closed" value="true" />
+      <created>1750588580924</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1750588580924</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -308,7 +297,8 @@
     <MESSAGE value="Improve RSS Feed" />
     <MESSAGE value="Export de Date" />
     <MESSAGE value="Navigare intre pagini" />
-    <option name="LAST_COMMIT_MESSAGE" value="Navigare intre pagini" />
+    <MESSAGE value="Navigare intre pagini." />
+    <option name="LAST_COMMIT_MESSAGE" value="Navigare intre pagini." />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
