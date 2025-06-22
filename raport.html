@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Specificație Cerințe Sistem - BoW (Books on Web)</title>
+    <style>
+        body {
+            font-family: "Georgia", serif;
+            max-width: 900px;
+            margin: 2rem auto;
+            line-height: 1.6;
+            color: #222;
+            background: #fafafa;
+            padding: 0 1rem;
+        }
+        h1, h2, h3 {
+            font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+            color: #003366;
+            margin-top: 2rem;
+        }
+        h1 {
+            border-bottom: 2px solid #003366;
+            padding-bottom: 0.3rem;
+        }
+        p {
+            margin: 1rem 0;
+        }
+        section {
+            margin-bottom: 3rem;
+        }
+        ul {
+            margin-left: 1.5rem;
+        }
+        footer {
+            margin-top: 4rem;
+            font-size: 0.9rem;
+            color: #555;
+            border-top: 1px solid #ddd;
+            padding-top: 1rem;
+        }
+        code {
+            background-color: #eaeaea;
+            padding: 0.1rem 0.3rem;
+            font-family: monospace;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Specificație Cerințe Sistem - BoW (Books on Web)</h1>
+
+<section id="introducere">
+    <h2>1. Introducere</h2>
+
+    <h3>1.1 Scopul aplicației</h3>
+    <p>BoW este o aplicație web destinată utilizatorilor individuali sau grupurilor (de exemplu, clase școlare sau cluburi de lectură) pentru a gestiona progresul lecturilor și a exprima opinii sau adnotări referitoare la cărțile citite.</p>
+
+    <h3>1.2 Domeniul aplicației</h3>
+    <p>Aplicația oferă management complet al cărților parcurse, organizarea acestora pe diverse criterii, generarea de statistici exportabile, recomandarea bibliotecilor publice din proximitate și fluxuri de știri RSS legate de lecturi și noutăți.</p>
+</section>
+
+<section id="descriere-generala">
+    <h2>2. Descriere generală</h2>
+
+    <h3>2.1 Perspective sistem</h3>
+    <p>BoW este o platformă web care interacționează cu utilizatorii printr-o interfață intuitivă și responsivă. Integrarea cu API-uri externe, cum ar fi Google Books API și Open Library API, oferă date suplimentare despre cărți.</p>
+
+    <h3>2.2 Funcționalități principale</h3>
+    <ul>
+        <li>Înregistrarea progresului în lectură (pagini citite, capitole, etc.).</li>
+        <li>Exprimarea opiniilor, recenziilor și adnotărilor personale.</li>
+        <li>Organizarea cărților pe criterii precum categorie, autor(i), editură, an, ediție.</li>
+        <li>Legături între cărți înrudite pentru o navigare facilă.</li>
+        <li>Generarea și exportul statisticilor în formate deschise: minimal, CSV și DocBook.</li>
+        <li>Recomandarea bibliotecilor publice din proximitate (funcționalitate simulată prin serviciu web).</li>
+        <li>Flux RSS cu anunțuri legate de lecturi și noutăți din domeniul literar.</li>
+        <li><em>Bonus:</em> integrare cu Google Books API și Open Library API pentru informații suplimentare.</li>
+    </ul>
+</section>
+
+<section id="cerinte-detaliate">
+    <h2>3. Cerințe detaliate</h2>
+
+    <h3>3.1 Cerințe funcționale</h3>
+    <ul>
+        <li><strong>RF1:</strong> Sistemul trebuie să permită utilizatorilor să marcheze progresul lecturii pentru fiecare carte.</li>
+        <li><strong>RF2:</strong> Utilizatorii pot adăuga opinii și adnotări pentru cărțile citite.</li>
+        <li><strong>RF3:</strong> Cărțile pot fi organizate după autor, categorie, editură, an și ediție.</li>
+        <li><strong>RF4:</strong> Sistemul trebuie să sugereze biblioteci publice din proximitate dacă o carte nu este disponibilă.</li>
+        <li><strong>RF5:</strong> Aplicația trebuie să genereze statistici exportabile în format minimal, CSV și DocBook.</li>
+        <li><strong>RF6:</strong> Sistemul oferă un flux RSS pentru anunțuri relevante privind lecturile.</li>
+        <li><strong>RF7 (Bonus):</strong> Integrarea cu Google Books API și Open Library API pentru date suplimentare despre cărți.</li>
+    </ul>
+
+    <h3>3.2 Cerințe nefuncționale</h3>
+    <ul>
+        <li><strong>CNF1:</strong> Interfața utilizator trebuie să fie responsivă și accesibilă atât pe desktop, cât și pe dispozitive mobile.</li>
+        <li><strong>CNF2:</strong> Timpul de răspuns pentru acțiunile uzuale să fie sub 2 secunde.</li>
+        <li><strong>CNF3:</strong> Datele utilizatorilor trebuie stocate securizat și protejat împotriva accesului neautorizat.</li>
+        <li><strong>CNF4:</strong> Sistemul trebuie să suporte cel puțin 100 de utilizatori simultan activi fără degradare a performanței.</li>
+    </ul>
+</section>
+
+<section id="interactiune-utilizator">
+    <h2>4. Interacțiunea cu utilizatorul</h2>
+    <p>Utilizatorii accesează platforma prin browser web modern, având posibilitatea să vadă și să modifice progresul lecturilor, să adauge recenzii și să vizualizeze recomandări personalizate.</p>
+    <p>Navigarea este intuitivă, cu meniuri clare, filtre pentru categorii și opțiuni de sortare, facilitând găsirea rapidă a cărților de interes.</p>
+    <p>Notificările și fluxul RSS oferă o modalitate simplă de a rămâne la curent cu noutățile și anunțurile importante legate de lecturi.</p>
+</section>
+
+<section id="referinte">
+    <h2>5. Referințe</h2>
+    <ul>
+        <li><a href="https://ieee-collabratec.ieee.org/app/template/ieee-srs-template" target="_blank" rel="noopener noreferrer">IEEE System Requirements Specification Template</a></li>
+        <li><a href="https://developers.google.com/books" target="_blank" rel="noopener noreferrer">Google Books API</a></li>
+        <li><a href="https://openlibrary.org/developers/api" target="_blank" rel="noopener noreferrer">Open Library API</a></li>
+        <li>Inspirație: Goodreads, Hardcover, The StoryGraph</li>
+    </ul>
+</section>
+
+<footer>
+    <p>© 2025 Proiect BoW - Books on Web | Toate drepturile rezervate</p>
+</footer>
+
+</body>
+</html>
