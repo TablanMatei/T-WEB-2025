@@ -15,56 +15,11 @@ function closeLogin() {
     document.body.classList.remove("blur-effect");
 }
 
-function addDashboardDropdown() {
-    const navList = document.getElementById('navList');
-    if (!navList) return;
-
-    const dropdownHTML = `
-    <li class="dropdown">
-        <a href="#dashboard" class="nav-btn">DASHBOARD
-            <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M6 9l6 6 6-6"></path>
-            </svg>
-        </a>
-        <ul class="dropdown-menu">
-            <li>
-                <a href="../currentlyReadingPage/currentlyReadingPage.html">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <polyline points="12 6 12 12 16 14"></polyline>
-                    </svg>
-                    Currently Reading
-                </a>
-            </li>
-            <li>
-                <a href="wantToReadPage.html">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 20l9-5-9-5-9 5 9 5z"></path>
-                        <path d="M12 12v8"></path>
-                        <path d="M12 12L3 7"></path>
-                        <path d="M12 12l9-5"></path>
-                    </svg>
-                    Want to Read
-                </a>
-            </li>
-            <li>
-                <a href="../finishedBooksPage/finishedBooksPage.html">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                    Finished Books
-                </a>
-            </li>
-        </ul>
-    </li>
-    `;
-
-    const discoverItem = navList.querySelector('li.dropdown');
-    if (discoverItem) {
-        discoverItem.insertAdjacentHTML('afterend', dropdownHTML);
-    } else {
-        navList.insertAdjacentHTML('beforeend', dropdownHTML);
-    }
+// Funcție minimală pentru prevenirea XSS
+function sanitizeHtml(str) {
+    const temp = document.createElement('div');
+    temp.textContent = str;
+    return temp.innerHTML;
 }
 
 async function handleLogin(event) {
@@ -96,7 +51,6 @@ async function handleLogin(event) {
         });
 
         const result = await response.json();
-        console.log('Login response:', result);
 
         if (response.ok && result.success) {
             localStorage.setItem('user', JSON.stringify(result.user));
@@ -104,12 +58,12 @@ async function handleLogin(event) {
 
             showLoginMessage('Login successful!', 'success');
             updateUIAfterLogin(result.user);
-            addDashboardDropdown();
+            updateNavigation();
 
             setTimeout(() => {
                 closeLogin();
                 clearLoginForm();
-                loadUserBooks(); // Încarcă cărțile după login
+                loadUserBooks();
             }, 1000);
 
         } else {
@@ -163,17 +117,6 @@ function logout() {
         localStorage.removeItem('user');
         localStorage.removeItem('isLoggedIn');
 
-        const loginButton = document.querySelector('.login-btn');
-        if (loginButton) {
-            loginButton.textContent = 'Login';
-            loginButton.onclick = () => openLogin();
-        }
-
-        const userDropdown = document.querySelector('.user-dropdown');
-        if (userDropdown) {
-            userDropdown.remove();
-        }
-
         fetch('http://localhost:9000/backend/auth/logout.php', {
             method: 'POST',
             headers: {
@@ -182,62 +125,34 @@ function logout() {
         }).catch(error => console.log('Logout backend call failed:', error));
 
         alert('You have been logged out successfully!');
-
-        // Reîncarcă pagina pentru a afișa mesajul de login
         window.location.reload();
     }
 }
 
 function updateUIAfterLogin(user) {
-    const loginButton = document.querySelector('.login-btn');
-    if (loginButton) {
-        loginButton.innerHTML = user.username + ' <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>';
-
-        loginButton.onclick = () => toggleUserMenu();
-
-        if (!document.querySelector('.user-dropdown')) {
-            const userDropdown = document.createElement('div');
-            userDropdown.className = 'user-dropdown';
-            userDropdown.innerHTML = '<a href="#" id="profile-link">Edit Profile</a><a href="#" id="notifications-link">Notifications</a><a href="#" id="settings-link">Settings</a><a href="#" onclick="logout()">Logout</a>';
-            loginButton.parentNode.appendChild(userDropdown);
-            setupNavigationLinks();
-        }
-    }
+    // Nu mai folosim vechiul sistem cu login button
+    // Noul sistem folosește profileDropdown și loginButton separate
+    updateNavigation();
 }
 
-function setupNavigationLinks() {
-    setTimeout(() => {
-        const profileLink = document.getElementById('profile-link');
-        const settingsLink = document.getElementById('settings-link');
-        const notificationsLink = document.getElementById('notifications-link');
+// Actualizează interfața în funcție de starea de login
+function updateNavigation() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
 
-        if (profileLink) {
-            profileLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                window.location.href = '/frontend/settingsPage/editProfilePage/editProfilePage.html';
-            });
-        }
+    const profileDropdown = document.getElementById('profileDropdown');
+    const loginButton = document.getElementById('loginButton');
+    const profileUsername = document.getElementById('profileUsername');
 
-        if (settingsLink) {
-            settingsLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                window.location.href = '/frontend/settingsPage/settingsPage.html';
-            });
-        }
-
-        if (notificationsLink) {
-            notificationsLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                window.location.href = '/frontend/notificationsPage/notificationsPage.html';
-            });
-        }
-    }, 100);
-}
-
-function toggleUserMenu() {
-    const dropdown = document.querySelector('.user-dropdown');
-    if (dropdown) {
-        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    if (isLoggedIn === 'true' && user.username) {
+        // Utilizator logat - arată profilul
+        if (profileDropdown) profileDropdown.style.display = 'block';
+        if (loginButton) loginButton.style.display = 'none';
+        if (profileUsername) profileUsername.textContent = user.username;
+    } else {
+        // Utilizator nelogat - arată login
+        if (profileDropdown) profileDropdown.style.display = 'none';
+        if (loginButton) loginButton.style.display = 'block';
     }
 }
 
@@ -266,9 +181,7 @@ async function loadUserBooks() {
 }
 
 function displayUserBooks(books) {
-    const booksContainer = document.querySelector('.want-book-cards-container') ||
-        document.querySelector('.books-container') ||
-        document.querySelector('.main-content');
+    const booksContainer = document.querySelector('.want-book-cards-container');
 
     if (!booksContainer) {
         console.error('Books container not found');
@@ -285,40 +198,22 @@ function displayUserBooks(books) {
         return;
     }
 
-    booksContainer.innerHTML = `
-        <div class="books-grid">
-            ${books.map(book => `
-                <div class="book-item">
-                    <div class="book-placeholder">📚</div>
-                    <div class="book-info">
-                        <h4 class="book-title">${book.title}</h4>
-                        <p class="book-author">${book.author}</p>
-                        <p class="book-year">${book.publication_year || 'N/A'}</p>
-                        <p class="book-added">Added: ${new Date(book.date_added).toLocaleDateString()}</p>
-                        ${book.rating ? `<p class="book-rating">Rating: ${book.rating}/5</p>` : ''}
-                    </div>
-                    <div class="book-actions">
-                        <button onclick="changeBookStatus(${book.id}, 'currently_reading')" class="btn-reading">
-                            Start Reading
-                        </button>
-                        <button onclick="changeBookStatus(${book.id}, 'finished')" class="btn-finished">
-                            Mark as Finished
-                        </button>
-                        <button onclick="removeFromList(${book.id})" class="btn-remove">
-                            Remove
-                        </button>
-                    </div>
-                </div>
-            `).join('')}
+    booksContainer.innerHTML = books.map(book => `
+        <div class="want-book-card">
+            <div class="book-placeholder">📚</div>
+            <div class="want-book-title">${sanitizeHtml(book.title)}</div>
+            <div class="want-book-author">${sanitizeHtml(book.author)}</div>
+            <div class="book-actions">
+                <button onclick="changeBookStatus(${book.book_id}, 'currently_reading')" class="btn-reading">Start Reading</button>
+                <button onclick="changeBookStatus(${book.book_id}, 'finished')" class="btn-finished">Mark as Finished</button>
+                <button onclick="removeFromList(${book.book_id})" class="btn-remove">Remove</button>
+            </div>
         </div>
-    `;
+    `).join('');
 }
 
 function displayMessage(message) {
-    const booksContainer = document.querySelector('.books-container') ||
-        document.querySelector('.genre-books') ||
-        document.querySelector('.main-content');
-
+    const booksContainer = document.querySelector('.want-book-cards-container');
     if (booksContainer) {
         booksContainer.innerHTML = `<div class="message">${message}</div>`;
     }
@@ -348,10 +243,7 @@ async function changeBookStatus(bookId, newStatus) {
         const data = await response.json();
 
         if (data.success) {
-            // Reîncarcă lista
             loadUserBooks();
-
-            // Notifică alte pagini
             if (typeof(Storage) !== "undefined") {
                 localStorage.setItem('bookStatusUpdated', Date.now());
             }
@@ -391,8 +283,6 @@ async function removeFromList(bookId) {
 
         if (data.success) {
             loadUserBooks();
-
-            // Notifică alte pagini
             if (typeof(Storage) !== "undefined") {
                 localStorage.setItem('bookStatusUpdated', Date.now());
             }
@@ -405,28 +295,114 @@ async function removeFromList(bookId) {
     }
 }
 
-// EVENT LISTENERS
-document.addEventListener('DOMContentLoaded', function() {
-    // Verifică login status
+// Funcții pentru search popup
+function togglePopup() {
+    const popup = document.getElementById('searchPopup');
+    if (popup.style.display === 'none' || popup.style.display === '') {
+        popup.style.display = 'block';
+    } else {
+        popup.style.display = 'none';
+        resetToBooks();
+    }
+}
+
+function resetToBooks() {
+    setCategory('Books');
+}
+
+function setCategory(category, element) {
+    const data = {
+        Books: ['The Great Gatsby', '1984', 'To Kill a Mockingbird', 'Pride and Prejudice', 'Harry Potter'],
+        Authors: ['George Orwell', 'Jane Austen', 'J.K. Rowling', 'F. Scott Fitzgerald', 'Homer'],
+        Users: ['booklover123', 'readingaddict', 'fictionfan', 'classicreader', 'fantasyfan'],
+        Publishers: ['Penguin Books', 'HarperCollins', 'Bloomsbury', 'Random House', 'Simon & Schuster'],
+    };
+
+    document.querySelectorAll('.category-list span').forEach(span => span.classList.remove('active'));
+    if (element) element.classList.add('active');
+
+    const popularList = document.getElementById('popularList');
+    if (popularList && data[category]) {
+        popularList.innerHTML = data[category].map(item => `<div>${item}</div>`).join('');
+    }
+}
+
+// Funcții pentru animații cards
+function toggleAnimation() {
+    const container = document.getElementById('cards-container');
+    if (container) {
+        container.classList.toggle('paused');
+    }
+}
+
+function scrollLeft() {
+    const container = document.getElementById('cards-container');
+    if (container) {
+        container.scrollBy({
+            left: -220,
+            behavior: 'smooth'
+        });
+    }
+}
+
+function scrollRight() {
+    const container = document.getElementById('cards-container');
+    if (container) {
+        container.scrollBy({
+            left: 220,
+            behavior: 'smooth'
+        });
+    }
+}
+
+// Funcție pentru navigarea la Community
+function navigateToCommunity() {
     const isLoggedIn = localStorage.getItem('isLoggedIn');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
 
     if (isLoggedIn === 'true' && user.username) {
-        updateUIAfterLogin(user);
-        addDashboardDropdown();
-        loadUserBooks(); // Încarcă cărțile utilizatorului
+        window.location.href = '/frontend/communityPage/communityPage.html';
+    } else {
+        window.location.href = '/frontend/noCommunityPage/noCommunityPage.html';
+    }
+}
+
+// Funcție pentru căutarea cărților "Want to Read"
+function searchWantToRead() {
+    const searchInput = document.getElementById('wantSearchInput');
+    const searchTerm = searchInput ? searchInput.value.trim() : '';
+
+    if (!searchTerm) {
+        alert('Please enter a search term');
+        return;
+    }
+
+    console.log('Searching for:', searchTerm);
+    // Implementează căutarea în backend
+}
+
+// EVENT LISTENERS
+document.addEventListener('DOMContentLoaded', function() {
+    updateNavigation();
+    setCategory('Books');
+
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    if (isLoggedIn === 'true' && user.username) {
+        loadUserBooks();
     } else {
         displayMessage('Please login to view your "Want to Read" books.');
     }
 });
 
-// Ascultă pentru click-uri în afara dropdown-ului
-document.addEventListener('click', function(e) {
-    const dropdown = document.querySelector('.user-dropdown');
-    const loginButton = document.querySelector('.login-btn');
-
-    if (dropdown && loginButton && !loginButton.contains(e.target)) {
-        dropdown.style.display = 'none';
+// Închide search popup când se dă click în afara lui
+document.addEventListener('click', (e) => {
+    const popup = document.getElementById('searchPopup');
+    const searchContainer = document.querySelector('.search-container');
+    if (popup && searchContainer && !popup.contains(e.target) && !searchContainer.contains(e.target)) {
+        popup.style.display = 'none';
+        resetToBooks();
     }
 });
 

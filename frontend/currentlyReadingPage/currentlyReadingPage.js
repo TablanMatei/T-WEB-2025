@@ -403,12 +403,14 @@ function navigateToCommunity() {
 
 // EVENT LISTENERS
 document.addEventListener('DOMContentLoaded', function() {
+    updateNavigation();
+    setCategory('Books'); // Pentru search popup
+
     const isLoggedIn = localStorage.getItem('isLoggedIn');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
 
     if (isLoggedIn === 'true' && user.username) {
         updateUIAfterLogin(user);
-        addDashboardDropdown();
         loadUserBooks();
     } else {
         displayMessage('Please login to view your currently reading books.');
@@ -431,3 +433,85 @@ window.addEventListener('storage', function(e) {
         }, 500);
     }
 });
+
+// Actualizează interfața în funcție de starea de login
+function updateNavigation() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    const profileDropdown = document.getElementById('profileDropdown');
+    const loginButton = document.getElementById('loginButton');
+    const profileUsername = document.getElementById('profileUsername');
+
+    if (isLoggedIn === 'true' && user.username) {
+        // Utilizator logat - arată profilul
+        if (profileDropdown) profileDropdown.style.display = 'block';
+        if (loginButton) loginButton.style.display = 'none';
+        if (profileUsername) profileUsername.textContent = user.username;
+    } else {
+        // Utilizator nelogat - arată login
+        if (profileDropdown) profileDropdown.style.display = 'none';
+        if (loginButton) loginButton.style.display = 'block';
+    }
+}
+
+// Funcții pentru search popup (din alte pagini)
+function togglePopup() {
+    const popup = document.getElementById('searchPopup');
+    if (popup.style.display === 'none' || popup.style.display === '') {
+        popup.style.display = 'block';
+    } else {
+        popup.style.display = 'none';
+        resetToBooks();
+    }
+}
+
+function resetToBooks() {
+    setCategory('Books');
+}
+
+function setCategory(category, element) {
+    // Date pentru search
+    const data = {
+        Books: ['The Great Gatsby', '1984', 'To Kill a Mockingbird', 'Pride and Prejudice', 'Harry Potter'],
+        Authors: ['George Orwell', 'Jane Austen', 'J.K. Rowling', 'F. Scott Fitzgerald', 'Homer'],
+        Users: ['booklover123', 'readingaddict', 'fictionfan', 'classicreader', 'fantasyfan'],
+        Publishers: ['Penguin Books', 'HarperCollins', 'Bloomsbury', 'Random House', 'Simon & Schuster'],
+    };
+
+    document.querySelectorAll('.category-list span').forEach(span => span.classList.remove('active'));
+    if (element) element.classList.add('active');
+
+    const popularList = document.getElementById('popularList');
+    if (popularList && data[category]) {
+        popularList.innerHTML = data[category].map(item => `<div>${item}</div>`).join('');
+    }
+}
+
+// Funcții pentru animații cards
+function toggleAnimation() {
+    const container = document.getElementById('cards-container');
+    if (container) {
+        container.classList.toggle('paused');
+    }
+}
+
+function scrollLeft() {
+    const container = document.getElementById('cards-container');
+    if (container) {
+        container.scrollBy({
+            left: -220,
+            behavior: 'smooth'
+        });
+    }
+}
+
+function scrollRight() {
+    const container = document.getElementById('cards-container');
+    if (container) {
+        container.scrollBy({
+            left: 220,
+            behavior: 'smooth'
+        });
+    }
+}

@@ -63,15 +63,53 @@ document.addEventListener('click', (e) => {
 
 // Configurează navigarea pentru pagina after login
 document.addEventListener('DOMContentLoaded', function() {
+    updateNavigation();
     setupAfterLoginNavigation();
     setCategory('Books');
 });
 
 function setupAfterLoginNavigation() {
+    // Link-urile existente...
     const notificationsLink = document.querySelector('a[href="#notifications"]');
     const settingsLink = document.querySelector('a[href="#settings"]');
     const signoutLink = document.querySelector('a[href="#signout"]');
 
+    // ADAUGĂ PENTRU DASHBOARD:
+    const currentlyReadingLink = document.querySelector('a[href="../currentlyReadingPage/currentlyReadingPage.html"]');
+    const wantToReadLink = document.querySelector('a[href="../wantToReadPage/wantToReadPage.html"]');
+    const finishedBooksLink = document.querySelector('a[href="../finishedBooksPage/finishedBooksPage.html"]');
+    const readingStatsLink = document.querySelector('a[href="../readingStatsPage/readingStatsPage.html"]');
+
+    // Event listeners pentru dashboard
+    if (currentlyReadingLink) {
+        currentlyReadingLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = '../currentlyReadingPage/currentlyReadingPage.html';
+        });
+    }
+
+    if (wantToReadLink) {
+        wantToReadLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = '../wantToReadPage/wantToReadPage.html';
+        });
+    }
+
+    if (finishedBooksLink) {
+        finishedBooksLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = '../finishedBooksPage/finishedBooksPage.html';
+        });
+    }
+
+    if (readingStatsLink) {
+        readingStatsLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = '../readingStatsPage/readingStatsPage.html';
+        });
+    }
+
+    // Restul funcțiilor existente...
     if (notificationsLink) {
         notificationsLink.addEventListener('click', function(e) {
             e.preventDefault();
@@ -196,4 +234,42 @@ ${minAge || maxAge ? `Age Range: ${minAge || 'No min'} - ${maxAge || 'No max'}` 
         button.disabled = false;
         button.textContent = 'Save Changes';
     }
+}
+
+// Actualizează interfața în funcție de starea de login
+function updateNavigation() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    const profileDropdown = document.getElementById('profileDropdown');
+    const loginButton = document.getElementById('loginButton');
+    const profileUsername = document.getElementById('profileUsername');
+
+    if (isLoggedIn === 'true' && user.username) {
+        // Utilizator logat - arată profilul
+        if (profileDropdown) profileDropdown.style.display = 'block';
+        if (loginButton) loginButton.style.display = 'none';
+        if (profileUsername) profileUsername.textContent = user.username;
+    } else {
+        // Utilizator nelogat - arată login
+        if (profileDropdown) profileDropdown.style.display = 'none';
+        if (loginButton) loginButton.style.display = 'block';
+    }
+}
+
+// Navigare către Community
+function navigateToCommunity() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+
+    if (isLoggedIn === 'true') {
+        window.location.href = '../communityPage/communityPage.html';
+    } else {
+        window.location.href = '../noCommunityPage/noCommunityPage.html';
+    }
+}
+
+// Funcție pentru deschiderea login-ului
+function openLogin() {
+    // Redirect către pagina de login sau deschide modal
+    window.location.href = '../loginPage/loginPage.html';
 }

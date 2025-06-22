@@ -59,11 +59,6 @@ function togglePopup() {
     }
 }
 
-// Resetează la Books
-function resetToBooks() {
-    setCategory('Books');
-}
-
 function setCategory(category) {
     currentCategory = category;
 
@@ -236,23 +231,25 @@ function logout() {
 
 // Funcție pentru actualizarea interfeței după login
 function updateUIAfterLogin(user) {
+    // Folosește noul sistem de navigație
+    updateNavigation();
+
+    // Păstrează funcționalitatea veche pentru compatibilitate
     const loginButton = document.querySelector('.login-btn');
     if (loginButton) {
         // Transformă butonul în dropdown
         const parentLi = loginButton.parentElement;
         parentLi.className = 'dropdown profile';
 
-        // Actualizează conținutul butonului
+        // Actualizează conținutul butonului cu protecție XSS
         loginButton.innerHTML = `
-            ${user.username} 
-            <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M6 9l6 6 6-6"></path>
-            </svg>
+        ${sanitizeHtml(user.username)} 
+        <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 9l6 6 6-6"></path>
+        </svg>
         `;
 
-
         loginButton.removeAttribute('onclick');
-
 
         if (!parentLi.querySelector('.dropdown-menu')) {
             const dropdownMenu = document.createElement('ul');
@@ -489,47 +486,56 @@ function searchByName(name, category) {
     performSearch();
 }
 
+
 // Event listeners
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.querySelector('.search-container input');
-    const searchButton = document.querySelector('.search-container button');
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            updateNavigation(); // Adaugă această linie
+            setCategory('Books'); // Pentru search popup
 
-    // Real-time search
-    searchInput.addEventListener('input', performSearch);
+            const searchInput = document.querySelector('.search-container input');
+            const searchButton = document.querySelector('.search-container button');
 
-    // Search button click
-    searchButton.addEventListener('click', function(e) {
-        e.preventDefault();
-        performSearch();
-    });
+            // Real-time search
+            if (searchInput) searchInput.addEventListener('input', performSearch);
 
-    // Enter key search
-    searchInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            performSearch();
-        }
-    });
-});
+            // Search button click
+            if (searchButton) {
+                searchButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    performSearch();
+                });
+            }
+
+            // Enter key search
+            if (searchInput) {
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        performSearch();
+                    }
+                });
+            }
+        });
 
 
 
 
-// Verifică autentificarea la încărcarea paginii
-document.addEventListener('DOMContentLoaded', function() {
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
+        setTimeout(() => {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
 
-    console.log('isLoggedIn:', isLoggedIn);
-    console.log('user object:', user);
+            console.log('isLoggedIn:', isLoggedIn);
+            console.log('user object:', user);
 
-    if (isLoggedIn === 'true' && user.username) {
-        updateUIAfterLogin(user);
-        updateSettingsNavigation();
-    } else {
-        window.location.href = '/frontend/mainPage/index.html';
-    }
-});
+            if (isLoggedIn === 'true' && user.username) {
+                updateUIAfterLogin(user);
+                updateSettingsNavigation();
+            } else {
+                // Redirecționează doar dacă nu este logat
+                window.location.href = '/frontend/mainPage/index.html';
+            }
+        }, 100);
 
 // Funcție pentru actualizarea navigării
 function updateSettingsNavigation() {
@@ -645,4 +651,44 @@ function showExportMessage(message, type) {
             setTimeout(() => messageDiv.remove(), 300);
         }
     }, 4000);
+}
+
+// Funcție minimală pentru prevenirea XSS
+function sanitizeHtml(str) {
+    const temp = document.createElement('div');
+    temp.textContent = str;
+    return temp.innerHTML;
+}
+
+// Actualizează interfața în funcție de starea de login
+function updateNavigation() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    const profileDropdown = document.getElementById('profileDropdown');
+    const loginButton = document.getElementById('loginButton');
+    const profileUsername = document.getElementById('profileUsername');
+
+    if (isLoggedIn === 'true' && user.username) {
+        // Utilizator logat - arată profilul
+        if (profileDropdown) profileDropdown.style.display = 'block';
+        if (loginButton) loginButton.style.display = 'none';
+        if (profileUsername) profileUsername.textContent = user.username;
+    } else {
+        // Utilizator nelogat - arată login
+        if (profileDropdown) profileDropdown.style.display = 'none';
+        if (loginButton) loginButton.style.display = 'block';
+    }
+}
+
+// Funcție pentru navigarea la Community
+function navigateToCommunity() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    if (isLoggedIn === 'true' && user.username) {
+        window.location.href = '/frontend/communityPage/communityPage.html';
+    } else {
+        window.location.href = '/frontend/noCommunityPage/noCommunityPage.html';
+    }
 }

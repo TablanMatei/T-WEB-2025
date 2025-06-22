@@ -239,47 +239,32 @@ function logout() {
 }
 
 // Verifică dacă utilizatorul este deja logat la încărcarea paginii
-document.addEventListener('DOMContentLoaded', function() {
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-
-    if (isLoggedIn === 'true' && user.username) {
-        updateUIAfterLogin(user);
-    }
-});
+// document.addEventListener('DOMContentLoaded', function() {
+//     const isLoggedIn = localStorage.getItem('isLoggedIn');
+//     const user = JSON.parse(localStorage.getItem('user') || '{}');
+//
+//     if (isLoggedIn === 'true' && user.username) {
+//         updateUIAfterLogin(user);
+//     }
+// });
 
 
 
 
 function updateUIAfterLogin(user) {
+    // Folosește noul sistem de navigație
+    updateNavigation();
+
+    // Păstrează funcționalitatea veche pentru compatibilitate
     const loginButton = document.querySelector('.login-btn');
     if (loginButton) {
-        // Creează dropdown pentru utilizator logat
+        // Creează dropdown pentru utilizator logat cu protecție XSS
         loginButton.innerHTML = `
-        ${user.username} 
+        ${sanitizeHtml(user.username)} 
         <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M6 9l6 6 6-6"></path>
         </svg>
         `;
-
-        // Schimbă funcționalitatea
-        loginButton.onclick = () => toggleUserMenu();
-
-        // Adaugă dropdown menu pentru user
-        if (!document.querySelector('.user-dropdown')) {
-            const userDropdown = document.createElement('div');
-            userDropdown.className = 'user-dropdown';
-            userDropdown.innerHTML = `
-            <a href="#" id="profile-link">Edit Profile</a>
-            <a href="#" id="notifications-link">Notifications</a>
-            <a href="#" id="settings-link">Settings</a>
-            <a href="#" onclick="logout()">Logout</a>
-            `;
-            loginButton.parentNode.appendChild(userDropdown);
-
-            // Adaugă event listeners pentru navigare
-            setupNavigationLinks();
-        }
     }
 }
 
@@ -682,6 +667,7 @@ function capitalizeFirst(str) {
 }
 
 // Actualizează event listener-ul DOMContentLoaded existent
+// Actualizează event listener-ul DOMContentLoaded existent
 document.addEventListener('DOMContentLoaded', function() {
     // Cod existent pentru search
     const searchInput = document.querySelector('.search-container input');
@@ -871,5 +857,73 @@ document.addEventListener('click', function(e) {
             slider.classList.remove('show');
         });
     }
+});
+
+// Funcție minimală pentru prevenirea XSS
+function sanitizeHtml(str) {
+    const temp = document.createElement('div');
+    temp.textContent = str;
+    return temp.innerHTML;
+}
+
+// Actualizează interfața în funcție de starea de login
+function updateNavigation() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    const profileDropdown = document.getElementById('profileDropdown');
+    const loginButton = document.getElementById('loginButton');
+    const profileUsername = document.getElementById('profileUsername');
+
+    if (isLoggedIn === 'true' && user.username) {
+        // Utilizator logat - arată profilul
+        if (profileDropdown) profileDropdown.style.display = 'block';
+        if (loginButton) loginButton.style.display = 'none';
+        if (profileUsername) profileUsername.textContent = user.username;
+    } else {
+        // Utilizator nelogat - arată login
+        if (profileDropdown) profileDropdown.style.display = 'none';
+        if (loginButton) loginButton.style.display = 'block';
+    }
+}
+
+// Event listeners pentru search
+document.addEventListener('DOMContentLoaded', function() {
+    updateNavigation(); // Adaugă această linie
+    setCategory('Books'); // Pentru search popup
+
+    const searchInput = document.querySelector('.search-container input');
+    const searchButton = document.querySelector('.search-container button');
+
+    // Real-time search
+    if (searchInput) searchInput.addEventListener('input', performSearch);
+
+    // Search button click
+    if (searchButton) {
+        searchButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            performSearch();
+        });
+    }
+
+    // Enter key search
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                performSearch();
+            }
+        });
+    }
+
+    // Verifică login status
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (isLoggedIn === 'true' && user.username) {
+        updateUIAfterLogin(user);
+    }
+
+    // Încarcă genurile de la backend
+    loadGenresFromDatabase();
 });
 

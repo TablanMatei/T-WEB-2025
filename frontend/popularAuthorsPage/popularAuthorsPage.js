@@ -248,14 +248,15 @@ document.addEventListener('DOMContentLoaded', function() {
 // În script.js, înlocuiește funcția updateUIAfterLogin cu:
 
 function updateUIAfterLogin(user) {
+    updateNavigation();
     const loginButton = document.querySelector('.login-btn');
     if (loginButton) {
-        // Creează dropdown pentru utilizator logat
-        loginButton.innerHTML = `
-        ${user.username} 
-        <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M6 9l6 6 6-6"></path>
-        </svg>
+        // Creează dropdown pentru utilizator logat cu protecție XSS
+        loginButton.innerHTML = `  
+        ${sanitizeHtml(user.username)}   
+        <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">  
+        <path d="M6 9l6 6 6-6"></path>  
+        </svg>  
         `;
 
         // Schimbă funcționalitatea
@@ -329,6 +330,7 @@ function toggleUserMenu() {
 
 // Închide dropdown-ul când apeși în altă parte//
 document.addEventListener('click', function(e) {
+    updateNavigation();
     const dropdown = document.querySelector('.user-dropdown');
     const loginButton = document.querySelector('.login-btn');
 
@@ -651,3 +653,128 @@ async function toggleBooks(authorId, button) {
 }
 
 document.addEventListener('DOMContentLoaded', loadPopularAuthors);
+
+
+// Funcție minimală pentru prevenirea XSS
+function sanitizeHtml(str) {
+    const temp = document.createElement('div');
+    temp.textContent = str;
+    return temp.innerHTML;
+}
+
+// Actualizează interfața în funcție de starea de login
+function updateNavigation() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    const profileDropdown = document.getElementById('profileDropdown');
+    const loginButton = document.getElementById('loginButton');
+    const profileUsername = document.getElementById('profileUsername');
+
+    if (isLoggedIn === 'true' && user.username) {
+        // Utilizator logat - arată profilul
+        if (profileDropdown) profileDropdown.style.display = 'block';
+        if (loginButton) loginButton.style.display = 'none';
+        if (profileUsername) profileUsername.textContent = user.username;
+    } else {
+        // Utilizator nelogat - arată login
+        if (profileDropdown) profileDropdown.style.display = 'none';
+        if (loginButton) loginButton.style.display = 'block';
+    }
+}
+
+// Optimizează funcția loadPopularAuthors pentru performanță
+async function loadPopularAuthors() {
+    const container = document.getElementById('popularAuthorsContainer');
+    container.innerHTML = '<div class="loading-spinner">Loading popular authors...</div>';
+
+    try {
+        const response = await fetch('../../backend/api/get_popular_authors.php');
+        const data = await response.json();
+
+        if (!data.success) {
+            container.innerHTML = `<div class="error-message">Error loading authors: ${sanitizeHtml(data.error || 'Unknown error')}</div>`;
+            return;
+        }
+
+        if (data.authors.length === 0) {
+            container.innerHTML = '<div class="no-results">No popular authors found.</div>';
+            return;
+        }
+
+        // Creează cardurile pentru autori cu protecție XSS
+        container.innerHTML = data.authors.map(author => `
+            <div class="author-card">
+                <div class="author-header">
+                    <h3>${sanitizeHtml(author.name)}</h3>
+                    <div class="author-stats">
+                        <span class="rating-badge">${author.avg_rating} ★</span>
+                        <span class="ratings-count">${author.total_ratings} ratings</span>
+                    </div>
+                </div>
+                <div class="author-actions">
+                    <button class="show-books-btn" onclick="toggleBooks(${author.author_id}, this)">
+                        Show Books
+                    </button>
+                </div>
+                <div class="author-books-dropdown" id="books-${author.author_id}" style="display: none;">
+                    <div class="loading-books">Loading...</div>
+                </div>
+            </div>
+        `).join('');
+
+    } catch (error) {
+        console.error('Error loading authors:', error);
+        container.innerHTML = '<div class="error-message">Failed to load popular authors. Please try again later.</div>';
+    }
+}
+
+// Optimizează funcția toggleBooks
+async function toggleBooks(authorId, button) {
+    const container = document.getElementById(`books-${authorId}`);
+    const isVisible = container.style.display === 'block';
+
+    if (isVisible) {
+        container.style.display = 'none';
+        button.textContent = 'Show Books';
+        button.classList.remove('active');
+        return;
+    }
+
+    container.style.display = 'block';
+    button.textContent = 'Hide Books';
+    button.classList.add('active');
+    container.innerHTML = '<div class="loading-books">Loading books...</div>';
+
+    try {
+        const response = await fetch(`../../backend/api/get_books_by_author.php?author_id=${authorId}&limit=10`);
+        const data = await response.json();
+
+        if (!data.success) {
+            container.innerHTML = `<div class="error-message">Error: ${sanitizeHtml(data.error || 'Unknown error')}</div>`;
+            return;
+        }
+
+        if (data.books.length === 0) {
+            container.innerHTML = '<div class="no-books">No books found for this author.</div>';
+            return;
+        }
+
+        container.innerHTML = data.books.map(book => `
+            <div class="book-item">
+                <div class="book-info">
+                    <strong class="book-title">${sanitizeHtml(book.title)}</strong>
+                    <span class="book-year">(${book.year || 'N/A'})</span>
+                </div>
+                <div class="book-details">
+                    <span class="book-genre">Genre: ${sanitizeHtml(book.genre || 'Unknown')}</span>
+                    <span class="book-rating">Rating: ${book.avg_rating ? book.avg_rating + ' ★' : 'N/A'}</span>
+                </div>
+            </div>
+        `).join('');
+
+    } catch (error) {
+        console.error('Error loading books:', error);
+        container.innerHTML = '<div class="error-message">Failed to load books. Please try again.</div>';
+    }
+}

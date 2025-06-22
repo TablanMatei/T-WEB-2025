@@ -21,13 +21,11 @@ function scrollRight() {
 }
 
 const data = {
-        Books: ['The Great Gatsby', '1984', 'To Kill a Mockingbird', 'Pride and Prejudice', 'Harry Potter'],
-        Authors: ['George Orwell', 'Jane Austen', 'J.K. Rowling', 'F. Scott Fitzgerald', 'Homer'],
-        Series: ['Harry Potter', 'The Lord of the Rings', 'A Song of Ice and Fire', 'Percy Jackson', 'Narnia'],
-        Characters: ['Sherlock Holmes', 'Harry Potter', 'Elizabeth Bennet', 'Frodo Baggins', 'Hermione Granger'],
-        Users: ['booklover123', 'readingaddict', 'fictionfan', 'classicreader', 'fantasyfan'],
-        Publishers: ['Penguin Books', 'HarperCollins', 'Bloomsbury', 'Random House', 'Simon & Schuster'],
-    };
+    Books: ['The Great Gatsby', '1984', 'To Kill a Mockingbird', 'Pride and Prejudice', 'Harry Potter'],
+    Authors: ['George Orwell', 'Jane Austen', 'J.K. Rowling', 'F. Scott Fitzgerald', 'Homer'],
+    Users: ['booklover123', 'readingaddict', 'fictionfan', 'classicreader', 'fantasyfan'],
+    Publishers: ['Penguin Books', 'HarperCollins', 'Bloomsbury', 'Random House', 'Simon & Schuster'],
+};
 
 function togglePopup() {
     const popup = document.getElementById('searchPopup');
@@ -43,15 +41,19 @@ function togglePopup() {
 
 // Resetează la Books
 function resetToBooks() {
-    setCategory('Books');
+    setCategory('Books', document.querySelector('.category-list span'));
 }
 
-function setCategory(category) {
-        document.querySelectorAll('.category-list span').forEach(span => span.classList.remove('active'));
-        document.querySelector(`[onclick="setCategory('${category}')"]`).classList.add('active');
-        const popularList = document.getElementById('popularList');
-        popularList.innerHTML = data[category].map(item => `<div>${item}</div>`).join('');
+function setCategory(category, element) {
+    document.querySelectorAll('.category-list span').forEach(span => span.classList.remove('active'));
+    if (element) {
+        element.classList.add('active');
+    } else {
+        document.querySelector(`[onclick*="setCategory('${category}'"]`).classList.add('active');
     }
+    const popularList = document.getElementById('popularList');
+    popularList.innerHTML = data[category].map(item => `<div>${item}</div>`).join('');
+}
 
 // Închide popup-ul dacă faci clic în afara lui
 document.addEventListener('click', (e) => {
@@ -74,6 +76,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const isLoggedIn = localStorage.getItem('isLoggedIn');
     const user = JSON.parse(localStorage.getItem('user') || '{}');
 
+    updateNavigation(); // Actualizează navigația
+
     if (isLoggedIn === 'true' && user.user_id) {
         currentUser = user;
         loadGroups();
@@ -84,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     setupAfterLoginNavigation();
-    setCategory('Books');
+    setCategory('Books', document.querySelector('.category-list span'));
 });
 
 // Încarcă grupurile din backend
@@ -308,5 +312,50 @@ async function logout() {
         localStorage.removeItem('user');
         localStorage.removeItem('isLoggedIn');
         window.location.href = '../mainPage/index.html';
+    }
+}
+
+// Funcții pentru navigație și login (din mainPage)
+function navigateToCommunity() {
+    // Deja suntem pe community page
+    return;
+}
+
+function openLogin() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    if (isLoggedIn === 'true') {
+        // Dacă e deja logat, navighează la dashboard
+        window.location.href = '../dashboardPage/dashboardPage.html';
+    } else {
+        // Dacă nu e logat, navighează la login
+        window.location.href = '../loginPage/loginPage.html';
+    }
+}
+
+function closeLogin() {
+    const loginOverlay = document.getElementById('loginOverlay');
+    if (loginOverlay) {
+        loginOverlay.style.display = 'none';
+    }
+}
+
+// Actualizează interfața în funcție de starea de login
+function updateNavigation() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    const profileDropdown = document.getElementById('profileDropdown');
+    const loginButton = document.getElementById('loginButton');
+    const profileUsername = document.getElementById('profileUsername');
+
+    if (isLoggedIn === 'true' && user.username) {
+        // Utilizator logat - arată profilul
+        if (profileDropdown) profileDropdown.style.display = 'block';
+        if (loginButton) loginButton.style.display = 'none';
+        if (profileUsername) profileUsername.textContent = user.username;
+    } else {
+        // Utilizator nelogat - arată login
+        if (profileDropdown) profileDropdown.style.display = 'none';
+        if (loginButton) loginButton.style.display = 'block';
     }
 }

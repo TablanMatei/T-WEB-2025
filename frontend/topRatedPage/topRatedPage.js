@@ -242,20 +242,20 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-// Funcție pentru actualizarea interfeței după login
-// În script.js, în funcția updateUIAfterLogin, înlocuiește partea cu dropdown-ul:
-
-// În script.js, înlocuiește funcția updateUIAfterLogin cu:
 
 function updateUIAfterLogin(user) {
+    // Folosește noul sistem de navigație
+    updateNavigation();
+
+    // Păstrează funcționalitatea veche pentru compatibilitate
     const loginButton = document.querySelector('.login-btn');
     if (loginButton) {
-        // Creează dropdown pentru utilizator logat
-        loginButton.innerHTML = `
-        ${user.username} 
-        <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M6 9l6 6 6-6"></path>
-        </svg>
+        // Creează dropdown pentru utilizator logat cu protecție XSS
+        loginButton.innerHTML = `  
+        ${sanitizeHtml(user.username)}   
+        <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">  
+        <path d="M6 9l6 6 6-6"></path>  
+        </svg>  
         `;
 
         // Schimbă funcționalitatea
@@ -552,6 +552,7 @@ function navigateToCommunity() {
 
 // Event listeners
 document.addEventListener('DOMContentLoaded', function() {
+    updateNavigation();
     const searchInput = document.querySelector('.search-container input');
     const searchButton = document.querySelector('.search-container button');
 
@@ -610,3 +611,338 @@ function loadTopRatedBooks() {
 
 // Apelează funcția când vrei, de exemplu la încărcarea paginii:
 document.addEventListener('DOMContentLoaded', loadTopRatedBooks);
+
+// Funcție minimală pentru prevenirea XSS
+function sanitizeHtml(str) {
+    const temp = document.createElement('div');
+    temp.textContent = str;
+    return temp.innerHTML;
+}
+
+// Actualizează interfața în funcție de starea de login
+function updateNavigation() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    const profileDropdown = document.getElementById('profileDropdown');
+    const loginButton = document.getElementById('loginButton');
+    const profileUsername = document.getElementById('profileUsername');
+
+    if (isLoggedIn === 'true' && user.username) {
+        // Utilizator logat - arată profilul
+        if (profileDropdown) profileDropdown.style.display = 'block';
+        if (loginButton) loginButton.style.display = 'none';
+        if (profileUsername) profileUsername.textContent = user.username;
+    } else {
+        // Utilizator nelogat - arată login
+        if (profileDropdown) profileDropdown.style.display = 'none';
+        if (loginButton) loginButton.style.display = 'block';
+    }
+}
+
+// Variabile globale pentru filtrare
+let allTopRatedBooks = [];
+let currentFilters = {
+    genre: '',
+    year: '',
+    sort: 'rating_desc'
+};
+
+// Optimizează funcția loadTopRatedBooks
+async function loadTopRatedBooks() {
+    const container = document.getElementById('topRatedContainer');
+    if (!container) return;
+
+    container.innerHTML = '<div class="loading-spinner">Loading top rated books...</div>';
+
+    try {
+        const response = await fetch('http://localhost:9000/backend/api/get_top_rated_books.php');
+
+        if (!response.ok) {
+            throw new Error(`HTTP error: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (!data.success) {
+            container.innerHTML = `<div class="error-message">Error: ${sanitizeHtml(data.error || 'Unknown error')}</div>`;
+            return;
+        }
+
+        if (!data.books || data.books.length === 0) {
+            container.innerHTML = '<div class="no-results">No top-rated books found.</div>';
+            return;
+        }
+
+        // Salvează toate cărțile pentru filtrare
+        allTopRatedBooks = data.books;
+
+        // Populează filtrele
+        populateFilters(data.books);
+
+        // Afișează cărțile
+        displayTopRatedBooks(data.books);
+
+    } catch (error) {
+        console.error('Error loading top rated books:', error);
+        container.innerHTML = `<div class="error-message">Error loading books: ${sanitizeHtml(error.message)}</div>`;
+    }
+}
+
+// Populează dropdown-urile pentru filtrare
+function populateFilters(books) {
+    const genreFilter = document.getElementById('genreFilter');
+    const yearFilter = document.getElementById('yearFilter');
+
+    if (!genreFilter || !yearFilter) return;
+
+    // Extrage genurile unice
+    const genres = [...new Set(books.map(book => book.genre).filter(Boolean))].sort();
+    genreFilter.innerHTML = '<option value="">All Genres</option>' +
+        genres.map(genre => `<option value="${sanitizeHtml(genre)}">${sanitizeHtml(genre)}</option>`).join('');
+
+    // Extrage anii unici
+    const years = [...new Set(books.map(book => book.year).filter(Boolean))].sort((a, b) => b - a);
+    yearFilter.innerHTML = '<option value="">All Years</option>' +
+        years.map(year => `<option value="${year}">${year}</option>`).join('');
+}
+
+// Afișează cărțile cu design îmbunătățit
+function displayTopRatedBooks(books) {
+    const container = document.getElementById('topRatedContainer');
+    if (!container) return;
+
+    if (books.length === 0) {
+        container.innerHTML = '<div class="no-results">No books match your filters.</div>';
+        return;
+    }
+
+    container.innerHTML = books.map((book, index) => `
+        <article class="book-card top-rated-book" data-rank="${index + 1}">
+            <div class="book-rank">#${index + 1}</div>
+            <div class="book-placeholder">📚</div>
+            <div class="book-details">
+                <h3 class="book-title">${sanitizeHtml(book.title)}</h3>
+                <p class="book-author">by ${sanitizeHtml(book.author || 'Unknown Author')}</p>
+                <div class="book-meta">
+                    <span class="book-year">${book.year || 'N/A'}</span>
+                    <span class="book-genre">${sanitizeHtml(book.genre || 'Unknown Genre')}</span>
+                </div>
+                <div class="book-rating">
+                    <span class="rating-stars">⭐ ${book.avg_rating}</span>
+                    <span class="rating-count">(${book.rating_count || 0} ratings)</span>
+                </div>
+            </div>
+            <div class="book-actions">
+                <div class="book-status-container">
+                    <button class="book-status-btn" onclick="toggleStatusSlider(this, ${book.id})">
+                        <span class="status-text">Add to List</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </button>
+                    <div class="status-slider">
+                        <div class="status-option" data-status="want_to_read" onclick="setBookStatus(${book.id}, 'want_to_read', this)">
+                            <span class="status-icon">📚</span>Want to Read
+                        </div>
+                        <div class="status-option" data-status="currently_reading" onclick="setBookStatus(${book.id}, 'currently_reading', this)">
+                            <span class="status-icon">📖</span>Currently Reading
+                        </div>
+                        <div class="status-option" data-status="finished" onclick="setBookStatus(${book.id}, 'finished', this)">
+                            <span class="status-icon">✅</span>Finished
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    `).join('');
+}
+
+// Funcție pentru filtrarea cărților
+function filterTopRatedBooks() {
+    const genreFilter = document.getElementById('genreFilter');
+    const yearFilter = document.getElementById('yearFilter');
+    const sortOrder = document.getElementById('sortOrder');
+
+    if (!genreFilter || !yearFilter || !sortOrder) return;
+
+    currentFilters = {
+        genre: genreFilter.value,
+        year: yearFilter.value,
+        sort: sortOrder.value
+    };
+
+    let filteredBooks = [...allTopRatedBooks];
+
+    // Filtrează după gen
+    if (currentFilters.genre) {
+        filteredBooks = filteredBooks.filter(book => book.genre === currentFilters.genre);
+    }
+
+    // Filtrează după an
+    if (currentFilters.year) {
+        filteredBooks = filteredBooks.filter(book => book.year == currentFilters.year);
+    }
+
+    // Sortează
+    filteredBooks.sort((a, b) => {
+        switch (currentFilters.sort) {
+            case 'rating_desc':
+                return (b.avg_rating || 0) - (a.avg_rating || 0);
+            case 'rating_asc':
+                return (a.avg_rating || 0) - (b.avg_rating || 0);
+            case 'year_desc':
+                return (b.year || 0) - (a.year || 0);
+            case 'year_asc':
+                return (a.year || 0) - (b.year || 0);
+            default:
+                return 0;
+        }
+    });
+
+    displayTopRatedBooks(filteredBooks);
+}
+
+// Funcții pentru gestionarea statusului cărților (similare cu genresPage)
+function toggleStatusSlider(button, bookId) {
+    const slider = button.nextElementSibling;
+    const allSliders = document.querySelectorAll('.status-slider');
+
+    // Închide toate celelalte slidere
+    allSliders.forEach(s => {
+        if (s !== slider) {
+            s.classList.remove('show');
+        }
+    });
+
+    // Toggle slider-ul curent
+    slider.classList.toggle('show');
+
+    // Încarcă statusul actual al cărții
+    loadCurrentBookStatus(bookId, slider);
+}
+
+async function setBookStatus(bookId, status, optionElement) {
+    try {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!user.user_id) {
+            alert('Please login to add books to your lists');
+            return;
+        }
+
+        const response = await fetch('http://localhost:9000/backend/api/update_book_status.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                user_id: user.user_id,
+                book_id: bookId,
+                status: status
+            })
+        });
+
+        const responseText = await response.text();
+
+        if (responseText.trim().startsWith('{') || responseText.trim().startsWith('[')) {
+            const data = JSON.parse(responseText);
+
+            if (data.success) {
+                // Actualizează UI
+                const slider = optionElement.closest('.status-slider');
+                const button = slider.previousElementSibling;
+
+                // Resetează selecțiile
+                slider.querySelectorAll('.status-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+
+                // Marchează opțiunea selectată
+                optionElement.classList.add('selected');
+
+                // Actualizează textul butonului
+                updateButtonText(button, status);
+
+                // Închide slider-ul
+                slider.classList.remove('show');
+
+                // Afișează mesaj de succes
+                showStatusMessage('Book added to your list!', 'success');
+
+            } else {
+                showStatusMessage(data.error || 'Error updating book status', 'error');
+            }
+        } else {
+            console.error('Backend returned non-JSON response:', responseText);
+            showStatusMessage('Server error. Please try again.', 'error');
+        }
+
+    } catch (error) {
+        console.error('Error setting book status:', error);
+        showStatusMessage('Network error. Please try again.', 'error');
+    }
+}
+
+function updateButtonText(button, status) {
+    const statusText = button.querySelector('.status-text');
+    const statusMap = {
+        'want_to_read': 'Want to Read',
+        'currently_reading': 'Reading',
+        'finished': 'Finished'
+    };
+
+    statusText.textContent = statusMap[status] || 'Add to List';
+
+    if (status) {
+        button.classList.add('active');
+    } else {
+        button.classList.remove('active');
+    }
+}
+
+function showStatusMessage(message, type) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `status-message ${type}`;
+    messageDiv.textContent = message;
+
+    document.body.appendChild(messageDiv);
+
+    setTimeout(() => {
+        messageDiv.remove();
+    }, 3000);
+}
+
+async function loadCurrentBookStatus(bookId, slider) {
+    try {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!user.user_id) return;
+
+        const response = await fetch(`http://localhost:9000/backend/api/get_book_status.php?user_id=${user.user_id}&book_id=${bookId}`);
+        const responseText = await response.text();
+
+        if (responseText.trim().startsWith('{') || responseText.trim().startsWith('[')) {
+            const data = JSON.parse(responseText);
+
+            if (data.success && data.status) {
+                // Marchează statusul curent
+                const currentOption = slider.querySelector(`[data-status="${data.status}"]`);
+                if (currentOption) {
+                    currentOption.classList.add('selected');
+                }
+
+                // Actualizează butonul
+                const button = slider.previousElementSibling;
+                updateButtonText(button, data.status);
+            }
+        }
+    } catch (error) {
+        console.error('Error loading book status:', error);
+    }
+}
+
+// Închide slidere când se face clic în afara lor
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.book-status-container')) {
+        document.querySelectorAll('.status-slider').forEach(slider => {
+            slider.classList.remove('show');
+        });
+    }
+});
