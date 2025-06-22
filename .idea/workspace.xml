@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="11112695-32c3-4b25-80c9-16f957f723d9" name="Changes" comment="Export de Date">
+    <list default="true" id="11112695-32c3-4b25-80c9-16f957f723d9" name="Changes" comment="Navigare intre pagini">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/communityPage/communityPage.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/communityPage/communityPage.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/communityPage/communityPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/communityPage/communityPage.js" afterDir="false" />
@@ -266,7 +266,15 @@
       <option name="project" value="LOCAL" />
       <updated>1750532567424</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="Navigare intre pagini">
+      <option name="closed" value="true" />
+      <created>1750588521444</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1750588521444</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -299,7 +307,8 @@
     <MESSAGE value="Admin Panel added" />
     <MESSAGE value="Improve RSS Feed" />
     <MESSAGE value="Export de Date" />
-    <option name="LAST_COMMIT_MESSAGE" value="Export de Date" />
+    <MESSAGE value="Navigare intre pagini" />
+    <option name="LAST_COMMIT_MESSAGE" value="Navigare intre pagini" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
