@@ -1150,3 +1150,96 @@ nav ul li {
     text-overflow: ellipsis;
     overflow: hidden;
 }
+@media (max-width: 768px) {
+    header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+        gap: 12px;
+    }
+    header, nav {
+        overflow: visible !important;
+    }
+    header h2 {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        margin-left: -17px;
+    }
+
+    .search-container {
+        display: flex;
+        align-items: center;
+        width: 90%;
+        gap: 8px;
+        margin: 10px 0;
+        flex-direction: row;
+        justify-content: space-between;
+        margin-left: -12px;
+    }
+
+    .search-container input {
+        flex: 1;
+        padding: 6px 10px;
+        font-size: 14px;
+    }
+
+    .search-container button {
+        padding: 6px 12px;
+        font-size: 14px;
+        white-space: nowrap;
+    }
+
+    .search-icon {
+        display: none;
+    }
+    .girlreadingimg-container {
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        padding-left: 8px;
+        text-align: center;
+    }
+
+    .girlreadingimg-container img {
+        width: 180px;
+    }
+
+    .intro-text1,
+    .intro-text2 {
+        font-size: 1.8rem;
+        padding-left: 0;
+    }
+
+    .about-container {
+        flex-direction: column;
+        padding: 30px 20px;
+        width: 100%;
+    }
+
+    .box-find {
+        width: 100%;
+        max-width: 280px;
+        margin: 10px 0 10px 10px; /* mutat mai la stanga */
+    }
+
+    .box-find .box-header {
+        font-size: 1.2rem; /* poate mai mic pe mobil */
+        gap: 6px; /* mai puțin spațiu între elemente */
+        justify-content: flex-start; /* aliniază conținutul la stânga */
+
+    }
+
+    .box-find .box-icon {
+        font-size: 2rem; /* iconița puțin mai mică */
+        margin-bottom: 8px;
+    }
+
+    .box-find div {
+        margin-top: 8px;
+    }
+    .arrow-btn.right {
+        right: -20px;
+    }
+}

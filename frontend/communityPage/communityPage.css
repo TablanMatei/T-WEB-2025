@@ -814,3 +814,197 @@ footer {
   color: #a36245;
   border-color: #a36245;
 }
+
+@media (max-width: 768px) {
+    header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+        gap: 12px;
+    }
+    header, nav {
+        overflow: visible !important;
+    }
+    header h2 {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        margin-left: -17px;
+    }
+    .search-container {
+        display: flex;
+        align-items: center;
+        width: 90%;
+        gap: 8px;
+        margin: 10px 0;
+        flex-direction: row;
+        justify-content: space-between;
+        margin-left: -12px;
+    }
+
+    .search-container input {
+        flex: 1;
+        padding: 6px 10px;
+        font-size: 14px;
+    }
+
+    .search-container button {
+        padding: 6px 12px;
+        font-size: 14px;
+        white-space: nowrap;
+    }
+
+    .search-icon {
+        display: none;
+    }
+    .girlreadingimg-container {
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        padding-left: 8px;
+        text-align: center;
+    }
+
+    .girlreadingimg-container img {
+        width: 180px;
+    }
+
+    .intro-text1,
+    .intro-text2 {
+        font-size: 1.8rem;
+        padding-left: 0;
+    }
+
+    .about-container {
+        flex-direction: column;
+        padding: 30px 20px;
+        width: 100%;
+    }
+
+    .box-find {
+        width: 100%;
+        max-width: 280px;
+        margin: 10px 0 10px 10px; /* mutat mai la stanga */
+    }
+
+    .box-find .box-header {
+        font-size: 1.2rem; /* poate mai mic pe mobil */
+        gap: 6px; /* mai puțin spațiu între elemente */
+        justify-content: flex-start; /* aliniază conținutul la stânga */
+    }
+
+    .box-find .box-icon {
+        font-size: 2rem; /* iconița puțin mai mică */
+        margin-bottom: 8px;
+    }
+
+    .box-find div {
+        margin-top: 8px;
+    }
+
+    /* Stil butoane ca să arate bine în rânduri */
+    .nav-btn, .login-btn {
+        display: inline-block;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    nav {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    #navList {
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        gap: 10px;
+        padding: 8px 10px;
+        overflow-x: auto;
+    }
+
+    #navList li {
+        flex-shrink: 0;
+    }
+    /* Forțează Discover și Dashboard să fie pe primul rând */
+    /* Primele 3 butoane pe primul rând */
+    nav ul#navList li:nth-child(-n+3) {
+        order: 1;
+        flex: 1 1 30%; /* 3 butoane pe rând (aproximativ 30% fiecare) */
+    }
+    html, body {
+        overflow-x: hidden;
+    }
+    /* Butonul 4 (login) pe al 2-lea rând */
+    nav ul#navList li:nth-child(4) {
+        order: 2;
+        flex: 1 1 100%; /* ocupă toată lățimea, singur pe rând */
+        text-align: center; /* centrare */
+    }
+
+    nav ul#navList li {
+        flex: 1 1 45%; /* ocupă aproape jumătate din lățime pe rând */
+        list-style: none;
+        text-align: center;
+    }
+    .login-container {
+        width: 90%;
+        padding: 20px;
+    }
+
+    .nav-btn,
+    .login-btn{
+        display: inline-block;
+        font-size: 14px;
+        padding: 6px 10px;
+        white-space: nowrap;
+        color: #333;
+        text-decoration: none;
+    }
+    .nav-btn {
+        padding: 8px 12px;
+        font-size: 14px;
+        gap: 6px;
+    }
+
+    .login-btn {
+        padding: 8px 12px;
+        font-size: 14px;
+        margin: 0; /* elimină marginile orizontale */
+        box-shadow: none;
+        display: inline-block; /* inline-flex nu e necesar */
+        position: relative;
+        z-index: 10;
+        width: 100%; /* să ocupe tot rândul */
+        text-align: center;
+    }
+
+
+    /* Dacă navbar-ul e scrollabil pe orizontală, asigură vizibilitatea */
+    nav, #navList {
+        overflow-x: auto;
+    }
+
+    .arrow-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
+    }
+
+    .arrow-btn.left {
+        left: 0;
+    }
+
+    .arrow-btn.right {
+        right: 0;
+    }
+    nav ul#navList {
+        display: flex;
+        flex-wrap: wrap; /* permite mai multe rânduri */
+        gap: 8px;
+        padding: 0;
+        margin: 0;
+        justify-content: center;
+    }
+}
