@@ -1142,6 +1142,7 @@ nav ul li {
         display: flex;
         justify-content: center;
         width: 100%;
+        margin-left: -17px;
     }
 
     .search-container {
