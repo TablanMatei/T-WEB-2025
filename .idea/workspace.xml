@@ -6,10 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="11112695-32c3-4b25-80c9-16f957f723d9" name="Changes" comment="Export de Date">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/communityPage/communityPage.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/communityPage/communityPage.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/currentlyReadingPage/currentlyReadingPage.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/currentlyReadingPage/currentlyReadingPage.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/finishedBooksPage/finishedBooksPage.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/finishedBooksPage/finishedBooksPage.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/wantToReadPage/wantToReadPage.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/wantToReadPage/wantToReadPage.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -121,7 +118,7 @@
       <workItem from="1750460049411" duration="3503000" />
       <workItem from="1750502532659" duration="21224000" />
       <workItem from="1750543635142" duration="2115000" />
-      <workItem from="1750576571323" duration="4513000" />
+      <workItem from="1750576571323" duration="5230000" />
     </task>
     <task id="LOCAL-00001" summary="Fixed duplicated folders">
       <option name="closed" value="true" />
