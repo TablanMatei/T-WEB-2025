@@ -1152,6 +1152,7 @@ nav ul li {
         margin: 10px 0;
         flex-direction: row;
         justify-content: space-between;
+        margin-left: -12px;
     }
 
     .search-container input {
