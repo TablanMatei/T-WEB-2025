@@ -65,7 +65,7 @@
     <h2>2. Descriere generală</h2>
 
     <h3>2.1 Perspective sistem</h3>
-    <p>BoW este o platformă web care interacționează cu utilizatorii printr-o interfață intuitivă și responsivă. Integrarea cu API-uri externe, cum ar fi Google Books API și Open Library API, oferă date suplimentare despre cărți.</p>
+    <p>BoW este o platformă web care interacționează cu utilizatorii printr-o interfață intuitivă și responsivă. Integrarea cu API-uri externe, cum ar fi Google Books API, oferă date suplimentare despre cărți.</p>
 
     <h3>2.2 Funcționalități principale</h3>
     <ul>
@@ -88,9 +88,8 @@
         <li><strong>RF4:</strong> Sistemul trebuie să sugereze biblioteci publice din proximitate dacă o carte nu este disponibilă.</li>
         <li><strong>RF5:</strong> Aplicația trebuie să genereze statistici exportabile în format minimal, CSV și DocBook.</li>
         <li><strong>RF6:</strong> Sistemul oferă un flux RSS pentru anunțuri relevante privind lecturile.</li>
-        <li><strong>RF7 (Bonus):</strong> Integrarea cu Google Books API și Open Library API pentru date suplimentare despre cărți.</li>
+        <li><strong>RF7 (Bonus):</strong> Integrarea cu Google Books API pentru date suplimentare despre cărți.</li>
     </ul>
-
 </section>
 
 <section id="interactiune-utilizator">
@@ -118,25 +117,31 @@
         S-a optat pentru separarea clară a secțiunilor (ex: genuri, grupuri, cărți finalizate, setări) pentru a facilita navigarea și a reduce confuzia. Fiecare pagină are o structură coerentă, cu titluri vizibile și acțiuni principale ușor accesibile.
     </p>
     <h3>5.4 Exemplu de implementare</h3>
-    <p>
     <ul>
         <li>Folosirea Flexbox pentru aranjarea cardurilor de cărți și a listelor de genuri.</li>
         <li>Media queries pentru adaptarea meniului și a layout-ului pe ecrane mici.</li>
         <li>Buton de meniu tip „hamburger” pe mobil pentru acces rapid la secțiuni.</li>
         <li>Fonturi web sigure și iconuri SVG pentru claritate pe orice rezoluție.</li>
     </ul>
-    </p>
     <p>
         <strong>Concluzie:</strong> Designul responsive și alegerile de stil au fost făcute pentru a maximiza accesibilitatea, ușurința în utilizare și atractivitatea vizuală, respectând în același timp bunele practici actuale din dezvoltarea web.
     </p>
 </section>
 
+<section id="arhitectura-c4">
+    <h2>6. Arhitectura sistemului (Model C4 – Nivel 1)</h2>
+    <p>Diagrama de mai jos prezintă o vedere de ansamblu (Nivel 1 – System Context) asupra modului în care aplicația BoW interacționează cu utilizatorii și serviciile externe. Acest nivel de diagramă arată componentele majore implicate: utilizatorii, aplicația web și sistemele terțe cu care interacționează (ex. Google Books API, Overpass API).</p>
+    <figure>
+        <img src="C4.png" alt="Schema Arhitectura C4 Nivel 1" style="max-width:100%; height:auto; border:1px solid #ccc; padding:5px; background:white;" />
+        <figcaption style="font-style: italic; font-size: 0.9rem;">Figura 1: Diagrama C4 – Nivel 1: Contextul aplicației BoW</figcaption>
+    </figure>
+</section>
+
 <section id="referinte">
-    <h2>6. Referințe</h2>
+    <h2>7. Referințe</h2>
     <ul>
         <li><a href="https://ieee-collabratec.ieee.org/app/template/ieee-srs-template" target="_blank" rel="noopener noreferrer">IEEE System Requirements Specification Template</a></li>
         <li><a href="https://developers.google.com/books" target="_blank" rel="noopener noreferrer">Google Books API</a></li>
-        <li><a href="https://openlibrary.org/developers/api" target="_blank" rel="noopener noreferrer">Open Library API</a></li>
         <li>Inspirație: Goodreads, Hardcover, The StoryGraph</li>
     </ul>
 </section>
