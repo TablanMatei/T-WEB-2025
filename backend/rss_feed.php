@@ -11,47 +11,71 @@ try {
     $announcementManager = new AnnouncementManager();
     $announcements = $announcementManager->getRecentAnnouncements(10);
 
-    // Get site base URL
     $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
     $host = $_SERVER['HTTP_HOST'];
     $baseUrl = $protocol . '://' . $host;
 
-    // Start XML output
-    echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-    echo '<rss version="2.0">' . "\n";
-    echo '<channel>' . "\n";
-    echo '<title>BookTracker - Anunțuri Comunitate</title>' . "\n";
-    echo '<link>' . $baseUrl . '</link>' . "\n";
-    echo '<description>Ultimele anunțuri din comunitatea BookTracker</description>' . "\n";
-    echo '<language>ro-RO</language>' . "\n";
-    echo '<lastBuildDate>' . date('r') . '</lastBuildDate>' . "\n";
+    // Create DOMDocument
+    $dom = new DOMDocument('1.0', 'UTF-8');
+    $dom->formatOutput = true;
 
+    // <rss version="2.0">
+    $rss = $dom->createElement('rss');
+    $rss->setAttribute('version', '2.0');
+    $dom->appendChild($rss);
+
+    // <channel>
+    $channel = $dom->createElement('channel');
+    $rss->appendChild($channel);
+
+    // Add channel metadata
+    $channel->appendChild($dom->createElement('title', 'BookTracker - Anunțuri Comunitate'));
+    $channel->appendChild($dom->createElement('link', $baseUrl));
+    $channel->appendChild($dom->createElement('description', 'Ultimele anunțuri din comunitatea BookTracker'));
+    $channel->appendChild($dom->createElement('language', 'ro-RO'));
+    $channel->appendChild($dom->createElement('lastBuildDate', date(DATE_RSS)));
+
+    // Add each <item>
     foreach ($announcements as $announcement) {
-        $pubDate = date('r', strtotime($announcement['created_at']));
-        $link = $baseUrl . $announcement['link'];
-        $author = $announcement['real_name'] ?: $announcement['username'] ?: 'BookTracker';
+        $item = $dom->createElement('item');
 
-        echo '<item>' . "\n";
-        echo '<title><![CDATA[' . $announcement['title'] . ']]></title>' . "\n";
-        echo '<description><![CDATA[' . $announcement['description'] . ']]></description>' . "\n";
-        echo '<link>' . $link . '</link>' . "\n";
-        echo '<guid>' . $baseUrl . '/rss/' . $announcement['id'] . '</guid>' . "\n";
-        echo '<pubDate>' . $pubDate . '</pubDate>' . "\n";
-        echo '<author><![CDATA[' . $author . ']]></author>' . "\n";
-        echo '<category>' . ucfirst(str_replace('_', ' ', $announcement['type'])) . '</category>' . "\n";
-        echo '</item>' . "\n";
+        $title = $dom->createElement('title');
+        $title->appendChild($dom->createCDATASection($announcement['title']));
+        $item->appendChild($title);
+
+        $desc = $dom->createElement('description');
+        $desc->appendChild($dom->createCDATASection($announcement['description']));
+        $item->appendChild($desc);
+
+        $link = $baseUrl . $announcement['link'];
+        $item->appendChild($dom->createElement('link', $link));
+        $item->appendChild($dom->createElement('guid', $baseUrl . '/rss/' . $announcement['id']));
+        $item->appendChild($dom->createElement('pubDate', date(DATE_RSS, strtotime($announcement['created_at']))));
+
+        $author = $announcement['real_name'] ?: $announcement['username'] ?: 'BookTracker';
+        $authorEl = $dom->createElement('author');
+        $authorEl->appendChild($dom->createCDATASection($author));
+        $item->appendChild($authorEl);
+
+        $category = ucfirst(str_replace('_', ' ', $announcement['type']));
+        $item->appendChild($dom->createElement('category', $category));
+
+        $channel->appendChild($item);
     }
 
-    echo '</channel>' . "\n";
-    echo '</rss>' . "\n";
+    // Output final XML
+    echo $dom->saveXML();
 
 } catch (Exception $e) {
-    // In case of error, return a basic RSS with error message
-    echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-    echo '<rss version="2.0"><channel>' . "\n";
-    echo '<title>BookTracker RSS - Error</title>' . "\n";
-    echo '<description>Error loading RSS feed</description>' . "\n";
-    echo '</channel></rss>' . "\n";
+    // Basic fallback RSS on error
+    $dom = new DOMDocument('1.0', 'UTF-8');
+    $rss = $dom->createElement('rss');
+    $rss->setAttribute('version', '2.0');
+    $dom->appendChild($rss);
+    $channel = $dom->createElement('channel');
+    $rss->appendChild($channel);
+    $channel->appendChild($dom->createElement('title', 'BookTracker RSS - Error'));
+    $channel->appendChild($dom->createElement('description', 'Error loading RSS feed'));
+    echo $dom->saveXML();
 }
-
 ?>
