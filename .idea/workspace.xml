@@ -4,17 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="11112695-32c3-4b25-80c9-16f957f723d9" name="Changes" comment="Livrabile">
-      <change afterPath="$PROJECT_DIR$/backend/auth/jwt.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/authPage/authPage.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/authPage/authPage.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/authPage/authPage.js" afterDir="false" />
+    <list default="true" id="11112695-32c3-4b25-80c9-16f957f723d9" name="Changes" comment="JWT pentru index.html &amp; creare authPage">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/auth/login.php" beforeDir="false" afterPath="$PROJECT_DIR$/backend/auth/login.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/auth/logout.php" beforeDir="false" afterPath="$PROJECT_DIR$/backend/auth/logout.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/config.example.php" beforeDir="false" afterPath="$PROJECT_DIR$/backend/config.example.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/config.php" beforeDir="false" afterPath="$PROJECT_DIR$/backend/config.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/mainPage/script.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/mainPage/script.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/currentlyReadingPage/currentlyReadingPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/currentlyReadingPage/currentlyReadingPage.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/finishedBooksPage/finishedBooksPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/finishedBooksPage/finishedBooksPage.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/genresPage/genresPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/genresPage/genresPage.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/wantToReadPage/wantToReadPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/wantToReadPage/wantToReadPage.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -132,7 +127,7 @@
       <workItem from="1750664931010" duration="4218000" />
       <workItem from="1750672479517" duration="2365000" />
       <workItem from="1750863329890" duration="5458000" />
-      <workItem from="1750955387223" duration="9837000" />
+      <workItem from="1750955387223" duration="13614000" />
     </task>
     <task id="LOCAL-00001" summary="Fixed duplicated folders">
       <option name="closed" value="true" />
@@ -302,7 +297,15 @@
       <option name="project" value="LOCAL" />
       <updated>1750630188930</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="JWT pentru index.html &amp; creare authPage">
+      <option name="closed" value="true" />
+      <created>1750972800706</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1750972800706</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -340,7 +343,8 @@
     <MESSAGE value="Deploy" />
     <MESSAGE value="mutare raport in folder dedicat" />
     <MESSAGE value="Livrabile" />
-    <option name="LAST_COMMIT_MESSAGE" value="Livrabile" />
+    <MESSAGE value="JWT pentru index.html &amp; creare authPage" />
+    <option name="LAST_COMMIT_MESSAGE" value="JWT pentru index.html &amp; creare authPage" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
