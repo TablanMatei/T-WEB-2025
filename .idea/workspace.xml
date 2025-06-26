@@ -4,10 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="11112695-32c3-4b25-80c9-16f957f723d9" name="Changes" comment="Deploy">
+    <list default="true" id="11112695-32c3-4b25-80c9-16f957f723d9" name="Changes" comment="Livrabile">
+      <change afterPath="$PROJECT_DIR$/backend/auth/jwt.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/authPage/authPage.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/authPage/authPage.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/authPage/authPage.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/raport.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/auth/login.php" beforeDir="false" afterPath="$PROJECT_DIR$/backend/auth/login.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/auth/logout.php" beforeDir="false" afterPath="$PROJECT_DIR$/backend/auth/logout.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/config.example.php" beforeDir="false" afterPath="$PROJECT_DIR$/backend/config.example.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/config.php" beforeDir="false" afterPath="$PROJECT_DIR$/backend/config.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/mainPage/script.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/mainPage/script.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -20,9 +27,9 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="CSS File" />
         <option value="JavaScript File" />
         <option value="HTML File" />
+        <option value="CSS File" />
       </list>
     </option>
   </component>
@@ -120,7 +127,12 @@
       <workItem from="1750502532659" duration="21224000" />
       <workItem from="1750543635142" duration="2115000" />
       <workItem from="1750593145832" duration="3087000" />
-      <workItem from="1750627656234" duration="2134000" />
+      <workItem from="1750627656234" duration="3582000" />
+      <workItem from="1750659100859" duration="2165000" />
+      <workItem from="1750664931010" duration="4218000" />
+      <workItem from="1750672479517" duration="2365000" />
+      <workItem from="1750863329890" duration="5458000" />
+      <workItem from="1750955387223" duration="9837000" />
     </task>
     <task id="LOCAL-00001" summary="Fixed duplicated folders">
       <option name="closed" value="true" />
@@ -274,7 +286,23 @@
       <option name="project" value="LOCAL" />
       <updated>1750593714155</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="mutare raport in folder dedicat">
+      <option name="closed" value="true" />
+      <created>1750630112418</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1750630112418</updated>
+    </task>
+    <task id="LOCAL-00021" summary="Livrabile">
+      <option name="closed" value="true" />
+      <created>1750630188930</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1750630188930</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -310,7 +338,9 @@
     <MESSAGE value="Navigare intre pagini" />
     <MESSAGE value="Navigare intre pagini." />
     <MESSAGE value="Deploy" />
-    <option name="LAST_COMMIT_MESSAGE" value="Deploy" />
+    <MESSAGE value="mutare raport in folder dedicat" />
+    <MESSAGE value="Livrabile" />
+    <option name="LAST_COMMIT_MESSAGE" value="Livrabile" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

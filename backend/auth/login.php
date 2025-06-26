@@ -1,10 +1,8 @@
 <?php
 require_once '../config.php';
+require_once 'jwt.php';
 
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST');
-header('Access-Control-Allow-Headers: Content-Type');
+setApiHeaders();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -24,12 +22,11 @@ try {
         exit;
     }
 
-
     // Obține datele utilizatorului
     $stmt = $pdo->prepare("
-    SELECT u.user_id, u.username, u.email, u.password, u.role
-    FROM users u 
-    WHERE u.username = ? OR u.email = ?
+        SELECT u.user_id, u.username, u.email, u.password, u.role
+        FROM users u 
+        WHERE u.username = ? OR u.email = ?
     ");
     $stmt->execute([$username, $username]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -41,9 +38,34 @@ try {
 
     // Verifică parola
     if (password_verify($password, $user['password'])) {
-        // Login reușit
+        // Creează JWT payload
+        $payload = [
+            'user_id' => $user['user_id'],
+            'username' => $user['username'],
+            'email' => $user['email'],
+            'role' => $user['role'],
+            'iat' => time(), // issued at
+            'exp' => time() + JWT_EXPIRATION // expires
+        ];
+
+        // Generează JWT token
+        $token = SimpleJWT::encode($payload, JWT_SECRET);
+
+        // Log successful login
+        try {
+            $logStmt = $pdo->prepare("
+                INSERT INTO user_activity_log (user_id, activity_type, activity_time) 
+                VALUES (?, 'login', CURRENT_TIMESTAMP)
+            ");
+            $logStmt->execute([$user['user_id']]);
+        } catch (Exception $e) {
+            error_log("Login log error: " . $e->getMessage());
+        }
+
+        // Răspuns de succes
         echo json_encode([
             'success' => true,
+            'token' => $token,
             'user' => [
                 'user_id' => $user['user_id'],
                 'username' => $user['username'],

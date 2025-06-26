@@ -1,17 +1,348 @@
-function openLogin() {
-    const loginOverlay = document.getElementById("loginOverlay");
-    if (loginOverlay) {
-        loginOverlay.style.display = "flex";
+//VERIFICARE AUTENTIFICARE
+document.addEventListener('DOMContentLoaded', function() {
+    // Verifică dacă utilizatorul e logat
+    if (!isUserLoggedIn()) {
+        window.location.href = '../authPage/authPage.html';
+        return;
     }
-    document.body.classList.add("blur-effect");
+
+    // Utilizatorul e logat - continuă cu inițializarea
+    initializeMainPage();
+    localStorage.clear();
+});
+
+// FUNCȚII JWT
+function isUserLoggedIn() {
+    const token = sessionStorage.getItem('jwt_token');
+    if (!token) return false;
+
+    try {
+        const payload = parseJWT(token);
+        return payload.exp > Math.floor(Date.now() / 1000);
+    } catch (error) {
+        sessionStorage.removeItem('jwt_token');
+        return false;
+    }
+}
+
+function parseJWT(token) {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(window.atob(base64));
+}
+
+function getCurrentUser() {
+    const token = sessionStorage.getItem('jwt_token');
+    if (!token) return null;
+
+    try {
+        return parseJWT(token);
+    } catch (error) {
+        return null;
+    }
+}
+
+// Request-uri autentificate
+async function authenticatedFetch(url, options = {}) {
+    const token = sessionStorage.getItem('jwt_token');
+
+    if (!token) {
+        throw new Error('No authentication token found');
+    }
+
+    const response = await fetch(url, {
+        ...options,
+        headers: {
+            ...options.headers,
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (response.status === 401) {
+        sessionStorage.removeItem('jwt_token');
+        window.location.href = '../authPage/authPage.html';
+        return;
+    }
+
+    return response;
+}
+
+// INIȚIALIZARE PAGINĂ
+function initializeMainPage() {
+    const user = getCurrentUser();
+
+    // Actualizează UI cu datele utilizatorului
+    updateUIAfterLogin(user);
+
+    // Inițializează funcționalitățile existente
+    initializeSearchFunctionality();
+
+    // Setează categoria default
+    setCategory('Books');
+
+    console.log(`Welcome back, ${user.username}!`);
+}
+
+function initializeSearchFunctionality() {
+    const searchInput = document.querySelector('.search-container input');
+    const searchButton = document.querySelector('.search-container button');
+
+    if (searchInput && searchButton) {
+        searchInput.addEventListener('input', function() {
+            const query = this.value.trim();
+            if (query.length >= 2) {
+                performSearch();
+            } else if (query.length === 0) {
+                loadPopularItems(currentCategory);
+            }
+        });
+
+        searchButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            performSearch();
+        });
+
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                performSearch();
+            }
+        });
+
+        searchInput.addEventListener('click', function() {
+            togglePopup();
+        });
+    }
+}
+
+// LOGOUT
+async function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        const token = sessionStorage.getItem('jwt_token');
+
+        if (token) {
+            try {
+                await authenticatedFetch('/backend/auth/logout.php', {
+                    method: 'POST'
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+
+        // Șterge token-ul și redirecționează
+        sessionStorage.removeItem('jwt_token');
+        window.location.href = '../authPage/authPage.html';
+    }
+}
+
+// ACTUALIZARE UI DUPĂ LOGIN
+function updateUIAfterLogin(user) {
+    console.log('updateUIAfterLogin called with:', user);
+    console.log('User role check:', user.role);
+    console.log('Is admin?', user.role === 'admin');
+
+    const loginButton = document.querySelector('.login-btn');
+    if (loginButton) {
+        loginButton.innerHTML = sanitizeHtml(user.username) + ' <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>';
+
+        loginButton.onclick = () => toggleUserMenu();
+
+        if (!document.querySelector('.user-dropdown')) {
+            const userDropdown = document.createElement('div');
+            userDropdown.className = 'user-dropdown';
+
+            // Adaugă link Admin Panel dacă utilizatorul este admin
+            let adminLink = '';
+            if (user.role === 'admin') {
+                adminLink = '<a href="/frontend/adminPanel/adminPanel.html" id="admin-link">Admin Panel</a>';
+            }
+
+            userDropdown.innerHTML = '<a href="#" id="profile-link">Edit Profile</a><a href="#" id="settings-link">Settings</a>' + adminLink + '<a href="#" onclick="logout()">Logout</a>';
+            loginButton.parentNode.appendChild(userDropdown);
+            setupNavigationLinks();
+        }
+    }
+
+    // Adaugă dashboard dropdown
+    addDashboardDropdown();
+}
+
+// FUNCȚII BOOK STATUS
+async function loadCurrentBookStatus(bookId, slider) {
+    try {
+        const user = getCurrentUser();
+        if (!user || !user.user_id) return;
+
+        const response = await authenticatedFetch(`/backend/api/get_book_status.php?user_id=${user.user_id}&book_id=${bookId}`);
+        const data = await response.json();
+
+        // Resetează selecțiile
+        slider.querySelectorAll('.status-option').forEach(option => {
+            option.classList.remove('selected');
+        });
+
+        // Marchează statusul curent
+        if (data.success && data.status) {
+            const currentOption = slider.querySelector(`[data-status="${data.status}"]`);
+            if (currentOption) {
+                currentOption.classList.add('selected');
+            }
+
+            // Actualizează textul butonului
+            const button = slider.previousElementSibling;
+            updateButtonText(button, data.status);
+        }
+    } catch (error) {
+        console.error('Error loading book status:', error);
+        handleAuthError(error);
+    }
+}
+
+async function setBookStatus(bookId, status, optionElement) {
+    try {
+        const user = getCurrentUser();
+        if (!user || !user.user_id) {
+            alert('Please login to add books to your lists');
+            return;
+        }
+
+        const response = await authenticatedFetch('/backend/api/update_book_status.php', {
+            method: 'POST',
+            body: JSON.stringify({
+                user_id: user.user_id,
+                book_id: bookId,
+                status: status
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Actualizează UI
+            const slider = optionElement.closest('.status-slider');
+            const button = slider.previousElementSibling;
+
+            // Resetează selecțiile
+            slider.querySelectorAll('.status-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+
+            // Marchează opțiunea selectată
+            optionElement.classList.add('selected');
+
+            // Actualizează textul butonului
+            updateButtonText(button, status);
+
+            // Închide slider-ul
+            slider.classList.remove('show');
+
+            // Afișează mesaj de succes
+            showStatusMessage('Book added to your list!', 'success');
+
+        } else {
+            showStatusMessage(data.error || 'Error updating book status', 'error');
+        }
+
+    } catch (error) {
+        console.error('Error setting book status:', error);
+        showStatusMessage('Network error. Please try again.', 'error');
+        handleAuthError(error);
+    }
+}
+
+// FUNCȚII SEARCH
+async function loadPopularItems(category) {
+    try {
+        console.log('Loading popular items for:', category);
+        const url = `/backend/api/search.php?category=${category}&limit=10`;
+        console.log('Request URL:', url);
+
+        const response = await authenticatedFetch(url);
+        console.log('Response status:', response.status);
+
+        const text = await response.text();
+        console.log('Raw response:', text);
+
+        const data = JSON.parse(text);
+        console.log('Parsed data:', data);
+
+        if (data.success) {
+            displayPopularItems(data.data, category);
+        } else {
+            console.error('Error loading popular items:', data.error);
+        }
+    } catch (error) {
+        console.error('Error in loadPopularItems:', error);
+        handleAuthError(error);
+    }
+}
+
+async function performSearch() {
+    const searchInput = document.querySelector('.search-container input');
+    const query = searchInput.value.trim();
+
+    if (query.length < 2) {
+        loadPopularItems(currentCategory);
+        return;
+    }
+
+    try {
+        console.log('Performing search for:', query, 'in category:', currentCategory);
+        const response = await authenticatedFetch('/backend/api/search.php', {
+            method: 'POST',
+            body: JSON.stringify({
+                query: query,
+                category: currentCategory,
+                limit: 20,
+                offset: 0
+            })
+        });
+
+        const text = await response.text();
+        console.log('Search response:', text);
+
+        const data = JSON.parse(text);
+
+        if (data.success) {
+            displaySearchResults(data.data, currentCategory, query);
+        } else {
+            console.error('Search error:', data.error);
+            displayNoResults(query);
+        }
+    } catch (error) {
+        console.error('Error in performSearch:', error);
+        handleAuthError(error);
+    }
+}
+
+// GESTIONARE ERORI AUTENTIFICARE
+function handleAuthError(error) {
+    if (error.message && (error.message.includes('authentication') || error.message.includes('token'))) {
+        sessionStorage.removeItem('jwt_token');
+        window.location.href = '../authPage/authPage.html';
+    }
+}
+
+// FUNCȚII COMMUNITY (MODIFICATE)
+function navigateToCommunity() {
+    const user = getCurrentUser();
+
+    if (user && user.username) {
+        window.location.href = '/frontend/communityPage/communityPage.html';
+    } else {
+        window.location.href = '/frontend/noCommunityPage/noCommunityPage.html';
+    }
+}
+
+
+function openLogin() {
+    window.location.href = '../authPage/authPage.html';
 }
 
 function closeLogin() {
-    const loginOverlay = document.getElementById("loginOverlay");
-    if (loginOverlay) {
-        loginOverlay.style.display = "none";
-    }
-    document.body.classList.remove("blur-effect");
+    // Nu mai e necesară
 }
 
 function toggleAnimation() {
@@ -100,33 +431,8 @@ document.addEventListener('click', (e) => {
     }
 });
 
-// Funcție încarcă items populare cu debugging
-async function loadPopularItems(category) {
-    try {
-        console.log('Loading popular items for:', category);
-        const url = `http://localhost:9000/backend/api/search.php?category=${category}&limit=10`;
-        console.log('Request URL:', url);
 
-        const response = await fetch(url);
-        console.log('Response status:', response.status);
 
-        const text = await response.text();
-        console.log('Raw response:', text);
-
-        const data = JSON.parse(text);
-        console.log('Parsed data:', data);
-
-        if (data.success) {
-            displayPopularItems(data.data, category);
-        } else {
-            console.error('Error loading popular items:', data.error);
-        }
-    } catch (error) {
-        console.error('Error in loadPopularItems:', error);
-    }
-}
-
-// Funcție afișează items populare
 function displayPopularItems(items, category) {
     const popularList = document.getElementById('popularList');
     if (!popularList) return;
@@ -176,47 +482,6 @@ function displayPopularItems(items, category) {
 
     html += '</div>';
     popularList.innerHTML = html;
-}
-
-// Funcție search real-time
-async function performSearch() {
-    const searchInput = document.querySelector('.search-container input');
-    const query = searchInput.value.trim();
-
-    if (query.length < 2) {
-        loadPopularItems(currentCategory);
-        return;
-    }
-
-    try {
-        console.log('Performing search for:', query, 'in category:', currentCategory);
-        const response = await fetch('http://localhost:9000/backend/api/search.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                query: query,
-                category: currentCategory,
-                limit: 20,
-                offset: 0
-            })
-        });
-
-        const text = await response.text();
-        console.log('Search response:', text);
-
-        const data = JSON.parse(text);
-
-        if (data.success) {
-            displaySearchResults(data.data, currentCategory, query);
-        } else {
-            console.error('Search error:', data.error);
-            displayNoResults(query);
-        }
-    } catch (error) {
-        console.error('Error in performSearch:', error);
-    }
 }
 
 function displaySearchResults(results, category, query) {
@@ -320,14 +585,11 @@ function showLibraryModal(lat, lng) {
 async function findNearbyLibraries(lat, lng) {
     try {
         // Overpass API query pentru biblioteci
-        /// PENTRU A VEDEA LCOATIILE GASITE:
-        /// https://overpass-turbo.eu/
-
         const query = `
             [out:json][timeout:25];
             (
-              node["amenity"="library"](around:5000,47.1585,27.6014);
-              way["amenity"="library"](around:5000,47.1585,27.6014);
+                node["amenity"="library"](around:5000,47.1585,27.6014);
+                way["amenity"="library"](around:5000,47.1585,27.6014);
             );
             out center meta;
         `;
@@ -460,7 +722,6 @@ function searchLibrariesByCity() {
     }
 }
 
-
 // Helper functions
 function selectBook(bookId) {
     console.log('Selected book:', bookId);
@@ -477,159 +738,6 @@ function searchByName(name, category) {
     searchInput.value = name;
     setCategory('Books');
     performSearch();
-}
-
-// LOGIN FUNCTIONS
-async function handleLogin(event) {
-    event.preventDefault();
-
-    const username = document.getElementById('username').value.trim();
-    const password = document.getElementById('password').value;
-    const submitButton = document.querySelector('#loginForm button[type="submit"]');
-    const originalText = submitButton.textContent;
-
-    if (!username || !password) {
-        showLoginMessage('Please fill in all fields', 'error');
-        return false;
-    }
-
-    submitButton.disabled = true;
-    submitButton.textContent = 'Logging in...';
-
-    try {
-        const response = await fetch('/backend/auth/login.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                username: username,
-                password: password
-            })
-        });
-
-        const result = await response.json();
-        console.log('Login response:', result);
-
-        if (response.ok && result.success) {
-            localStorage.setItem('user', JSON.stringify(result.user));
-            localStorage.setItem('isLoggedIn', 'true');
-
-            ///DEBUG
-            console.log('User data saved:', result.user);
-            console.log('User role:', result.user.role);
-
-            showLoginMessage('Login successful!', 'success');
-            updateUIAfterLogin(result.user);
-
-            setTimeout(() => {
-                closeLogin();
-                clearLoginForm();
-            }, 1000);
-
-        } else {
-            showLoginMessage(result.error || 'Login failed. Please try again.', 'error');
-        }
-
-    } catch (error) {
-        console.error('Login error:', error);
-        showLoginMessage('Network error. Please check your connection.', 'error');
-    } finally {
-        submitButton.disabled = false;
-        submitButton.textContent = originalText;
-    }
-
-    return false;
-}
-
-function showLoginMessage(message, type) {
-    const existingMessage = document.querySelector('.login-message');
-    if (existingMessage) {
-        existingMessage.remove();
-    }
-
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `login-message ${type}`;
-    messageDiv.textContent = message;
-
-    const loginContainer = document.querySelector('.login-container');
-    const form = document.getElementById('loginForm');
-    loginContainer.insertBefore(messageDiv, form);
-
-    setTimeout(() => {
-        if (messageDiv.parentNode) {
-            messageDiv.remove();
-        }
-    }, 5000);
-}
-
-function clearLoginForm() {
-    document.getElementById('username').value = '';
-    document.getElementById('password').value = '';
-
-    const message = document.querySelector('.login-message');
-    if (message) {
-        message.remove();
-    }
-}
-
-function logout() {
-    if (confirm('Are you sure you want to logout?')) {
-        localStorage.removeItem('user');
-        localStorage.removeItem('isLoggedIn');
-
-        const loginButton = document.querySelector('.login-btn');
-        if (loginButton) {
-            loginButton.textContent = 'Login';
-            loginButton.onclick = () => openLogin();
-        }
-
-        const userDropdown = document.querySelector('.user-dropdown');
-        if (userDropdown) {
-            userDropdown.remove();
-        }
-
-        fetch('http://localhost:9000/backend/auth/logout.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        }).catch(error => console.log('Logout backend call failed:', error));
-
-        alert('You have been logged out successfully!');
-    }
-}
-
-function updateUIAfterLogin(user) {
-    console.log('updateUIAfterLogin called with:', user);
-    console.log('User role check:', user.role);
-    console.log('Is admin?', user.role === 'admin');
-
-    const loginButton = document.querySelector('.login-btn');
-    if (loginButton) {
-        loginButton.innerHTML = sanitizeHtml(user.username) + ' <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>';
-
-        loginButton.onclick = () => toggleUserMenu();
-
-        if (!document.querySelector('.user-dropdown')) {
-            const userDropdown = document.createElement('div');
-            userDropdown.className = 'user-dropdown';
-
-            // Adaugă link Admin Panel dacă utilizatorul este admin
-            let adminLink = '';
-            if (user.role === 'admin') {
-                adminLink = '<a href="/frontend/adminPanel/adminPanel.html" id="admin-link">Admin Panel</a>';
-            }
-
-            userDropdown.innerHTML = '<a href="#" id="profile-link">Edit Profile</a><a href="#" id="settings-link">Settings</a>' + adminLink + '<a href="#" onclick="logout()">Logout</a>';
-            // userDropdown.innerHTML = '<a href="#" id="profile-link">Edit Profile</a><a href="#" id="notifications-link">Notifications</a><a href="#" id="settings-link">Settings</a>' + adminLink + '<a href="#" onclick="logout()">Logout</a>';
-            loginButton.parentNode.appendChild(userDropdown);
-            setupNavigationLinks();
-        }
-    }
-
-    // Adaugă dashboard dropdown
-    addDashboardDropdown();
 }
 
 function setupNavigationLinks() {
@@ -677,68 +785,6 @@ document.addEventListener('click', function(e) {
     }
 });
 
-function navigateToCommunity() {
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-
-    if (isLoggedIn === 'true' && user.username) {
-        window.location.href = '/frontend/communityPage/communityPage.html';
-    } else {
-        window.location.href = '/frontend/noCommunityPage/noCommunityPage.html';
-    }
-}
-
-// MAIN EVENT LISTENER
-document.addEventListener('DOMContentLoaded', function() {
-    // Verifică login status
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (isLoggedIn === 'true' && user.username) {
-        updateUIAfterLogin(user);
-    }
-
-    // Setup search functionality
-    const searchInput = document.querySelector('.search-container input');
-    const searchButton = document.querySelector('.search-container button');
-
-    if (searchInput && searchButton) {
-        searchInput.addEventListener('input', function() {
-            const query = this.value.trim();
-            if (query.length >= 2) {
-                performSearch();
-            } else if (query.length === 0) {
-                loadPopularItems(currentCategory);
-            }
-        });
-
-        searchButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            performSearch();
-        });
-
-        searchInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                performSearch();
-            }
-        });
-
-        searchInput.addEventListener('click', function() {
-            togglePopup();
-        });
-    }
-
-    // Setează categoria default
-    setCategory('Books');
-});
-
-window.addEventListener('DOMContentLoaded', () => {
-    if (localStorage.getItem('isLoggedIn') === 'true') {
-        addDashboardDropdown();
-    }
-});
-
-// LOGIN FUNCTIONS
 function addDashboardDropdown() {
     const navList = document.getElementById('navList');
     if (!navList) return;
@@ -746,54 +792,43 @@ function addDashboardDropdown() {
         return; // Nu adăuga din nou dacă există deja
     }
     const dropdownHTML = `  
-    <li class="dropdown">  
-    <a href="#dashboard" class="nav-btn">DASHBOARD  
-    <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">  
-    <path d="M6 9l6 6 6-6"></path>  
-    </svg>  
-    </a>  
-    <ul class="dropdown-menu">  
-    <li>  
-    <a href="../currentlyReadingPage/currentlyReadingPage.html">  
-    <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">  
-    <circle cx="12" cy="12" r="10"></circle>  
-    <polyline points="12 6 12 12 16 14"></polyline>  
-    </svg>  
-    Currently Reading  
-    </a>  
-    </li>  
-    <li>  
-    <a href="../wantToReadPage/wantToReadPage.html">  
-    <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">  
-    <path d="M12 20l9-5-9-5-9 5 9 5z"></path>  
-    <path d="M12 12v8"></path>  
-    <path d="M12 12L3 7"></path>  
-    <path d="M12 12l9-5"></path>  
-    </svg>  
-    Want to Read  
-    </a>  
-    </li>  
-    <li>  
-    <a href="../finishedBooksPage/finishedBooksPage.html">  
-    <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">  
-    <polyline points="20 6 9 17 4 12"></polyline>  
-    </svg>  
-    Finished Books  
-    </a>  
-    </li> 
-    <!-- 
-    <li> 
-    <a href="#reading-stats">  
-    <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">  
-    <line x1="12" y1="20" x2="12" y2="10"></line>  
-    <line x1="18" y1="20" x2="18" y2="4"></line>  
-    <line x1="6" y1="20" x2="6" y2="16"></line>  
-    </svg>  
-    Book Stats -->
-    </a>  
-    </li>  
-    </ul>  
-    </li>  
+        <li class="dropdown">  
+            <a href="#dashboard" class="nav-btn">DASHBOARD  
+                <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">  
+                    <path d="M6 9l6 6 6-6"></path>  
+                </svg>  
+            </a>  
+            <ul class="dropdown-menu">  
+                <li>  
+                    <a href="../currentlyReadingPage/currentlyReadingPage.html">  
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">  
+                            <circle cx="12" cy="12" r="10"></circle>  
+                            <polyline points="12 6 12 12 16 14"></polyline>  
+                        </svg>  
+                        Currently Reading  
+                    </a>  
+                </li>  
+                <li>  
+                    <a href="../wantToReadPage/wantToReadPage.html">  
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">  
+                            <path d="M12 20l9-5-9-5-9 5 9 5z"></path>  
+                            <path d="M12 12v8"></path>  
+                            <path d="M12 12L3 7"></path>  
+                            <path d="M12 12l9-5"></path>  
+                        </svg>  
+                        Want to Read  
+                    </a>  
+                </li>  
+                <li>  
+                    <a href="../finishedBooksPage/finishedBooksPage.html">  
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">  
+                            <polyline points="20 6 9 17 4 12"></polyline>  
+                        </svg>  
+                        Finished Books  
+                    </a>  
+                </li>  
+            </ul>  
+        </li>  
     `;
 
     const discoverItem = navList.querySelector('li.dropdown');
@@ -821,89 +856,6 @@ function toggleStatusSlider(button, bookId) {
 
     // Încarcă statusul actual al cărții
     loadCurrentBookStatus(bookId, slider);
-}
-
-async function loadCurrentBookStatus(bookId, slider) {
-    try {
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        if (!user.id) return;
-
-        const response = await fetch(`/backend/api/get_book_status.php?user_id=${user.id}&book_id=${bookId}`);
-        const data = await response.json();
-
-        // Resetează selecțiile
-        slider.querySelectorAll('.status-option').forEach(option => {
-            option.classList.remove('selected');
-        });
-
-        // Marchează statusul curent
-        if (data.success && data.status) {
-            const currentOption = slider.querySelector(`[data-status="${data.status}"]`);
-            if (currentOption) {
-                currentOption.classList.add('selected');
-            }
-
-            // Actualizează textul butonului
-            const button = slider.previousElementSibling;
-            updateButtonText(button, data.status);
-        }
-    } catch (error) {
-        console.error('Error loading book status:', error);
-    }
-}
-
-async function setBookStatus(bookId, status, optionElement) {
-    try {
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        if (!user.id) {
-            alert('Please login to add books to your lists');
-            return;
-        }
-
-        const response = await fetch('/backend/api/update_book_status.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                user_id: user.id,
-                book_id: bookId,
-                status: status
-            })
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            // Actualizează UI
-            const slider = optionElement.closest('.status-slider');
-            const button = slider.previousElementSibling;
-
-            // Resetează selecțiile
-            slider.querySelectorAll('.status-option').forEach(option => {
-                option.classList.remove('selected');
-            });
-
-            // Marchează opțiunea selectată
-            optionElement.classList.add('selected');
-
-            // Actualizează textul butonului
-            updateButtonText(button, status);
-
-            // Închide slider-ul
-            slider.classList.remove('show');
-
-            // Afișează mesaj de succes
-            showStatusMessage('Book added to your list!', 'success');
-
-        } else {
-            showStatusMessage(data.error || 'Error updating book status', 'error');
-        }
-
-    } catch (error) {
-        console.error('Error setting book status:', error);
-        showStatusMessage('Network error. Please try again.', 'error');
-    }
 }
 
 function updateButtonText(button, status) {

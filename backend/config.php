@@ -6,12 +6,16 @@ define('DB_NAME', 'railway');
 define('DB_USER', 'postgres');
 define('DB_PASSWORD', 'VqLbVuGOLRJqxMuhPBLkFypyLQQqUlju');
 
+// JWT Configuration
+define('JWT_SECRET', 'your-super-secret-key-change-this-in-production-2024');
+define('JWT_ALGORITHM', 'HS256');
+define('JWT_EXPIRATION', 24 * 60 * 60); // 24 hours
 
 function setApiHeaders() {
     header('Content-Type: application/json');
     header('Access-Control-Allow-Origin: *');
     header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
-    header('Access-Control-Allow-Headers: Content-Type');
+    header('Access-Control-Allow-Headers: Content-Type, Authorization'); //Authorization
 }
 
 // Funcție pentru conectare la baza de date
