@@ -1,20 +1,26 @@
 <?php
-// Securitate: Folosim prepared statements pentru prevenirea SQL injection
-
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
 require_once '../config.php';
+require_once '../auth/jwt.php';
+
+// Verifică autentificarea JWT
+$user = requireAuth();
+if (!$user || $user['role'] !== 'admin') {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'error' => 'Admin access required']);
+    exit;
+}
 
 try {
     $pdo = getDbConnection();
-
 
     // Statistici utilizatori
     $stmt = $pdo->prepare("SELECT COUNT(*) as total_users FROM users");
@@ -31,30 +37,19 @@ try {
     $stmt->execute();
     $bookStats = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Statistici suplimentare
-    $stmt = $pdo->prepare("SELECT COUNT(*) as admin_users FROM users WHERE role = 'admin'");
-    $stmt->execute();
-    $adminStats = $stmt->fetch(PDO::FETCH_ASSOC);
-
     echo json_encode([
         'success' => true,
         'stats' => [
             'total_users' => $userStats['total_users'],
             'total_groups' => $groupStats['total_groups'],
-            'total_books' => $bookStats['total_books'],
-            'admin_users' => $adminStats['admin_users']
+            'total_books' => $bookStats['total_books']
         ]
     ]);
 
-} catch (PDOException $e) {
-    echo json_encode([
-        'success' => false,
-        'error' => 'Database error: ' . $e->getMessage()
-    ]);
 } catch (Exception $e) {
     echo json_encode([
         'success' => false,
-        'error' => 'Server error: ' . $e->getMessage()
+        'error' => $e->getMessage()
     ]);
 }
 ?>

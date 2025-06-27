@@ -63,9 +63,8 @@ try {
     exit;
 }
 
-/**
- * Obține toate datele utilizatorului din baza de date
- */
+// Obține toate datele utilizatorului din baza de date
+
 function getUserData($pdo, $user_id) {
     // Datele utilizatorului
     $stmt = $pdo->prepare("SELECT user_id, username, email, real_name, description, birthdate, gender, location, pronouns, website, updated_at FROM users WHERE user_id = ?");
@@ -114,9 +113,8 @@ function getUserData($pdo, $user_id) {
     ];
 }
 
-/**
- * Calculează statisticile utilizatorului
- */
+//Calculează statisticile utilizatorului
+
 function getUserStats($pdo, $user_id) {
     $stats = [];
 
@@ -180,9 +178,8 @@ function getUserStats($pdo, $user_id) {
     return $stats;
 }
 
-/**
- * Export în format CSV
- */
+//Export în format CSV
+
 function exportCSV($data) {
     $filename = 'user_data_' . $data['user']['username'] . '_' . date('Y-m-d') . '.csv';
 
@@ -257,9 +254,8 @@ function exportCSV($data) {
     fclose($output);
 }
 
-/**
- * Export în format JSON
- */
+// Export în format JSON
+
 function exportJSON($data) {
     $filename = 'user_data_' . $data['user']['username'] . '_' . date('Y-m-d') . '.json';
 
@@ -281,9 +277,8 @@ function exportJSON($data) {
     echo json_encode($exportData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 }
 
-/**
- * Export în format XML
- */
+// Export în format XML
+
 function exportXML($data) {
     $filename = 'user_data_' . $data['user']['username'] . '_' . date('Y-m-d') . '.xml';
 

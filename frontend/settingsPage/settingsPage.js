@@ -383,7 +383,7 @@ async function exportData(format) {
     button.innerHTML = '⏳ Exporting...';
 
     try {
-        const response = await authenticatedFetch(`/backend/api/export_user_data.php?format=${format}&user_id=${user.user_id}`, {
+        const response = await authenticatedFetch(`/backend/export/export_user_data.php?format=${format}&user_id=${user.user_id}`, {
             method: 'GET'
         });
 
@@ -412,11 +412,11 @@ async function exportData(format) {
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
 
-        showExportMessage(`✅ ${format.toUpperCase()} export completed successfully!`, 'success');
+        showExportMessage(` ${format.toUpperCase()} export completed successfully!`, 'success');
 
     } catch (error) {
         console.error('Export error:', error);
-        showExportMessage(`❌ Export failed: ${error.message}`, 'error');
+        showExportMessage(` Export failed: ${error.message}`, 'error');
         handleAuthError(error);
     } finally {
         button.disabled = false;

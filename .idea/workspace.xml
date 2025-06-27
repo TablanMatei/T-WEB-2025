@@ -4,28 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="11112695-32c3-4b25-80c9-16f957f723d9" name="Changes" comment="JWT pentru grupuri">
-      <change afterPath="$PROJECT_DIR$/backend/api/check_username.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/community/get_user_groups.php" afterDir="false" />
+    <list default="true" id="11112695-32c3-4b25-80c9-16f957f723d9" name="Changes" comment="JWT pentru restul paginilor">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/community/get_group_details.php" beforeDir="false" afterPath="$PROJECT_DIR$/backend/community/get_group_details.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/admin/get_stats.php" beforeDir="false" afterPath="$PROJECT_DIR$/backend/admin/get_stats.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/admin/manage_groups.php" beforeDir="false" afterPath="$PROJECT_DIR$/backend/admin/manage_groups.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/admin/manage_users.php" beforeDir="false" afterPath="$PROJECT_DIR$/backend/admin/manage_users.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/export/export_user_data.php" beforeDir="false" afterPath="$PROJECT_DIR$/backend/export/export_user_data.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/adminPanel/adminPanel.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/adminPanel/adminPanel.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/currentlyReadingPage/currentlyReadingPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/currentlyReadingPage/currentlyReadingPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/finishedBooksPage/finishedBooksPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/finishedBooksPage/finishedBooksPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/groupPage/groupPage.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/groupPage/groupPage.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/groupPage/groupPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/groupPage/groupPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/mainPage/script.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/mainPage/script.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/newReleasesPage/newReleasesPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/newReleasesPage/newReleasesPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/noCommunityPage/noCommunityPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/noCommunityPage/noCommunityPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/notificationsPage/notificationsPage.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/notificationsPage/notificationsPage.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/notificationsPage/notificationsPage.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/popularAuthorsPage/popularAuthorsPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/popularAuthorsPage/popularAuthorsPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/settingsPage/editProfilePage/editProfilePage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/settingsPage/editProfilePage/editProfilePage.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/communityPage/communityPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/communityPage/communityPage.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/settingsPage/settingsPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/settingsPage/settingsPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/signup/signup.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/signup/signup.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/topRatedPage/topRatedPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/topRatedPage/topRatedPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/wantToReadPage/wantToReadPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/wantToReadPage/wantToReadPage.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -145,7 +132,7 @@
       <workItem from="1750863329890" duration="5458000" />
       <workItem from="1750955387223" duration="13893000" />
       <workItem from="1751016832112" duration="6086000" />
-      <workItem from="1751048037389" duration="10292000" />
+      <workItem from="1751048037389" duration="13585000" />
     </task>
     <task id="LOCAL-00001" summary="Fixed duplicated folders">
       <option name="closed" value="true" />
@@ -339,7 +326,15 @@
       <option name="project" value="LOCAL" />
       <updated>1751038665511</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="JWT pentru restul paginilor">
+      <option name="closed" value="true" />
+      <created>1751060997498</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1751060997498</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -380,7 +375,8 @@
     <MESSAGE value="JWT pentru index.html &amp; creare authPage" />
     <MESSAGE value="JWT pentru genresPage &amp; Dashboard Pages" />
     <MESSAGE value="JWT pentru grupuri" />
-    <option name="LAST_COMMIT_MESSAGE" value="JWT pentru grupuri" />
+    <MESSAGE value="JWT pentru restul paginilor" />
+    <option name="LAST_COMMIT_MESSAGE" value="JWT pentru restul paginilor" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

@@ -295,36 +295,49 @@ async function loadGroups() {
 
 function displayGroups(groups) {
     const groupsList = document.getElementById('groupsList');
-    if (!groupsList) return;
+
+
+    if (!groupsList) {
+        return;
+    }
 
     if (!groups || groups.length === 0) {
         groupsList.innerHTML = '<div class="no-data">No groups found</div>';
         return;
     }
 
+
     let html = '';
-    groups.forEach(group => {
+
+    groups.forEach((group, index) => {
+
+
         html += `
-            <div class="admin-item">
-                <div class="admin-item-info">
-                    <h4>${sanitizeHtml(group.name)}</h4>
-                    <p>${sanitizeHtml(group.description || 'No description')}</p>
-                    <p>Members: <strong>${group.member_count || 0}</strong> | Created by: ${sanitizeHtml(group.creator_name || 'Unknown')}</p>
-                    <p>Created: ${formatDate(group.created_at)}</p>
-                </div>
-                <div class="admin-actions">
-                    <button class="admin-btn delete" data-group-id="${group.id}" data-group-name="${sanitizeHtml(group.name)}">
-                        Delete Group
-                    </button>
-                </div>
+        <div class="admin-item">
+            <div class="admin-item-info">
+                <h4>${sanitizeHtml(group.name)}</h4>
+                <p>${sanitizeHtml(group.description || 'No description')}</p>
+                <p>Members: <strong>${group.member_count || 0}</strong> | Created by: ${sanitizeHtml(group.creator_name || 'Unknown')}</p>
+                <p>Created: ${formatDate(group.created_at)}</p>
             </div>
+            <div class="admin-actions">
+                <button class="admin-btn delete" data-group-id="${group.id}" data-group-name="${sanitizeHtml(group.name)}">
+                    Delete Group
+                </button>
+            </div>
+        </div>
         `;
     });
 
+
     groupsList.innerHTML = html;
 
+
     // Adaugă event listeners pentru butoanele de delete
-    document.querySelectorAll('#groupsList .admin-btn.delete').forEach(btn => {
+    const deleteButtons = document.querySelectorAll('#groupsList .admin-btn.delete');
+
+
+    deleteButtons.forEach(btn => {
         btn.addEventListener('click', function() {
             const groupId = this.getAttribute('data-group-id');
             const groupName = this.getAttribute('data-group-name');
@@ -392,11 +405,12 @@ function setupEventListeners() {
         });
     }
 
-    // Setup tab buttons
+    // Setup tab buttons cu event listeners
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
-            const tabName = this.getAttribute('data-tab') || this.textContent.toLowerCase().trim();
+            const tabName = this.getAttribute('data-tab');
+            console.log('Tab button clicked:', tabName);
             showTab(tabName);
         });
     });

@@ -237,13 +237,9 @@ function createGroupCard(group) {
     return groupCard;
 }
 
-function navigateToGroup(groupId, groupName) {
-    sessionStorage.setItem('currentGroup', JSON.stringify({
-        id: groupId,
-        name: groupName
-    }));
-
-    window.location.href = '../groupPage/groupPage.html';
+function navigateToGroup(groupId, groupName)
+{
+    window.location.href = `../groupPage/groupPage.html?groupId=${groupId}&groupName=${encodeURIComponent(groupName)}`;
 }
 
 //  FILTRARE ȘI CĂUTARE
