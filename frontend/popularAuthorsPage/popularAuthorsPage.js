@@ -1,695 +1,99 @@
-function openLogin() {
-  const loginOverlay = document.getElementById("loginOverlay");
-  if (loginOverlay) {
-    loginOverlay.style.display = "flex";
-  }
-  document.body.classList.add("blur-effect");
-}
-
-function closeLogin() {
-  const loginOverlay = document.getElementById("loginOverlay");
-  if (loginOverlay) {
-    loginOverlay.style.display = "none";
-  }
-  document.body.classList.remove("blur-effect");
-}
-
-function toggleAnimation() {
-  const container = document.getElementById('cards-container');
-  if (container) {
-    container.classList.toggle('paused');
-  }
-}
-function scrollLeft() {
-    const container = document.getElementById('cards-container');
-    container.scrollBy({
-        left: -220,
-        behavior: 'smooth'
-    });
-}
-
-function scrollRight() {
-    const container = document.getElementById('cards-container');
-    container.scrollBy({
-        left: 220,
-        behavior: 'smooth'
-    });
-}
-
-
-
-const data = {
-        Books: ['The Great Gatsby', '1984', 'To Kill a Mockingbird', 'Pride and Prejudice', 'Harry Potter'],
-        Authors: ['George Orwell', 'Jane Austen', 'J.K. Rowling', 'F. Scott Fitzgerald', 'Homer'],
-        Series: ['Harry Potter', 'The Lord of the Rings', 'A Song of Ice and Fire', 'Percy Jackson', 'Narnia'],
-        Characters: ['Sherlock Holmes', 'Harry Potter', 'Elizabeth Bennet', 'Frodo Baggins', 'Hermione Granger'],
-        Users: ['booklover123', 'readingaddict', 'fictionfan', 'classicreader', 'fantasyfan'],
-        Publishers: ['Penguin Books', 'HarperCollins', 'Bloomsbury', 'Random House', 'Simon & Schuster'],
-    };
-
-function togglePopup() {
-    const popup = document.getElementById('searchPopup');
-    const isVisible = popup.style.display !== 'none';
-
-    if (isVisible) {
-        popup.style.display = 'none';
-    } else {
-        popup.style.display = 'block';
-        loadPopularItems(currentCategory);
-    }
-}
-
-// Resetează la Books
-function resetToBooks() {
-    setCategory('Books');
-}
-
-function setCategory(category) {
-    currentCategory = category;
-
-    // Update active category
-    const categories = document.querySelectorAll('.category-list span');
-    categories.forEach(cat => cat.classList.remove('active'));
-    event.target.classList.add('active');
-
-    // Load popular items for this category
-    loadPopularItems(category);
-}
-
-// Închide popup-ul dacă faci clic în afara lui
-document.addEventListener('click', (e) => {
-    const popup = document.getElementById('searchPopup');
-    const searchContainer = document.querySelector('.search-container');
-    if (!popup.contains(e.target) && !searchContainer.contains(e.target)) {
-        popup.style.display = 'none';
-        resetToBooks();
-    }
+// VERIFICARE AUTENTIFICARE
+document.addEventListener('DOMContentLoaded', function() {
+    initializePopularAuthorsPage();
 });
-window.onload = () => setCategory('Books');
 
-// Funcție pentru gestionare login
-async function handleLogin(event) {
-    event.preventDefault();
+function initializePopularAuthorsPage() {
+    updateNavigation();
+    loadPopularAuthors();
+    setupAfterLoginNavigation();
+    setCategory('Books');
+    console.log('Popular Authors page initialized');
+}
 
-    const username = document.getElementById('username').value.trim();
-    const password = document.getElementById('password').value;
-    const submitButton = document.querySelector('#loginForm button[type="submit"]');
-    const originalText = submitButton.textContent;
+//  FUNCȚII JWT
+function isUserLoggedIn() {
+    const token = sessionStorage.getItem('jwt_token');
+    if (!token) return false;
 
-    // Validare de bază
-    if (!username || !password) {
-        showLoginMessage('Please fill in all fields', 'error');
+    try {
+        const payload = parseJWT(token);
+        return payload.exp > Math.floor(Date.now() / 1000);
+    } catch (error) {
+        sessionStorage.removeItem('jwt_token');
         return false;
     }
+}
 
-    // Disable button during login
-    submitButton.disabled = true;
-    submitButton.textContent = 'Logging in...';
+function parseJWT(token) {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(window.atob(base64));
+}
+
+function getCurrentUser() {
+    const token = sessionStorage.getItem('jwt_token');
+    if (!token) return null;
 
     try {
-        const response = await fetch('/backend/auth/login.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                username: username,
-                password: password
-            })
-        });
-
-        const result = await response.json();
-        console.log('Login response:', result);
-
-
-        if (response.ok && result.success) {
-            // Salvează datele utilizatorului
-            localStorage.setItem('user', JSON.stringify(result.user));
-            localStorage.setItem('isLoggedIn', 'true');
-
-            showLoginMessage('Login successful!', 'success');
-
-            // Actualizează interfața
-            updateUIAfterLogin(result.user);
-
-            // Închide modal-ul după 1 secundă
-            setTimeout(() => {
-                closeLogin();
-                clearLoginForm();
-            }, 1000);
-
-        } else {
-            showLoginMessage(result.error || 'Login failed. Please try again.', 'error');
-        }
-
+        return parseJWT(token);
     } catch (error) {
-        console.error('Login error:', error);
-        showLoginMessage('Network error. Please check your connection.', 'error');
-    } finally {
-        // Re-enable button
-        submitButton.disabled = false;
-        submitButton.textContent = originalText;
+        return null;
     }
-
-    return false; // Previne submit-ul formularului
 }
 
-// Funcție pentru afișarea mesajelor în modal
-function showLoginMessage(message, type) {
-    // Elimină mesajul anterior dacă există
-    const existingMessage = document.querySelector('.login-message');
-    if (existingMessage) {
-        existingMessage.remove();
+async function authenticatedFetch(url, options = {}) {
+    const token = sessionStorage.getItem('jwt_token');
+
+    if (!token) {
+        throw new Error('No authentication token found');
     }
 
-    // Creează noul mesaj
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `login-message ${type}`;
-    messageDiv.textContent = message;
-
-    // Adaugă mesajul în modal
-    const loginContainer = document.querySelector('.login-container');
-    const form = document.getElementById('loginForm');
-    loginContainer.insertBefore(messageDiv, form);
-
-    // Elimină mesajul după 5 secunde
-    setTimeout(() => {
-        if (messageDiv.parentNode) {
-            messageDiv.remove();
+    const response = await fetch(url, {
+        ...options,
+        headers: {
+            ...options.headers,
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
         }
-    }, 5000);
-}
+    });
 
-
-
-// Funcție pentru curățarea formularului
-function clearLoginForm() {
-    document.getElementById('username').value = '';
-    document.getElementById('password').value = '';
-
-    // Elimină mesajele
-    const message = document.querySelector('.login-message');
-    if (message) {
-        message.remove();
+    if (response.status === 401) {
+        sessionStorage.removeItem('jwt_token');
+        window.location.href = '../authPage/authPage.html';
+        return;
     }
+
+    return response;
 }
 
-// Funcție pentru logout
-function logout() {
-    // Confirmă logout
+// LOGOUT
+async function logout() {
     if (confirm('Are you sure you want to logout?')) {
-        // Șterge datele locale
-        localStorage.removeItem('user');
-        localStorage.removeItem('isLoggedIn');
+        const token = sessionStorage.getItem('jwt_token');
 
-        // Resetează interfața
-        const loginButton = document.querySelector('.login-btn');
-        if (loginButton) {
-            loginButton.textContent = 'Login';
-            loginButton.onclick = () => openLogin();
-        }
-
-        // Elimină dropdown-ul user
-        const userDropdown = document.querySelector('.user-dropdown');
-        if (userDropdown) {
-            userDropdown.remove();
-        }
-
-        // Apel către backend pentru logout (opțional)
-        fetch('http://localhost:9000/backend/auth/logout.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
+        if (token) {
+            try {
+                await authenticatedFetch('/backend/auth/logout.php', {
+                    method: 'POST'
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
             }
-        }).catch(error => console.log('Logout backend call failed:', error));
-
-        // Afișează mesaj
-        alert('You have been logged out successfully!');
-
-        // Opțional: reîncarcă pagina
-        // window.location.reload();
-    }
-}
-
-// Verifică dacă utilizatorul este deja logat la încărcarea paginii
-document.addEventListener('DOMContentLoaded', function() {
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-
-    if (isLoggedIn === 'true' && user.username) {
-        updateUIAfterLogin(user);
-    }
-});
-
-
-// Funcție pentru actualizarea interfeței după login
-// În script.js, în funcția updateUIAfterLogin, înlocuiește partea cu dropdown-ul:
-
-// În script.js, înlocuiește funcția updateUIAfterLogin cu:
-
-function updateUIAfterLogin(user) {
-    updateNavigation();
-    const loginButton = document.querySelector('.login-btn');
-    if (loginButton) {
-        // Creează dropdown pentru utilizator logat cu protecție XSS
-        loginButton.innerHTML = `  
-        ${sanitizeHtml(user.username)}   
-        <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">  
-        <path d="M6 9l6 6 6-6"></path>  
-        </svg>  
-        `;
-
-        // Schimbă funcționalitatea
-        loginButton.onclick = () => toggleUserMenu();
-
-        // Adaugă dropdown menu pentru user
-        if (!document.querySelector('.user-dropdown')) {
-            const userDropdown = document.createElement('div');
-            userDropdown.className = 'user-dropdown';
-            userDropdown.innerHTML = `
-            <a href="#" id="profile-link">Edit Profile</a>
-            <a href="#" id="notifications-link">Notifications</a>
-            <a href="#" id="settings-link">Settings</a>
-            <a href="#" onclick="logout()">Logout</a>
-            `;
-            loginButton.parentNode.appendChild(userDropdown);
-
-            // Adaugă event listeners pentru navigare
-            setupNavigationLinks();
-        }
-    }
-}
-
-// Funcție nouă pentru configurarea link-urilor de navigare
-
-function setupNavigationLinks() {
-    // Folosește setTimeout pentru a se asigura că DOM-ul este gata
-    setTimeout(() => {
-        const profileLink = document.getElementById('profile-link');
-        const settingsLink = document.getElementById('settings-link');
-        const notificationsLink = document.getElementById('notifications-link');
-
-        console.log('Profile link:', profileLink);
-        console.log('Settings link:', settingsLink);
-        console.log('Notifications link:', notificationsLink);
-
-        if (profileLink) {
-            profileLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                console.log('Navigating to profile page...');
-                window.location.href = '/frontend/settingsPage/editProfilePage/editProfilePage.html';
-            });
         }
 
-        if (settingsLink) {
-            settingsLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                console.log('Navigating to settings page...');
-                window.location.href = '/frontend/settingsPage/settingsPage.html';
-            });
-        }
-
-        if (notificationsLink) {
-            notificationsLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                console.log('Navigating to notifications page...');
-                window.location.href = '/frontend/notificationsPage/notificationsPage.html';
-            });
-        } else {
-            console.error('Notifications link not found!');
-        }
-    }, 100);
-}
-// Funcție pentru toggle user menu
-function toggleUserMenu() {
-    const dropdown = document.querySelector('.user-dropdown');
-    if (dropdown) {
-        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        sessionStorage.removeItem('jwt_token');
+        window.location.href = '../authPage/authPage.html';
     }
 }
 
-// Închide dropdown-ul când apeși în altă parte//
-document.addEventListener('click', function(e) {
-    updateNavigation();
-    const dropdown = document.querySelector('.user-dropdown');
-    const loginButton = document.querySelector('.login-btn');
-
-    if (dropdown && !loginButton.contains(e.target)) {
-        dropdown.style.display = 'none';
-    }
-});
-
-
-///FUNCTII DE SEARCH
-// Variabile globale pentru search
-let currentCategory = 'Books';
-let searchResults = [];
-
-// Funcție existentă - o actualizez
-
-
-// Funcție existentă - o actualizez
-function setCategory(category) {
-    currentCategory = category;
-
-    // Update active category
-    const categories = document.querySelectorAll('.category-list span');
-    categories.forEach(cat => cat.classList.remove('active'));
-    event.target.classList.add('active');
-
-    // Load popular items for this category
-    loadPopularItems(category);
-}
-
-// Funcție încarcă items populare
-async function loadPopularItems(category) {
-    try {
-        const response = await fetch(`http://localhost:9000/backend/api/search.php?category=${category}&limit=10`);
-        const data = await response.json();
-
-        if (data.success) {
-            displayPopularItems(data.data, category);
-        } else {
-            console.error('Error loading popular items:', data.error);
-        }
-    } catch (error) {
-        console.error('Error:', error);
-    }
-}
-
-// Funcție afișează items populare
-function displayPopularItems(items, category) {
-    const popularList = document.getElementById('popularList');
-
-    if (items.length === 0) {
-        popularList.innerHTML = '<div class="no-results">No popular items found</div>';
-        return;
-    }
-
-    let html = `<h4>Popular ${category}</h4><div class="popular-items">`;
-
-    items.forEach(item => {
-        if (category === 'Books') {
-            html += `
-                <div class="popular-item" onclick="selectBook(${item.id})">
-                    <div class="item-placeholder">📚</div>
-                    <div class="item-info">
-                        <div class="item-title">${item.title}</div>
-                        <div class="item-subtitle">${item.author} (${item.publication_year || 'N/A'})</div>
-                        <div class="item-publisher">Publisher: ${item.publisher}</div>
-                    </div>
-                </div>
-            `;
-        } else if (category === 'Authors') {
-            html += `
-                <div class="popular-item" onclick="selectAuthor(${item.id})">
-                    <div class="item-placeholder">👤</div>
-                    <div class="item-info">
-                        <div class="item-title">${item.name}</div>
-                        <div class="item-subtitle">${item.nationality || 'Unknown nationality'} • Born ${item.birth_year || 'Unknown'}</div>
-                        <div class="item-description">${item.description || 'No description available.'}</div>
-                        <div class="item-books">${item.book_count} books</div>
-                    </div>
-                </div>
-            `;
-        } else {
-            html += `
-                <div class="popular-item" onclick="searchByName('${item.name}', '${category}')">
-                    <div class="item-info">
-                        <div class="item-title">${item.name}</div>
-                        <div class="item-subtitle">${item.book_count} books</div>
-                    </div>
-                </div>
-            `;
-        }
-    });
-
-    html += '</div>';
-    popularList.innerHTML = html;
-}
-
-function displaySearchResults(results, category) {
-    const popularList = document.getElementById('popularList');
-
-    if (results.length === 0) {
-        popularList.innerHTML = '<div class="no-results">No results found</div>';
-        return;
-    }
-
-    let html = `<h4>Search Results (${results.length})</h4><div class="search-results">`;
-
-    results.forEach(item => {
-        if (category === 'Books') {
-            html += `
-                <div class="search-result-item" onclick="selectBook(${item.id})">
-                    <div class="item-placeholder">📚</div>
-                    <div class="item-info">
-                        <div class="item-title">${item.title}</div>
-                        <div class="item-subtitle">${item.author} (${item.publication_year || 'N/A'})</div>
-                        <div class="item-publisher">Publisher: ${item.publisher}</div>
-                    </div>
-                </div>
-            `;
-        } else if (category === 'Authors') {
-            html += `
-                <div class="search-result-item" onclick="selectAuthor(${item.id})">
-                    <div class="item-placeholder">👤</div>
-                    <div class="item-info">
-                        <div class="item-title">${item.name}</div>
-                        <div class="item-subtitle">${item.nationality || 'Unknown nationality'} • Born ${item.birth_year || 'Unknown'}</div>
-                        <div class="item-description">${item.description || 'No description available.'}</div>
-                        <div class="item-books">${item.book_count} books</div>
-                    </div>
-                </div>
-            `;
-        } else {
-            html += `
-                <div class="search-result-item" onclick="searchByName('${item.name}', '${category}')">
-                    <div class="item-info">
-                        <div class="item-title">${item.name}</div>
-                        <div class="item-subtitle">${item.book_count} books</div>
-                    </div>
-                </div>
-            `;
-        }
-    });
-
-    html += '</div>';
-    popularList.innerHTML = html;
-}
-
-// Funcție pentru selectare autor
-function selectAuthor(authorId) {
-    console.log('Selected author:', authorId);
-    // TODO: Redirect to author details page sau show books by author
-    alert(`Selected author ID: ${authorId}. În viitor va deschide pagina autorului.`);
-}
-
-// Funcție search real-time
-async function performSearch() {
-    const searchInput = document.querySelector('.search-container input');
-    const query = searchInput.value.trim();
-
-    if (query.length < 2) {
-        loadPopularItems(currentCategory);
-        return;
-    }
-
-    try {
-        const response = await fetch('http://localhost:9000/backend/api/search.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                query: query,
-                category: currentCategory,
-                limit: 20,
-                offset: 0
-            })
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            displaySearchResults(data.data, currentCategory);
-        } else {
-            console.error('Search error:', data.error);
-        }
-    } catch (error) {
-        console.error('Error:', error);
-    }
-}
-
-
-
-// Funcții helper
-function selectBook(bookId) {
-    console.log('Selected book:', bookId);
-    // TODO: Redirect to book details page
-    alert(`Selected book ID: ${bookId}`);
-}
-
-function searchByName(name, category) {
-    const searchInput = document.querySelector('.search-container input');
-    searchInput.value = name;
-    setCategory('Books'); // Switch to books to show books by this author/series/etc
-    performSearch();
-}
-
-// Funcție pentru navigarea către Community
-function navigateToCommunity() {
-    // Verifică dacă utilizatorul este logat
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-
-    if (isLoggedIn === 'true' && user.username) {
-        // Utilizator logat - navighează către pagina de comunitate
-        window.location.href = '/frontend/communityPage/communityPage.html';
-    } else {
-        // Utilizator nelogat - navighează către pagina fără comunitate
-        window.location.href = '/frontend/noCommunityPage/noCommunityPage.html';
-    }
-}
-
-// Event listeners
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.querySelector('.search-container input');
-    const searchButton = document.querySelector('.search-container button');
-
-    // Real-time search
-    searchInput.addEventListener('input', performSearch);
-
-    // Search button click
-    searchButton.addEventListener('click', function(e) {
-        e.preventDefault();
-        performSearch();
-    });
-
-    // Enter key search
-    searchInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            performSearch();
-        }
-    });
-});
-
-async function loadPopularAuthors() {
-    const container = document.getElementById('popularAuthorsContainer');
-    container.innerHTML = 'Loading popular authors...';
-
-    try {
-        const response = await fetch('../../backend/api/get_popular_authors.php');
-        const data = await response.json();
-
-        if (!data.success) {
-            container.innerHTML = 'Error loading authors: ' + (data.error || 'Unknown error');
-            return;
-        }
-
-        if (data.authors.length === 0) {
-            container.innerHTML = 'No popular authors found.';
-            return;
-        }
-
-        // ✅ AICI este codul pe care îl menționai
-        container.innerHTML = data.authors.map(author => `
-            <div class="author-card">
-                <h3>${author.name}</h3>
-                <p>Number of ratings: ${author.total_ratings}</p>
-                <p>Average rating: ${author.avg_rating} ★</p>
-                <button onclick="toggleBooks(${author.author_id}, this)">Show Books</button>
-                <div class="author-books-dropdown" id="books-${author.author_id}" style="display: none;">
-                    <p>Loading...</p>
-                </div>
-            </div>
-        `).join('');
-
-    } catch (error) {
-        console.error('Error loading authors:', error);
-        container.innerHTML = 'Failed to load popular authors.';
-    }
-}
-async function toggleBooks(authorId, button) {
-    const container = document.getElementById(`books-${authorId}`);
-    const isVisible = container.style.display === 'block';
-
-    if (isVisible) {
-        container.style.display = 'none';
-        button.textContent = 'Show Books';
-        return;
-    }
-
-    container.style.display = 'block';
-    button.textContent = 'Hide Books';
-    container.innerHTML = 'Loading...';
-
-    try {
-        const response = await fetch(`../../backend/api/get_books_by_author.php?author_id=${authorId}&limit=10`);
-
-        const data = await response.json();
-
-        if (!data.success) {
-            container.innerHTML = 'Error: ' + (data.error || 'Unknown error');
-            return;
-        }
-
-        if (data.books.length === 0) {
-            container.innerHTML = 'No books found.';
-            return;
-        }
-
-        container.innerHTML = data.books.map(book => `
-            <div class="book-item">
-                <strong>${book.title}</strong> (${book.year})<br/>
-                Genre: ${book.genre} | Rating: ${book.avg_rating ?? 'N/A'} ★
-            </div>
-        `).join('');
-    } catch (error) {
-        console.error(error);
-        container.innerHTML = 'Failed to load books.';
-    }
-}
-
-document.addEventListener('DOMContentLoaded', loadPopularAuthors);
-
-
-// Funcție minimală pentru prevenirea XSS
-function sanitizeHtml(str) {
-    const temp = document.createElement('div');
-    temp.textContent = str;
-    return temp.innerHTML;
-}
-
-// Actualizează interfața în funcție de starea de login
-function updateNavigation() {
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-
-    const profileDropdown = document.getElementById('profileDropdown');
-    const loginButton = document.getElementById('loginButton');
-    const profileUsername = document.getElementById('profileUsername');
-
-    if (isLoggedIn === 'true' && user.username) {
-        // Utilizator logat - arată profilul
-        if (profileDropdown) profileDropdown.style.display = 'block';
-        if (loginButton) loginButton.style.display = 'none';
-        if (profileUsername) profileUsername.textContent = user.username;
-    } else {
-        // Utilizator nelogat - arată login
-        if (profileDropdown) profileDropdown.style.display = 'none';
-        if (loginButton) loginButton.style.display = 'block';
-    }
-}
-
-// Optimizează funcția loadPopularAuthors pentru performanță
+// ÎNCĂRCARE AUTORI POPULARI
 async function loadPopularAuthors() {
     const container = document.getElementById('popularAuthorsContainer');
     container.innerHTML = '<div class="loading-spinner">Loading popular authors...</div>';
 
     try {
-        const response = await fetch('../../backend/api/get_popular_authors.php');
+        const response = await fetch('/backend/api/get_popular_authors.php');
         const data = await response.json();
 
         if (!data.success) {
@@ -702,7 +106,6 @@ async function loadPopularAuthors() {
             return;
         }
 
-        // Creează cardurile pentru autori cu protecție XSS
         container.innerHTML = data.authors.map(author => `
             <div class="author-card">
                 <div class="author-header">
@@ -729,7 +132,6 @@ async function loadPopularAuthors() {
     }
 }
 
-// Optimizează funcția toggleBooks
 async function toggleBooks(authorId, button) {
     const container = document.getElementById(`books-${authorId}`);
     const isVisible = container.style.display === 'block';
@@ -747,7 +149,7 @@ async function toggleBooks(authorId, button) {
     container.innerHTML = '<div class="loading-books">Loading books...</div>';
 
     try {
-        const response = await fetch(`../../backend/api/get_books_by_author.php?author_id=${authorId}&limit=10`);
+        const response = await fetch(`/backend/api/get_books_by_author.php?author_id=${authorId}&limit=10`);
         const data = await response.json();
 
         if (!data.success) {
@@ -778,3 +180,330 @@ async function toggleBooks(authorId, button) {
         container.innerHTML = '<div class="error-message">Failed to load books. Please try again.</div>';
     }
 }
+
+// NAVIGARE
+function setupAfterLoginNavigation() {
+    const notificationsLink = document.querySelector('a[href="#notifications"]');
+    const settingsLink = document.querySelector('a[href="#settings"]');
+    const signoutLink = document.querySelector('a[href="#signout"]');
+
+    if (notificationsLink) {
+        notificationsLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = '../notificationsPage/notificationsPage.html';
+        });
+    }
+
+    if (settingsLink) {
+        settingsLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = '../settingsPage/settingsPage.html';
+        });
+    }
+
+    if (signoutLink) {
+        signoutLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            logout();
+        });
+    }
+}
+
+function updateNavigation() {
+    const user = getCurrentUser();
+    const profileDropdown = document.getElementById('profileDropdown');
+    const loginButton = document.getElementById('loginButton');
+    const profileUsername = document.getElementById('profileUsername');
+
+    if (user && user.username) {
+        if (profileDropdown) profileDropdown.style.display = 'block';
+        if (loginButton) loginButton.style.display = 'none';
+        if (profileUsername) profileUsername.textContent = user.username;
+    } else {
+        if (profileDropdown) profileDropdown.style.display = 'none';
+        if (loginButton) loginButton.style.display = 'block';
+    }
+}
+
+function navigateToCommunity() {
+    const user = getCurrentUser();
+
+    if (user && user.username) {
+        window.location.href = '../communityPage/communityPage.html';
+    } else {
+        window.location.href = '../noCommunityPage/noCommunityPage.html';
+    }
+}
+
+//  ANIMAȚII CARDS
+function toggleAnimation() {
+    const container = document.getElementById('cards-container');
+    if (container) {
+        container.classList.toggle('paused');
+    }
+}
+
+function scrollLeft() {
+    const container = document.getElementById('cards-container');
+    if (container) {
+        container.scrollBy({
+            left: -220,
+            behavior: 'smooth'
+        });
+    }
+}
+
+function scrollRight() {
+    const container = document.getElementById('cards-container');
+    if (container) {
+        container.scrollBy({
+            left: 220,
+            behavior: 'smooth'
+        });
+    }
+}
+
+// SEARCH POPUP
+const data = {
+    Books: ['The Great Gatsby', '1984', 'To Kill a Mockingbird', 'Pride and Prejudice', 'Harry Potter'],
+    Authors: ['George Orwell', 'Jane Austen', 'J.K. Rowling', 'F. Scott Fitzgerald', 'Homer'],
+    Series: ['Harry Potter', 'The Lord of the Rings', 'A Song of Ice and Fire', 'Percy Jackson', 'Narnia'],
+    Characters: ['Sherlock Holmes', 'Harry Potter', 'Elizabeth Bennet', 'Frodo Baggins', 'Hermione Granger'],
+    Users: ['booklover123', 'readingaddict', 'fictionfan', 'classicreader', 'fantasyfan'],
+    Publishers: ['Penguin Books', 'HarperCollins', 'Bloomsbury', 'Random House', 'Simon & Schuster'],
+};
+
+let currentCategory = 'Books';
+
+function togglePopup() {
+    const popup = document.getElementById('searchPopup');
+
+    if (popup) {
+        if (popup.style.display === 'none' || popup.style.display === '') {
+            popup.style.display = 'block';
+            loadPopularItems(currentCategory);
+        } else {
+            popup.style.display = 'none';
+            resetToBooks();
+        }
+    }
+}
+
+function resetToBooks() {
+    setCategory('Books');
+}
+
+function setCategory(category) {
+    currentCategory = category;
+
+    document.querySelectorAll('.category-list span').forEach(span => span.classList.remove('active'));
+
+    const categoryElement = document.querySelector(`[onclick="setCategory('${category}')"]`);
+    if (categoryElement) {
+        categoryElement.classList.add('active');
+    }
+
+    loadPopularItems(category);
+}
+
+async function loadPopularItems(category) {
+    try {
+        const response = await fetch(`/backend/api/search.php?category=${category}&limit=10`);
+        const data = await response.json();
+
+        if (data.success) {
+            displayPopularItems(data.data, category);
+        } else {
+            console.error('Error loading popular items:', data.error);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+function displayPopularItems(items, category) {
+    const popularList = document.getElementById('popularList');
+
+    if (!items || items.length === 0) {
+        popularList.innerHTML = '<div class="no-results">No popular items found</div>';
+        return;
+    }
+
+    let html = `<h4>Popular ${category}</h4><div class="popular-items">`;
+
+    items.forEach(item => {
+        if (category === 'Books') {
+            html += `
+                <div class="popular-item" onclick="selectBook(${item.id})">
+                    <div class="item-placeholder">📚</div>
+                    <div class="item-info">
+                        <div class="item-title">${sanitizeHtml(item.title)}</div>
+                        <div class="item-subtitle">${sanitizeHtml(item.author)} (${item.publication_year || 'N/A'})</div>
+                        <div class="item-publisher">Publisher: ${sanitizeHtml(item.publisher)}</div>
+                    </div>
+                </div>
+            `;
+        } else if (category === 'Authors') {
+            html += `
+                <div class="popular-item" onclick="selectAuthor(${item.id})">
+                    <div class="item-placeholder">👤</div>
+                    <div class="item-info">
+                        <div class="item-title">${sanitizeHtml(item.name)}</div>
+                        <div class="item-subtitle">${sanitizeHtml(item.nationality || 'Unknown nationality')} • Born ${item.birth_year || 'Unknown'}</div>
+                        <div class="item-description">${sanitizeHtml(item.description || 'No description available.')}</div>
+                        <div class="item-books">${item.book_count} books</div>
+                    </div>
+                </div>
+            `;
+        } else {
+            html += `
+                <div class="popular-item" onclick="searchByName('${sanitizeHtml(item.name)}', '${category}')">
+                    <div class="item-info">
+                        <div class="item-title">${sanitizeHtml(item.name)}</div>
+                        <div class="item-subtitle">${item.book_count} books</div>
+                    </div>
+                </div>
+            `;
+        }
+    });
+
+    html += '</div>';
+    popularList.innerHTML = html;
+}
+
+//SEARCH FUNCTIONS
+async function performSearch() {
+    const searchInput = document.querySelector('.search-container input');
+    const query = searchInput.value.trim();
+
+    if (query.length < 2) {
+        loadPopularItems(currentCategory);
+        return;
+    }
+
+    try {
+        const response = await fetch('/backend/api/search.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                query: query,
+                category: currentCategory,
+                limit: 20,
+                offset: 0
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            displaySearchResults(data.data, currentCategory);
+        } else {
+            console.error('Search error:', data.error);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+function displaySearchResults(results, category) {
+    const popularList = document.getElementById('popularList');
+
+    if (results.length === 0) {
+        popularList.innerHTML = '<div class="no-results">No results found</div>';
+        return;
+    }
+
+    let html = `<h4>Search Results (${results.length})</h4><div class="search-results">`;
+
+    results.forEach(item => {
+        if (category === 'Books') {
+            html += `
+                <div class="search-result-item" onclick="selectBook(${item.id})">
+                    <div class="item-placeholder">📚</div>
+                    <div class="item-info">
+                        <div class="item-title">${sanitizeHtml(item.title)}</div>
+                        <div class="item-subtitle">${sanitizeHtml(item.author)} (${item.publication_year || 'N/A'})</div>
+                        <div class="item-publisher">Publisher: ${sanitizeHtml(item.publisher)}</div>
+                    </div>
+                </div>
+            `;
+        } else if (category === 'Authors') {
+            html += `
+                <div class="search-result-item" onclick="selectAuthor(${item.id})">
+                    <div class="item-placeholder">👤</div>
+                    <div class="item-info">
+                        <div class="item-title">${sanitizeHtml(item.name)}</div>
+                        <div class="item-subtitle">${sanitizeHtml(item.nationality || 'Unknown nationality')} • Born ${item.birth_year || 'Unknown'}</div>
+                        <div class="item-description">${sanitizeHtml(item.description || 'No description available.')}</div>
+                        <div class="item-books">${item.book_count} books</div>
+                    </div>
+                </div>
+            `;
+        }
+    });
+
+    html += '</div>';
+    popularList.innerHTML = html;
+}
+
+function selectBook(bookId) {
+    console.log('Selected book:', bookId);
+    alert(`Selected book ID: ${bookId}. Feature coming soon!`);
+}
+
+function selectAuthor(authorId) {
+    console.log('Selected author:', authorId);
+    alert(`Selected author ID: ${authorId}. Feature coming soon!`);
+}
+
+function searchByName(name, category) {
+    const searchInput = document.querySelector('.search-container input');
+    searchInput.value = name;
+    setCategory('Books');
+    performSearch();
+}
+
+
+function sanitizeHtml(str) {
+    if (!str) return '';
+    const temp = document.createElement('div');
+    temp.textContent = str;
+    return temp.innerHTML;
+}
+
+
+// EVENT LISTENERS
+document.addEventListener('click', (e) => {
+    const popup = document.getElementById('searchPopup');
+    const searchContainer = document.querySelector('.search-container');
+
+    if (popup && searchContainer && !popup.contains(e.target) && !searchContainer.contains(e.target)) {
+        popup.style.display = 'none';
+        resetToBooks();
+    }
+});
+
+// Search event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.querySelector('.search-container input');
+    const searchButton = document.querySelector('.search-container button');
+
+    if (searchInput) {
+        searchInput.addEventListener('input', performSearch);
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                performSearch();
+            }
+        });
+    }
+
+    if (searchButton) {
+        searchButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            performSearch();
+        });
+    }
+});

@@ -325,7 +325,7 @@ function handleAuthError(error) {
     }
 }
 
-// FUNCȚII COMMUNITY (MODIFICATE)
+// FUNCȚII COMMUNITY
 function navigateToCommunity() {
     const user = getCurrentUser();
 
@@ -733,6 +733,10 @@ function selectAuthor(authorId) {
     alert(`Selected author ID: ${authorId}. În viitor va deschide pagina autorului.`);
 }
 
+function navigateToGroup(groupId, groupName) {
+    window.location.href = `/frontend/groupPage/groupPage.html?groupId=${groupId}&groupName=${encodeURIComponent(groupName)}`;
+}
+
 function searchByName(name, category) {
     const searchInput = document.querySelector('.search-container input');
     searchInput.value = name;
@@ -895,3 +899,4 @@ document.addEventListener('click', function(e) {
         });
     }
 });
+

@@ -1,321 +1,175 @@
-function openLogin() {
-  const loginOverlay = document.getElementById("loginOverlay");
-  if (loginOverlay) {
-    loginOverlay.style.display = "flex";
-  }
-  document.body.classList.add("blur-effect");
+//  VERIFICARE AUTENTIFICARE
+document.addEventListener('DOMContentLoaded', function() {
+    initializeSettingsPage();
+});
+
+function initializeSettingsPage() {
+    if (!isUserLoggedIn()) {
+        window.location.href = '../authPage/authPage.html';
+        return;
+    }
+
+    updateNavigation();
+    updateSettingsNavigation();
+    setCategory('Books');
+    console.log('Settings page initialized');
 }
 
-function closeLogin() {
-  const loginOverlay = document.getElementById("loginOverlay");
-  if (loginOverlay) {
-    loginOverlay.style.display = "none";
-  }
-  document.body.classList.remove("blur-effect");
+//  FUNCȚII JWT
+function isUserLoggedIn() {
+    const token = sessionStorage.getItem('jwt_token');
+    if (!token) return false;
+
+    try {
+        const payload = parseJWT(token);
+        return payload.exp > Math.floor(Date.now() / 1000);
+    } catch (error) {
+        sessionStorage.removeItem('jwt_token');
+        return false;
+    }
 }
 
+function parseJWT(token) {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(window.atob(base64));
+}
+
+function getCurrentUser() {
+    const token = sessionStorage.getItem('jwt_token');
+    if (!token) return null;
+
+    try {
+        return parseJWT(token);
+    } catch (error) {
+        return null;
+    }
+}
+
+async function authenticatedFetch(url, options = {}) {
+    const token = sessionStorage.getItem('jwt_token');
+
+    if (!token) {
+        throw new Error('No authentication token found');
+    }
+
+    const response = await fetch(url, {
+        ...options,
+        headers: {
+            ...options.headers,
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (response.status === 401) {
+        sessionStorage.removeItem('jwt_token');
+        window.location.href = '../authPage/authPage.html';
+        return;
+    }
+
+    return response;
+}
+
+//  LOGOUT
+async function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        const token = sessionStorage.getItem('jwt_token');
+
+        if (token) {
+            try {
+                await authenticatedFetch('/backend/auth/logout.php', {
+                    method: 'POST'
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+
+        sessionStorage.removeItem('jwt_token');
+        window.location.href = '../authPage/authPage.html';
+    }
+}
+
+//  ANIMAȚII CARDS
 function toggleAnimation() {
-  const container = document.getElementById('cards-container');
-  if (container) {
-    container.classList.toggle('paused');
-  }
+    const container = document.getElementById('cards-container');
+    if (container) {
+        container.classList.toggle('paused');
+    }
 }
+
 function scrollLeft() {
     const container = document.getElementById('cards-container');
-    container.scrollBy({
-        left: -220,
-        behavior: 'smooth'
-    });
+    if (container) {
+        container.scrollBy({
+            left: -220,
+            behavior: 'smooth'
+        });
+    }
 }
 
 function scrollRight() {
     const container = document.getElementById('cards-container');
-    container.scrollBy({
-        left: 220,
-        behavior: 'smooth'
-    });
+    if (container) {
+        container.scrollBy({
+            left: 220,
+            behavior: 'smooth'
+        });
+    }
 }
 
-
-
+//  SEARCH POPUP
 const data = {
-        Books: ['The Great Gatsby', '1984', 'To Kill a Mockingbird', 'Pride and Prejudice', 'Harry Potter'],
-        Authors: ['George Orwell', 'Jane Austen', 'J.K. Rowling', 'F. Scott Fitzgerald', 'Homer'],
-        Series: ['Harry Potter', 'The Lord of the Rings', 'A Song of Ice and Fire', 'Percy Jackson', 'Narnia'],
-        Characters: ['Sherlock Holmes', 'Harry Potter', 'Elizabeth Bennet', 'Frodo Baggins', 'Hermione Granger'],
-        Users: ['booklover123', 'readingaddict', 'fictionfan', 'classicreader', 'fantasyfan'],
-        Publishers: ['Penguin Books', 'HarperCollins', 'Bloomsbury', 'Random House', 'Simon & Schuster'],
-    };
+    Books: ['The Great Gatsby', '1984', 'To Kill a Mockingbird', 'Pride and Prejudice', 'Harry Potter'],
+    Authors: ['George Orwell', 'Jane Austen', 'J.K. Rowling', 'F. Scott Fitzgerald', 'Homer'],
+    Series: ['Harry Potter', 'The Lord of the Rings', 'A Song of Ice and Fire', 'Percy Jackson', 'Narnia'],
+    Characters: ['Sherlock Holmes', 'Harry Potter', 'Elizabeth Bennet', 'Frodo Baggins', 'Hermione Granger'],
+    Users: ['booklover123', 'readingaddict', 'fictionfan', 'classicreader', 'fantasyfan'],
+    Publishers: ['Penguin Books', 'HarperCollins', 'Bloomsbury', 'Random House', 'Simon & Schuster'],
+};
+
+let currentCategory = 'Books';
 
 function togglePopup() {
     const popup = document.getElementById('searchPopup');
-    const isVisible = popup.style.display !== 'none';
 
-    if (isVisible) {
-        popup.style.display = 'none';
-    } else {
-        popup.style.display = 'block';
-        loadPopularItems(currentCategory);
-    }
-}
-
-function setCategory(category) {
-    currentCategory = category;
-
-    // Update active category
-    const categories = document.querySelectorAll('.category-list span');
-    categories.forEach(cat => cat.classList.remove('active'));
-    event.target.classList.add('active');
-
-    // Load popular items for this category
-    loadPopularItems(category);
-}
-
-// Închide popup-ul dacă faci clic în afara lui
-document.addEventListener('click', (e) => {
-    const popup = document.getElementById('searchPopup');
-    const searchContainer = document.querySelector('.search-container');
-    if (!popup.contains(e.target) && !searchContainer.contains(e.target)) {
-        popup.style.display = 'none';
-        resetToBooks();
-    }
-});
-
-
-// Funcție pentru gestionare login
-async function handleLogin(event) {
-    event.preventDefault();
-
-    const username = document.getElementById('username').value.trim();
-    const password = document.getElementById('password').value;
-    const submitButton = document.querySelector('#loginForm button[type="submit"]');
-    const originalText = submitButton.textContent;
-
-    // Validare de bază
-    if (!username || !password) {
-        showLoginMessage('Please fill in all fields', 'error');
-        return false;
-    }
-
-    // Disable button during login
-    submitButton.disabled = true;
-    submitButton.textContent = 'Logging in...';
-
-    try {
-        const response = await fetch('/backend/auth/login.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                username: username,
-                password: password
-            })
-        });
-
-        const result = await response.json();
-        console.log('Login response:', result);
-
-
-        if (response.ok && result.success) {
-            // Salvează datele utilizatorului
-            localStorage.setItem('user', JSON.stringify(result.user));
-            localStorage.setItem('isLoggedIn', 'true');
-
-            showLoginMessage('Login successful!', 'success');
-
-            // Actualizează interfața
-            updateUIAfterLogin(result.user);
-
-            // Închide modal-ul după 1 secundă
-            setTimeout(() => {
-                closeLogin();
-                clearLoginForm();
-            }, 1000);
-
+    if (popup) {
+        if (popup.style.display === 'none' || popup.style.display === '') {
+            popup.style.display = 'block';
+            loadPopularItems(currentCategory);
         } else {
-            showLoginMessage(result.error || 'Login failed. Please try again.', 'error');
-        }
-
-    } catch (error) {
-        console.error('Login error:', error);
-        showLoginMessage('Network error. Please check your connection.', 'error');
-    } finally {
-        // Re-enable button
-        submitButton.disabled = false;
-        submitButton.textContent = originalText;
-    }
-
-    return false; // Previne submit-ul formularului
-}
-
-// Funcție pentru afișarea mesajelor în modal
-function showLoginMessage(message, type) {
-    // Elimină mesajul anterior dacă există
-    const existingMessage = document.querySelector('.login-message');
-    if (existingMessage) {
-        existingMessage.remove();
-    }
-
-    // Creează noul mesaj
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `login-message ${type}`;
-    messageDiv.textContent = message;
-
-    // Adaugă mesajul în modal
-    const loginContainer = document.querySelector('.login-container');
-    const form = document.getElementById('loginForm');
-    loginContainer.insertBefore(messageDiv, form);
-
-    // Elimină mesajul după 5 secunde
-    setTimeout(() => {
-        if (messageDiv.parentNode) {
-            messageDiv.remove();
-        }
-    }, 5000);
-}
-
-
-
-// Funcție pentru curățarea formularului
-function clearLoginForm() {
-    document.getElementById('username').value = '';
-    document.getElementById('password').value = '';
-
-    // Elimină mesajele
-    const message = document.querySelector('.login-message');
-    if (message) {
-        message.remove();
-    }
-}
-
-// Funcție pentru logout
-function logout() {
-    // Confirmă logout
-    if (confirm('Are you sure you want to logout?')) {
-        // Șterge datele locale
-        localStorage.removeItem('user');
-        localStorage.removeItem('isLoggedIn');
-
-        // Resetează interfața
-        const loginButton = document.querySelector('.login-btn');
-        if (loginButton) {
-            loginButton.textContent = 'Login';
-            loginButton.onclick = () => openLogin();
-        }
-
-        // Elimină dropdown-ul user
-        const userDropdown = document.querySelector('.user-dropdown');
-        if (userDropdown) {
-            userDropdown.remove();
-        }
-
-        // Apel către backend pentru logout (opțional)
-        fetch('http://localhost:9000/backend/auth/logout.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        }).catch(error => console.log('Logout backend call failed:', error));
-
-        // Afișează mesaj
-        alert('You have been logged out successfully!');
-
-        // Opțional: reîncarcă pagina
-        // window.location.reload();
-    }
-}
-
-
-
-
-// Funcție pentru actualizarea interfeței după login
-function updateUIAfterLogin(user) {
-    // Folosește noul sistem de navigație
-    updateNavigation();
-
-    // Păstrează funcționalitatea veche pentru compatibilitate
-    const loginButton = document.querySelector('.login-btn');
-    if (loginButton) {
-        // Transformă butonul în dropdown
-        const parentLi = loginButton.parentElement;
-        parentLi.className = 'dropdown profile';
-
-        // Actualizează conținutul butonului cu protecție XSS
-        loginButton.innerHTML = `
-        ${sanitizeHtml(user.username)} 
-        <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M6 9l6 6 6-6"></path>
-        </svg>
-        `;
-
-        loginButton.removeAttribute('onclick');
-
-        if (!parentLi.querySelector('.dropdown-menu')) {
-            const dropdownMenu = document.createElement('ul');
-            dropdownMenu.className = 'dropdown-menu';
-            dropdownMenu.innerHTML = `
-                <li><a href="#profile">My Profile</a></li>
-                <li><a href="#settings">Settings</a></li>
-                <li><a href="#notifications">Notifications</a></li>
-                <li><a href="#" onclick="logout()">Logout</a></li>
-            `;
-            parentLi.appendChild(dropdownMenu);
+            popup.style.display = 'none';
+            resetToBooks();
         }
     }
 }
 
-// Funcție pentru toggle user menu
-function toggleUserMenu() {
-    const dropdown = document.querySelector('.user-dropdown');
-    if (dropdown) {
-        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-    }
+function resetToBooks() {
+    setCategory('Books');
 }
-
-// Închide dropdown-ul când apeși în altă parte
-document.addEventListener('click', function(e) {
-    const dropdown = document.querySelector('.user-dropdown');
-    const loginButton = document.querySelector('.login-btn');
-
-    if (dropdown && !loginButton.contains(e.target)) {
-        dropdown.style.display = 'none';
-    }
-});
-
-
-///FUNCTII DE SEARCH
-// Variabile globale pentru search
-let currentCategory = 'Books';
-let searchResults = [];
-
 
 function setCategory(category, targetElement = null) {
     currentCategory = category;
 
-    // Update active category
     const categories = document.querySelectorAll('.category-list span');
     categories.forEach(cat => cat.classList.remove('active'));
 
-    // Dacă avem un element target (din click), îl marcăm ca activ
     if (targetElement) {
         targetElement.classList.add('active');
     } else {
-        // Dacă nu avem target (apel din onload), găsim elementul pentru categoria respectivă
         const categoryElement = Array.from(categories).find(cat => cat.textContent.trim() === category);
         if (categoryElement) {
             categoryElement.classList.add('active');
         }
     }
 
-    // Load popular items for this category
     loadPopularItems(category);
 }
 
-// Funcție încarcă items populare
 async function loadPopularItems(category) {
     try {
-        const response = await fetch(`http://localhost:9000/backend/api/search.php?category=${category}&limit=10`);
+        const response = await fetch(`/backend/api/search.php?category=${category}&limit=10`);
         const data = await response.json();
 
         if (data.success) {
@@ -328,11 +182,10 @@ async function loadPopularItems(category) {
     }
 }
 
-// Funcție afișează items populare
 function displayPopularItems(items, category) {
     const popularList = document.getElementById('popularList');
 
-    if (items.length === 0) {
+    if (!items || items.length === 0) {
         popularList.innerHTML = '<div class="no-results">No popular items found</div>';
         return;
     }
@@ -345,9 +198,9 @@ function displayPopularItems(items, category) {
                 <div class="popular-item" onclick="selectBook(${item.id})">
                     <div class="item-placeholder">📚</div>
                     <div class="item-info">
-                        <div class="item-title">${item.title}</div>
-                        <div class="item-subtitle">${item.author} (${item.publication_year || 'N/A'})</div>
-                        <div class="item-publisher">Publisher: ${item.publisher}</div>
+                        <div class="item-title">${sanitizeHtml(item.title)}</div>
+                        <div class="item-subtitle">${sanitizeHtml(item.author)} (${item.publication_year || 'N/A'})</div>
+                        <div class="item-publisher">Publisher: ${sanitizeHtml(item.publisher)}</div>
                     </div>
                 </div>
             `;
@@ -356,19 +209,10 @@ function displayPopularItems(items, category) {
                 <div class="popular-item" onclick="selectAuthor(${item.id})">
                     <div class="item-placeholder">👤</div>
                     <div class="item-info">
-                        <div class="item-title">${item.name}</div>
-                        <div class="item-subtitle">${item.nationality || 'Unknown nationality'} • Born ${item.birth_year || 'Unknown'}</div>
-                        <div class="item-description">${item.description || 'No description available.'}</div>
+                        <div class="item-title">${sanitizeHtml(item.name)}</div>
+                        <div class="item-subtitle">${sanitizeHtml(item.nationality || 'Unknown nationality')} • Born ${item.birth_year || 'Unknown'}</div>
+                        <div class="item-description">${sanitizeHtml(item.description || 'No description available.')}</div>
                         <div class="item-books">${item.book_count} books</div>
-                    </div>
-                </div>
-            `;
-        } else {
-            html += `
-                <div class="popular-item" onclick="searchByName('${item.name}', '${category}')">
-                    <div class="item-info">
-                        <div class="item-title">${item.name}</div>
-                        <div class="item-subtitle">${item.book_count} books</div>
                     </div>
                 </div>
             `;
@@ -395,9 +239,9 @@ function displaySearchResults(results, category) {
                 <div class="search-result-item" onclick="selectBook(${item.id})">
                     <div class="item-placeholder">📚</div>
                     <div class="item-info">
-                        <div class="item-title">${item.title}</div>
-                        <div class="item-subtitle">${item.author} (${item.publication_year || 'N/A'})</div>
-                        <div class="item-publisher">Publisher: ${item.publisher}</div>
+                        <div class="item-title">${sanitizeHtml(item.title)}</div>
+                        <div class="item-subtitle">${sanitizeHtml(item.author)} (${item.publication_year || 'N/A'})</div>
+                        <div class="item-publisher">Publisher: ${sanitizeHtml(item.publisher)}</div>
                     </div>
                 </div>
             `;
@@ -406,19 +250,10 @@ function displaySearchResults(results, category) {
                 <div class="search-result-item" onclick="selectAuthor(${item.id})">
                     <div class="item-placeholder">👤</div>
                     <div class="item-info">
-                        <div class="item-title">${item.name}</div>
-                        <div class="item-subtitle">${item.nationality || 'Unknown nationality'} • Born ${item.birth_year || 'Unknown'}</div>
-                        <div class="item-description">${item.description || 'No description available.'}</div>
+                        <div class="item-title">${sanitizeHtml(item.name)}</div>
+                        <div class="item-subtitle">${sanitizeHtml(item.nationality || 'Unknown nationality')} • Born ${item.birth_year || 'Unknown'}</div>
+                        <div class="item-description">${sanitizeHtml(item.description || 'No description available.')}</div>
                         <div class="item-books">${item.book_count} books</div>
-                    </div>
-                </div>
-            `;
-        } else {
-            html += `
-                <div class="search-result-item" onclick="searchByName('${item.name}', '${category}')">
-                    <div class="item-info">
-                        <div class="item-title">${item.name}</div>
-                        <div class="item-subtitle">${item.book_count} books</div>
                     </div>
                 </div>
             `;
@@ -429,13 +264,16 @@ function displaySearchResults(results, category) {
     popularList.innerHTML = html;
 }
 
-// Funcție pentru selectare autor
-function selectAuthor(authorId) {
-    console.log('Selected author:', authorId);
-    alert(`Selected author ID: ${authorId}. În viitor va deschide pagina autorului.`);
+function selectBook(bookId) {
+    console.log('Selected book:', bookId);
+    alert(`Selected book ID: ${bookId}. Feature coming soon!`);
 }
 
-// Funcție search real-time
+function selectAuthor(authorId) {
+    console.log('Selected author:', authorId);
+    alert(`Selected author ID: ${authorId}. Feature coming soon!`);
+}
+
 async function performSearch() {
     const searchInput = document.querySelector('.search-container input');
     const query = searchInput.value.trim();
@@ -446,7 +284,7 @@ async function performSearch() {
     }
 
     try {
-        const response = await fetch('http://localhost:9000/backend/api/search.php', {
+        const response = await fetch('/backend/api/search.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -471,80 +309,12 @@ async function performSearch() {
     }
 }
 
-
-
-// Funcții helper
-function selectBook(bookId) {
-    console.log('Selected book:', bookId);
-    alert(`Selected book ID: ${bookId}`);
-}
-
-function searchByName(name, category) {
-    const searchInput = document.querySelector('.search-container input');
-    searchInput.value = name;
-    setCategory('Books'); // Switch to books to show books by this author/series/etc
-    performSearch();
-}
-
-
-// Event listeners
-        // Event listeners
-        document.addEventListener('DOMContentLoaded', function() {
-            updateNavigation(); // Adaugă această linie
-            setCategory('Books'); // Pentru search popup
-
-            const searchInput = document.querySelector('.search-container input');
-            const searchButton = document.querySelector('.search-container button');
-
-            // Real-time search
-            if (searchInput) searchInput.addEventListener('input', performSearch);
-
-            // Search button click
-            if (searchButton) {
-                searchButton.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    performSearch();
-                });
-            }
-
-            // Enter key search
-            if (searchInput) {
-                searchInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        performSearch();
-                    }
-                });
-            }
-        });
-
-
-
-
-        setTimeout(() => {
-            const isLoggedIn = localStorage.getItem('isLoggedIn');
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
-
-            console.log('isLoggedIn:', isLoggedIn);
-            console.log('user object:', user);
-
-            if (isLoggedIn === 'true' && user.username) {
-                updateUIAfterLogin(user);
-                updateSettingsNavigation();
-            } else {
-                // Redirecționează doar dacă nu este logat
-                window.location.href = '/frontend/mainPage/index.html';
-            }
-        }, 100);
-
-// Funcție pentru actualizarea navigării
+//  NAVIGARE
 function updateSettingsNavigation() {
-    // Edit Profile link
     const editProfileLink = document.querySelector('a[href*="editProfilePage"]');
     if (editProfileLink) {
         editProfileLink.href = '/frontend/settingsPage/editProfilePage/editProfilePage.html';
     }
-
 
     const settingsLinks = document.querySelectorAll('a[href="#settings"]');
     settingsLinks.forEach(link => {
@@ -554,7 +324,6 @@ function updateSettingsNavigation() {
         });
     });
 
-    // Notifications link
     const notificationsLinks = document.querySelectorAll('a[href="#notifications"]');
     notificationsLinks.forEach(link => {
         link.addEventListener('click', function(e) {
@@ -563,37 +332,65 @@ function updateSettingsNavigation() {
         });
     });
 
+    const signoutLinks = document.querySelectorAll('a[href="#signout"]');
+    signoutLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            logout();
+        });
+    });
 }
 
-// Funcție pentru exportul datelor
-async function exportData(format) {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
+function updateNavigation() {
+    const user = getCurrentUser();
+    const profileDropdown = document.getElementById('profileDropdown');
+    const loginButton = document.getElementById('loginButton');
+    const profileUsername = document.getElementById('profileUsername');
 
-    if (!user.user_id) {
-        alert('Nu ești logat! Te rog să te loghezi din nou.');
+    if (user && user.username) {
+        if (profileDropdown) profileDropdown.style.display = 'block';
+        if (loginButton) loginButton.style.display = 'none';
+        if (profileUsername) profileUsername.textContent = user.username;
+    } else {
+        if (profileDropdown) profileDropdown.style.display = 'none';
+        if (loginButton) loginButton.style.display = 'block';
+    }
+}
+
+function navigateToCommunity() {
+    if (isUserLoggedIn()) {
+        window.location.href = '/frontend/communityPage/communityPage.html';
+    } else {
+        window.location.href = '/frontend/noCommunityPage/noCommunityPage.html';
+    }
+}
+
+// EXPORT DATE
+async function exportData(format) {
+    const user = getCurrentUser();
+
+    if (!user || !user.user_id) {
+        alert('Authentication error. Please login again.');
+        window.location.href = '../authPage/authPage.html';
         return;
     }
 
-    // Găsește butonul și schimbă textul
     const button = document.querySelector(`.${format}-btn`);
-    const originalText = button.innerHTML;
+    if (!button) return;
 
+    const originalText = button.innerHTML;
     button.disabled = true;
     button.innerHTML = '⏳ Exporting...';
 
     try {
-        const response = await fetch(`/backend/export/export_user_data.php?format=${format}&user_id=${user.user_id}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            }
+        const response = await authenticatedFetch(`/backend/api/export_user_data.php?format=${format}&user_id=${user.user_id}`, {
+            method: 'GET'
         });
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        // Obține numele fișierului din header
         const contentDisposition = response.headers.get('Content-Disposition');
         let filename = `user_data_${user.username}_${new Date().toISOString().split('T')[0]}.${format}`;
 
@@ -604,7 +401,6 @@ async function exportData(format) {
             }
         }
 
-        // Descarcă fișierul
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -616,35 +412,41 @@ async function exportData(format) {
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
 
-        // Afișează mesaj de succes
         showExportMessage(`✅ ${format.toUpperCase()} export completed successfully!`, 'success');
 
     } catch (error) {
         console.error('Export error:', error);
         showExportMessage(`❌ Export failed: ${error.message}`, 'error');
+        handleAuthError(error);
     } finally {
-        // Resetează butonul
         button.disabled = false;
         button.innerHTML = originalText;
     }
 }
 
-// Funcție pentru afișarea mesajelor de export
 function showExportMessage(message, type) {
-    // Elimină mesajul anterior dacă există
     const existingMessage = document.querySelector('.export-message');
     if (existingMessage) {
         existingMessage.remove();
     }
 
-    // Creează noul mesaj
     const messageDiv = document.createElement('div');
     messageDiv.className = `export-message ${type}`;
     messageDiv.textContent = message;
+    messageDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        border-radius: 5px;
+        color: white;
+        font-weight: bold;
+        z-index: 1000;
+        ${type === 'success' ? 'background-color: #4CAF50;' : 'background-color: #f44336;'}
+    `;
 
     document.body.appendChild(messageDiv);
 
-    // Elimină mesajul după 4 secunde
     setTimeout(() => {
         if (messageDiv.parentNode) {
             messageDiv.style.animation = 'slideOut 0.3s ease';
@@ -653,42 +455,52 @@ function showExportMessage(message, type) {
     }, 4000);
 }
 
-// Funcție minimală pentru prevenirea XSS
+// GESTIONARE ERORI
+function handleAuthError(error) {
+    if (error.message && (error.message.includes('authentication') || error.message.includes('token'))) {
+        sessionStorage.removeItem('jwt_token');
+        window.location.href = '../authPage/authPage.html';
+    }
+}
+
+// XSS protection
 function sanitizeHtml(str) {
+    if (!str) return '';
     const temp = document.createElement('div');
     temp.textContent = str;
     return temp.innerHTML;
 }
 
-// Actualizează interfața în funcție de starea de login
-function updateNavigation() {
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
+//  EVENT LISTENERS
+document.addEventListener('click', function(e) {
+    const popup = document.getElementById('searchPopup');
+    const searchContainer = document.querySelector('.search-container');
 
-    const profileDropdown = document.getElementById('profileDropdown');
-    const loginButton = document.getElementById('loginButton');
-    const profileUsername = document.getElementById('profileUsername');
-
-    if (isLoggedIn === 'true' && user.username) {
-        // Utilizator logat - arată profilul
-        if (profileDropdown) profileDropdown.style.display = 'block';
-        if (loginButton) loginButton.style.display = 'none';
-        if (profileUsername) profileUsername.textContent = user.username;
-    } else {
-        // Utilizator nelogat - arată login
-        if (profileDropdown) profileDropdown.style.display = 'none';
-        if (loginButton) loginButton.style.display = 'block';
+    if (popup && searchContainer && !popup.contains(e.target) && !searchContainer.contains(e.target)) {
+        popup.style.display = 'none';
+        resetToBooks();
     }
-}
+});
 
-// Funcție pentru navigarea la Community
-function navigateToCommunity() {
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
+// Search event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.querySelector('.search-container input');
+    const searchButton = document.querySelector('.search-container button');
 
-    if (isLoggedIn === 'true' && user.username) {
-        window.location.href = '/frontend/communityPage/communityPage.html';
-    } else {
-        window.location.href = '/frontend/noCommunityPage/noCommunityPage.html';
+    if (searchInput) {
+        searchInput.addEventListener('input', performSearch);
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                performSearch();
+            }
+        });
     }
-}
+
+    if (searchButton) {
+        searchButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            performSearch();
+        });
+    }
+});

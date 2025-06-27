@@ -163,9 +163,9 @@ async function changeBookStatus(bookId, newStatus) {
             loadUserBooks();
 
             // Notifică alte pagini despre actualizare
-            if (typeof(Storage) !== "undefined") {
-                sessionStorage.setItem('bookStatusUpdated', Date.now());
-            }
+            // if (typeof(Storage) !== "undefined") {
+            //     sessionStorage.setItem('bookStatusUpdated', Date.now());
+            // }
 
             // Afișează mesaj de succes
             showStatusMessage(`Book moved to ${getStatusDisplayName(newStatus)}!`, 'success');
@@ -525,43 +525,3 @@ window.addEventListener('storage', function(e) {
     }
 });
 
-// Actualizează interfața în funcție de starea de login (
-// function updateNavigation() {
-//     const user = getCurrentUser();
-//
-//     const profileDropdown = document.getElementById('profileDropdown');
-//     const loginButton = document.getElementById('loginButton');
-//     const profileUsername = document.getElementById('profileUsername');
-//
-//     if (user && user.username) {
-//         // Utilizator logat - arată profilul
-//         if (profileDropdown) profileDropdown.style.display = 'block';
-//         if (loginButton) loginButton.style.display = 'none';
-//         if (profileUsername) profileUsername.textContent = user.username;
-//     } else {
-//         // Utilizator nelogat - arată login
-//         if (profileDropdown) profileDropdown.style.display = 'none';
-//         if (loginButton) loginButton.style.display = 'block';
-//     }
-// }
-
-// Funcții care nu mai sunt necesare
-// function openLogin() {
-//     window.location.href = '../authPage/authPage.html';
-// }
-//
-// function closeLogin() {
-//     // Nu mai e necesară
-// }
-//
-// function handleLogin() {
-//     // Nu mai e necesară - se face în authPage
-// }
-//
-// function showLoginMessage() {
-//     // Nu mai e necesară
-// }
-//
-// function clearLoginForm() {
-//     // Nu mai e necesară
-// }

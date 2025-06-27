@@ -2,14 +2,17 @@
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
 require_once '../config.php';
-$pdo = getDbConnection();
+require_once '../auth/jwt.php';
+
+// Verifică autentificarea
+$user = requireAuth();
 
 if (!isset($_GET['group_id'])) {
     echo json_encode(['success' => false, 'error' => 'Group ID required']);
@@ -19,6 +22,8 @@ if (!isset($_GET['group_id'])) {
 $groupId = $_GET['group_id'];
 
 try {
+    $pdo = getDbConnection();
+
     // Obține detaliile grupului
     $groupStmt = $pdo->prepare("
         SELECT g.id, g.name, g.description, g.genres, g.min_age, g.max_age,

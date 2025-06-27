@@ -1,22 +1,86 @@
-// Funcție minimală pentru prevenirea XSS
-function sanitizeHtml(str) {
-    const temp = document.createElement('div');
-    temp.textContent = str;
-    return temp.innerHTML;
+// VERIFICARE AUTENTIFICARE ȘI ADMIN
+document.addEventListener('DOMContentLoaded', function() {
+    initializeAdminPanel();
+});
+
+function initializeAdminPanel() {
+    if (!checkAdminAccess()) {
+        return;
+    }
+
+    loadStats();
+    loadUsers();
+    setupEventListeners();
+    console.log('Admin panel initialized');
 }
 
-// Verifică dacă utilizatorul este admin
-function checkAdminAccess() {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
+// FUNCȚII JWT
+function isUserLoggedIn() {
+    const token = sessionStorage.getItem('jwt_token');
+    if (!token) return false;
 
-    if (!isLoggedIn || !user.username) {
+    try {
+        const payload = parseJWT(token);
+        return payload.exp > Math.floor(Date.now() / 1000);
+    } catch (error) {
+        sessionStorage.removeItem('jwt_token');
+        return false;
+    }
+}
+
+function parseJWT(token) {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(window.atob(base64));
+}
+
+function getCurrentUser() {
+    const token = sessionStorage.getItem('jwt_token');
+    if (!token) return null;
+
+    try {
+        return parseJWT(token);
+    } catch (error) {
+        return null;
+    }
+}
+
+async function authenticatedFetch(url, options = {}) {
+    const token = sessionStorage.getItem('jwt_token');
+
+    if (!token) {
+        throw new Error('No authentication token found');
+    }
+
+    const response = await fetch(url, {
+        ...options,
+        headers: {
+            ...options.headers,
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (response.status === 401) {
+        sessionStorage.removeItem('jwt_token');
+        window.location.href = '/frontend/authPage/authPage.html';
+        return;
+    }
+
+    return response;
+}
+
+//  VERIFICARE ACCES ADMIN
+function checkAdminAccess() {
+    if (!isUserLoggedIn()) {
         alert('Please login first!');
-        window.location.href = '/frontend/mainPage/index.html';
+        window.location.href = '/frontend/authPage/authPage.html';
         return false;
     }
 
-    if (!user.role || user.role !== 'admin') {
+    const user = getCurrentUser();
+
+    if (!user || !user.role || user.role !== 'admin') {
         alert('Access denied! Admin privileges required.');
         window.location.href = '/frontend/mainPage/index.html';
         return false;
@@ -25,10 +89,10 @@ function checkAdminAccess() {
     return true;
 }
 
-// Încarcă statisticile pentru dashboard
+// ÎNCĂRCARE STATISTICI
 async function loadStats() {
     try {
-        const response = await fetch('/backend/admin/get_stats.php');
+        const response = await authenticatedFetch('/backend/admin/get_stats.php');
         const data = await response.json();
 
         if (data.success) {
@@ -37,34 +101,45 @@ async function loadStats() {
             document.getElementById('totalBooks').textContent = data.stats.total_books || '0';
         } else {
             console.error('Error loading stats:', data.error);
+            showErrorStats();
         }
     } catch (error) {
         console.error('Error fetching stats:', error);
-        document.getElementById('totalUsers').textContent = 'Error';
-        document.getElementById('totalGroups').textContent = 'Error';
-        document.getElementById('totalBooks').textContent = 'Error';
+        showErrorStats();
+        handleAuthError(error);
     }
 }
 
-// Tab Management
+function showErrorStats() {
+    document.getElementById('totalUsers').textContent = 'Error';
+    document.getElementById('totalGroups').textContent = 'Error';
+    document.getElementById('totalBooks').textContent = 'Error';
+}
+
+//  MANAGEMENT TAB-URI
 function showTab(tabName) {
-    // Hide all tabs
+    // Ascunde toate tab-urile
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.remove('active');
     });
 
-    // Remove active from all buttons
+    // Elimină active de la toate butoanele
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.remove('active');
     });
 
-    // Show selected tab
-    document.getElementById(tabName + '-tab').classList.add('active');
+    // Afișează tab-ul selectat
+    const selectedTab = document.getElementById(tabName + '-tab');
+    if (selectedTab) {
+        selectedTab.classList.add('active');
+    }
 
-    // Activate button
-    event.target.classList.add('active');
+    // Activează butonul
+    if (event && event.target) {
+        event.target.classList.add('active');
+    }
 
-    // Load content based on tab
+    // Încarcă conținutul bazat pe tab
     if (tabName === 'users') {
         loadUsers();
     } else if (tabName === 'groups') {
@@ -72,38 +147,42 @@ function showTab(tabName) {
     }
 }
 
-// Load Users
+// MANAGEMENT UTILIZATORI
 async function loadUsers() {
     const usersList = document.getElementById('usersList');
+    if (!usersList) return;
+
     usersList.innerHTML = '<div class="loading">Loading users...</div>';
 
     try {
-        const response = await fetch('/backend/admin/manage_users.php');
+        const response = await authenticatedFetch('/backend/admin/manage_users.php');
         const data = await response.json();
 
         if (data.success) {
             displayUsers(data.users);
         } else {
-            usersList.innerHTML = '<div class="error">Error loading users: ' + data.error + '</div>';
+            usersList.innerHTML = '<div class="error">Error loading users: ' + sanitizeHtml(data.error) + '</div>';
         }
     } catch (error) {
         console.error('Error loading users:', error);
         usersList.innerHTML = '<div class="error">Network error loading users</div>';
+        handleAuthError(error);
     }
 }
 
-// Display Users
 function displayUsers(users) {
     const usersList = document.getElementById('usersList');
+    if (!usersList) return;
 
-    if (users.length === 0) {
+    if (!users || users.length === 0) {
         usersList.innerHTML = '<div class="no-data">No users found</div>';
         return;
     }
 
+    const currentUser = getCurrentUser();
     let html = '';
+
     users.forEach(user => {
-        const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
         const isCurrentUser = user.user_id == currentUser.user_id;
 
         html += `
@@ -111,7 +190,8 @@ function displayUsers(users) {
                 <div class="admin-item-info">
                     <h4>${sanitizeHtml(user.username)} ${isCurrentUser ? '(You)' : ''}</h4>
                     <p>Email: ${sanitizeHtml(user.email)}</p>
-                    <p>Role: <strong>${user.role}</strong> | Joined: ${new Date(user.created_at).toLocaleDateString()}</p>
+                    <p>Role: <strong>${sanitizeHtml(user.role)}</strong> | Joined: ${formatDate(user.created_at)}</p>
+                    ${user.real_name ? `<p>Name: ${sanitizeHtml(user.real_name)}</p>` : ''}
                 </div>
                 <div class="admin-actions">
                     ${!isCurrentUser ? `
@@ -130,7 +210,6 @@ function displayUsers(users) {
     usersList.innerHTML = html;
 }
 
-// Toggle User Role
 async function toggleUserRole(userId, currentRole) {
     const newRole = currentRole === 'admin' ? 'user' : 'admin';
 
@@ -139,11 +218,8 @@ async function toggleUserRole(userId, currentRole) {
     }
 
     try {
-        const response = await fetch('/backend/admin/manage_users.php', {
+        const response = await authenticatedFetch('/backend/admin/manage_users.php', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
             body: JSON.stringify({
                 user_id: userId,
                 role: newRole
@@ -153,29 +229,26 @@ async function toggleUserRole(userId, currentRole) {
         const data = await response.json();
 
         if (data.success) {
-            alert('User role updated successfully!');
-            loadUsers(); // Reload users list
+            showAdminMessage('User role updated successfully!', 'success');
+            loadUsers();
         } else {
-            alert('Error updating user role: ' + data.error);
+            showAdminMessage('Error updating user role: ' + data.error, 'error');
         }
     } catch (error) {
         console.error('Error updating user role:', error);
-        alert('Network error updating user role');
+        showAdminMessage('Network error updating user role', 'error');
+        handleAuthError(error);
     }
 }
 
-// Delete User
 async function deleteUser(userId, username) {
     if (!confirm(`Are you sure you want to delete user "${username}"? This action cannot be undone.`)) {
         return;
     }
 
     try {
-        const response = await fetch('/backend/admin/manage_users.php', {
+        const response = await authenticatedFetch('/backend/admin/manage_users.php', {
             method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-            },
             body: JSON.stringify({
                 user_id: userId
             })
@@ -184,44 +257,47 @@ async function deleteUser(userId, username) {
         const data = await response.json();
 
         if (data.success) {
-            alert('User deleted successfully!');
+            showAdminMessage('User deleted successfully!', 'success');
             loadUsers();
             loadStats();
         } else {
-            alert('Error deleting user: ' + data.error);
+            showAdminMessage('Error deleting user: ' + data.error, 'error');
         }
     } catch (error) {
         console.error('Error deleting user:', error);
-        alert('Network error deleting user');
+        showAdminMessage('Network error deleting user', 'error');
+        handleAuthError(error);
     }
 }
 
-// Load Groups
+//  MANAGEMENT GRUPURI
 async function loadGroups() {
     const groupsList = document.getElementById('groupsList');
+    if (!groupsList) return;
+
     groupsList.innerHTML = '<div class="loading">Loading groups...</div>';
 
     try {
-        const response = await fetch('/backend/admin/manage_groups.php');
+        const response = await authenticatedFetch('/backend/admin/manage_groups.php');
         const data = await response.json();
 
         if (data.success) {
             displayGroups(data.groups);
         } else {
-            groupsList.innerHTML = '<div class="error">Error loading groups: ' + data.error + '</div>';
+            groupsList.innerHTML = '<div class="error">Error loading groups: ' + sanitizeHtml(data.error) + '</div>';
         }
     } catch (error) {
         console.error('Error loading groups:', error);
         groupsList.innerHTML = '<div class="error">Network error loading groups</div>';
+        handleAuthError(error);
     }
 }
 
-
-// Display Groups
 function displayGroups(groups) {
     const groupsList = document.getElementById('groupsList');
+    if (!groupsList) return;
 
-    if (groups.length === 0) {
+    if (!groups || groups.length === 0) {
         groupsList.innerHTML = '<div class="no-data">No groups found</div>';
         return;
     }
@@ -233,8 +309,8 @@ function displayGroups(groups) {
                 <div class="admin-item-info">
                     <h4>${sanitizeHtml(group.name)}</h4>
                     <p>${sanitizeHtml(group.description || 'No description')}</p>
-                    <p>Members: <strong>${group.member_count}</strong> | Created by: ${sanitizeHtml(group.creator_name || 'Unknown')}</p>
-                    <p>Created: ${new Date(group.created_at).toLocaleDateString()}</p>
+                    <p>Members: <strong>${group.member_count || 0}</strong> | Created by: ${sanitizeHtml(group.creator_name || 'Unknown')}</p>
+                    <p>Created: ${formatDate(group.created_at)}</p>
                 </div>
                 <div class="admin-actions">
                     <button class="admin-btn delete" data-group-id="${group.id}" data-group-name="${sanitizeHtml(group.name)}">
@@ -247,7 +323,7 @@ function displayGroups(groups) {
 
     groupsList.innerHTML = html;
 
-
+    // Adaugă event listeners pentru butoanele de delete
     document.querySelectorAll('#groupsList .admin-btn.delete').forEach(btn => {
         btn.addEventListener('click', function() {
             const groupId = this.getAttribute('data-group-id');
@@ -257,18 +333,14 @@ function displayGroups(groups) {
     });
 }
 
-// Delete Group
 async function deleteGroup(groupId, groupName) {
     if (!confirm(`Are you sure you want to delete group "${groupName}"? This will remove all members and cannot be undone.`)) {
         return;
     }
 
     try {
-        const response = await fetch('/backend/admin/manage_groups.php', {
+        const response = await authenticatedFetch('/backend/admin/manage_groups.php', {
             method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-            },
             body: JSON.stringify({
                 group_id: groupId
             })
@@ -277,38 +349,41 @@ async function deleteGroup(groupId, groupName) {
         const data = await response.json();
 
         if (data.success) {
-            alert('Group deleted successfully!');
+            showAdminMessage('Group deleted successfully!', 'success');
             loadGroups();
             loadStats();
         } else {
-            alert('Error deleting group: ' + data.error);
+            showAdminMessage('Error deleting group: ' + data.error, 'error');
         }
     } catch (error) {
         console.error('Error deleting group:', error);
-        alert('Network error deleting group');
+        showAdminMessage('Network error deleting group', 'error');
+        handleAuthError(error);
     }
 }
 
-// Logout function
-function logout() {
+//  LOGOUT
+async function logout() {
     if (confirm('Are you sure you want to logout?')) {
-        localStorage.removeItem('user');
-        localStorage.removeItem('isLoggedIn');
-        window.location.href = '/frontend/mainPage/index.html';
+        const token = sessionStorage.getItem('jwt_token');
+
+        if (token) {
+            try {
+                await authenticatedFetch('/backend/auth/logout.php', {
+                    method: 'POST'
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+
+        sessionStorage.removeItem('jwt_token');
+        window.location.href = '/frontend/authPage/authPage.html';
     }
 }
 
-// Event listeners
-document.addEventListener('DOMContentLoaded', function() {
-    // Verifică accesul admin
-    if (!checkAdminAccess()) {
-        return;
-    }
-
-    loadStats();
-    loadUsers();
-
-    // Setup logout button
+// EVENT LISTENERS
+function setupEventListeners() {
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', function(e) {
@@ -316,4 +391,77 @@ document.addEventListener('DOMContentLoaded', function() {
             logout();
         });
     }
-});
+
+    // Setup tab buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const tabName = this.getAttribute('data-tab') || this.textContent.toLowerCase().trim();
+            showTab(tabName);
+        });
+    });
+}
+
+// MESAJE ADMIN
+function showAdminMessage(message, type) {
+    const existingMessage = document.querySelector('.admin-message');
+    if (existingMessage) {
+        existingMessage.remove();
+    }
+
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `admin-message ${type}`;
+    messageDiv.textContent = message;
+    messageDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        border-radius: 5px;
+        color: white;
+        font-weight: bold;
+        z-index: 1000;
+        ${type === 'success' ? 'background-color: #4CAF50;' : 'background-color: #f44336;'}
+    `;
+
+    document.body.appendChild(messageDiv);
+
+    setTimeout(() => {
+        if (messageDiv.parentNode) {
+            messageDiv.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => messageDiv.remove(), 300);
+        }
+    }, 4000);
+}
+
+//  GESTIONARE ERORI
+function handleAuthError(error) {
+    if (error.message && (error.message.includes('authentication') || error.message.includes('token'))) {
+        sessionStorage.removeItem('jwt_token');
+        window.location.href = '/frontend/authPage/authPage.html';
+    }
+}
+
+// UTILITĂȚI
+function sanitizeHtml(str) {
+    if (!str) return '';
+    const temp = document.createElement('div');
+    temp.textContent = str;
+    return temp.innerHTML;
+}
+
+function formatDate(dateString) {
+    if (!dateString) return 'Unknown';
+    try {
+        return new Date(dateString).toLocaleDateString();
+    } catch (error) {
+        return 'Invalid Date';
+    }
+}
+
+// FUNCȚII GLOBALE PENTRU ONCLICK
+window.toggleUserRole = toggleUserRole;
+window.deleteUser = deleteUser;
+window.deleteGroup = deleteGroup;
+window.showTab = showTab;
+window.logout = logout;

@@ -101,22 +101,37 @@ async function logout() {
     }
 }
 
-// ÎNCĂRCARE DATE
-async function loadGroupData() {
-    const currentGroup = JSON.parse(sessionStorage.getItem('currentGroup') || '{}');
 
-    if (!currentGroup.id) {
-        window.location.href = '../communityPage/communityPage.html';
+async function loadGroupData() {
+
+
+    // Verifică dacă avem un grup specific din URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const groupId = urlParams.get('groupId');
+
+
+
+    if (groupId) {
+
+        // Încarcă grupul specific din URL
+        loadSpecificGroup(groupId);
         return;
     }
 
+
+    // Altfel, încarcă grupurile utilizatorului pentru selecție
+    await loadUserGroupsForSelection();
+}
+
+
+async function loadSpecificGroup(groupId) {
     try {
-        const response = await authenticatedFetch(`/backend/community/get_group_details.php?group_id=${currentGroup.id}`);
+        const response = await authenticatedFetch(`/backend/community/get_group_details.php?group_id=${groupId}`);
         const data = await response.json();
 
         if (data.success) {
             updateGroupUI(data.group, data.members);
-            loadGroupBooks(currentGroup.id);
+            loadGroupBooks(groupId);
         } else {
             console.error('Error loading group:', data.error);
             alert('Error loading group details');
@@ -128,6 +143,113 @@ async function loadGroupData() {
     }
 }
 
+async function loadUserGroupsForSelection() {
+    try {
+        const user = getCurrentUser();
+
+
+        const response = await authenticatedFetch(`/backend/community/get_user_groups.php?user_id=${user.user_id}`);
+
+
+
+        const responseText = await response.text();
+
+
+        // Încearcă să parsezi JSON-ul
+        let data;
+        try {
+            data = JSON.parse(responseText);
+
+        } catch (parseError) {
+            console.error('JSON parse error:', parseError);
+            console.error('Response was:', responseText);
+            alert('Server returned invalid response. Check console for details.');
+            return;
+        }
+
+        if (data.success && data.groups && data.groups.length > 0) {
+
+
+            if (data.groups.length === 1) {
+
+                loadSpecificGroup(data.groups[0].id);
+            } else {
+
+                displayGroupSelection(data.groups);
+            }
+        } else {
+
+            window.location.href = '../noCommunityPage/noCommunityPage.html';
+        }
+    } catch (error) {
+        console.error('Error loading user groups:', error);
+        handleAuthError(error);
+    }
+}
+
+function displayGroupSelection(groups) {
+    const container = document.getElementById('groupBooksContainer');
+
+    hideGroupStaticSections()
+    let html = `
+        <div class="group-selection">
+            <h2>Select a Group</h2>
+            <p>You are a member of ${groups.length} groups. Choose one to view:</p>
+            <div class="groups-list">
+    `;
+
+    groups.forEach(group => {
+        html += `
+            <div class="group-card" onclick="selectGroup(${group.id}, '${group.name}')">
+                <h3>${sanitizeHtml(group.name)}</h3>
+                <p>${sanitizeHtml(group.description || 'No description')}</p>
+                <div class="group-stats">
+                    <span>👥 ${group.member_count} members</span>
+                    <span>📚 ${group.book_count || 0} books</span>
+                </div>
+            </div>
+        `;
+    });
+
+    html += `
+            </div>
+        </div>
+    `;
+
+    container.innerHTML = html;
+}
+
+function hideGroupStaticSections() {
+    // Ascunde hero section cu date hard-codate
+    const heroSection = document.querySelector('.group-hero');
+    if (heroSection) {
+        heroSection.style.display = 'none';
+    }
+
+    // Ascunde secțiunea principală cu date hard-codate
+    const mainSection = document.querySelector('.group-main');
+    if (mainSection) {
+        mainSection.style.display = 'none';
+    }
+}
+
+// FUNCȚIE pentru a afișa din nou secțiunile când selectezi un grup
+function showGroupStaticSections() {
+    const heroSection = document.querySelector('.group-hero');
+    if (heroSection) {
+        heroSection.style.display = 'block';
+    }
+
+    const mainSection = document.querySelector('.group-main');
+    if (mainSection) {
+        mainSection.style.display = 'block';
+    }
+}
+
+function selectGroup(groupId, groupName) {
+    // Navighează la grupul selectat
+    window.location.href = `/frontend/groupPage/groupPage.html?groupId=${groupId}&groupName=${encodeURIComponent(groupName)}`;
+}
 async function loadGroupBooks(groupId) {
     const container = document.getElementById('groupBooksContainer');
     container.innerHTML = '<div class="loading-message">Loading community books...</div>';
@@ -416,6 +538,7 @@ function showBookDetails(bookId) {
 
 // UPDATE GROUP UI
 function updateGroupUI(group, members) {
+    showGroupStaticSections();
     const groupTitle = document.querySelector('.group-title');
     const groupSubtitle = document.querySelector('.group-subtitle');
 

@@ -163,9 +163,9 @@ async function changeBookStatus(bookId, newStatus) {
             loadUserBooks();
 
             // Notifică alte pagini despre actualizare
-            if (typeof(Storage) !== "undefined") {
-                sessionStorage.setItem('bookStatusUpdated', Date.now());
-            }
+            // if (typeof(Storage) !== "undefined") {
+            //     sessionStorage.setItem('bookStatusUpdated', Date.now());
+            // }
 
             // Afișează mesaj de succes
             showStatusMessage(`Book moved to ${getStatusDisplayName(newStatus)}!`, 'success');

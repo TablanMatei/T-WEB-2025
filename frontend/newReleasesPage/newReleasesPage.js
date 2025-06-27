@@ -1,65 +1,405 @@
-function openLogin() {
-  const loginOverlay = document.getElementById("loginOverlay");
-  if (loginOverlay) {
-    loginOverlay.style.display = "flex";
-  }
-  document.body.classList.add("blur-effect");
+// VERIFICARE AUTENTIFICARE
+document.addEventListener('DOMContentLoaded', function() {
+    initializeNewReleasesPage();
+});
+
+function initializeNewReleasesPage() {
+    updateNavigation();
+    loadNewReleases();
+    setupAfterLoginNavigation();
+    setCategory('Books');
+    console.log('New Releases page initialized');
 }
 
-function closeLogin() {
-  const loginOverlay = document.getElementById("loginOverlay");
-  if (loginOverlay) {
-    loginOverlay.style.display = "none";
-  }
-  document.body.classList.remove("blur-effect");
+//  FUNCȚII JWT
+function isUserLoggedIn() {
+    const token = sessionStorage.getItem('jwt_token');
+    if (!token) return false;
+
+    try {
+        const payload = parseJWT(token);
+        return payload.exp > Math.floor(Date.now() / 1000);
+    } catch (error) {
+        sessionStorage.removeItem('jwt_token');
+        return false;
+    }
 }
 
+function parseJWT(token) {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(window.atob(base64));
+}
+
+function getCurrentUser() {
+    const token = sessionStorage.getItem('jwt_token');
+    if (!token) return null;
+
+    try {
+        return parseJWT(token);
+    } catch (error) {
+        return null;
+    }
+}
+
+async function authenticatedFetch(url, options = {}) {
+    const token = sessionStorage.getItem('jwt_token');
+
+    if (!token) {
+        throw new Error('No authentication token found');
+    }
+
+    const response = await fetch(url, {
+        ...options,
+        headers: {
+            ...options.headers,
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (response.status === 401) {
+        sessionStorage.removeItem('jwt_token');
+        window.location.href = '../authPage/authPage.html';
+        return;
+    }
+
+    return response;
+}
+
+// LOGOUT
+async function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        const token = sessionStorage.getItem('jwt_token');
+
+        if (token) {
+            try {
+                await authenticatedFetch('/backend/auth/logout.php', {
+                    method: 'POST'
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+
+        sessionStorage.removeItem('jwt_token');
+        window.location.href = '../authPage/authPage.html';
+    }
+}
+
+
+let currentCategory = 'Books';
+let allNewReleases = [];
+
+
+// ÎNCĂRCARE NEW RELEASES
+async function loadNewReleases() {
+    const container = document.getElementById('newReleasesContainer');
+    if (!container) return;
+
+    container.innerHTML = '<div class="loading-spinner">Loading new releases...</div>';
+
+    try {
+        // Calculează data de acum 6 luni pentru "new releases"
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+        const cutoffYear = sixMonthsAgo.getFullYear();
+
+        const response = await fetch(`/backend/api/search.php?category=Books&limit=50&min_year=${cutoffYear}`);
+        const data = await response.json();
+
+        if (!data.success) {
+            container.innerHTML = `<div class="error-message">Error: ${sanitizeHtml(data.error || 'Unknown error')}</div>`;
+            return;
+        }
+
+        if (!data.data || data.data.length === 0) {
+            container.innerHTML = '<div class="no-results">No new releases found.</div>';
+            return;
+        }
+
+        // Sortează după anul publicării (cele mai noi primul)
+        const sortedBooks = data.data.sort((a, b) => (b.publication_year || 0) - (a.publication_year || 0));
+
+        allNewReleases = sortedBooks;
+        displayNewReleases(sortedBooks);
+
+    } catch (error) {
+        console.error('Error loading new releases:', error);
+        container.innerHTML = `<div class="error-message">Error loading new releases: ${sanitizeHtml(error.message)}</div>`;
+    }
+}
+
+function displayNewReleases(books) {
+    const container = document.getElementById('newReleasesContainer');
+    if (!container) return;
+
+    if (books.length === 0) {
+        container.innerHTML = '<div class="no-results">No new releases found.</div>';
+        return;
+    }
+
+    container.innerHTML = books.map((book, index) => `
+        <article class="book-card new-release" data-index="${index}">
+            <div class="new-badge">NEW</div>
+            <div class="book-placeholder">📚</div>
+            <div class="book-details">
+                <h3 class="book-title">${sanitizeHtml(book.title)}</h3>
+                <p class="book-author">by ${sanitizeHtml(book.author || 'Unknown Author')}</p>
+                <div class="book-meta">
+                    <span class="book-year">${book.publication_year || 'N/A'}</span>
+                    <span class="book-genre">${sanitizeHtml(book.genre || 'Unknown Genre')}</span>
+                </div>
+                <div class="book-publisher">
+                    <span class="publisher-label">Publisher:</span>
+                    <span class="publisher-name">${sanitizeHtml(book.publisher || 'Unknown')}</span>
+                </div>
+            </div>
+            <div class="book-actions">
+                <div class="book-status-container">
+                    <button class="book-status-btn" onclick="toggleStatusSlider(this, ${book.id})">
+                        <span class="status-text">Add to List</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </button>
+                    <div class="status-slider">
+                        <div class="status-option" data-status="want_to_read" onclick="setBookStatus(${book.id}, 'want_to_read', this)">
+                            <span class="status-icon">📚</span>Want to Read
+                        </div>
+                        <div class="status-option" data-status="currently_reading" onclick="setBookStatus(${book.id}, 'currently_reading', this)">
+                            <span class="status-icon">📖</span>Currently Reading
+                        </div>
+                        <div class="status-option" data-status="finished" onclick="setBookStatus(${book.id}, 'finished', this)">
+                            <span class="status-icon">✅</span>Finished
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    `).join('');
+}
+
+//  STATUS CĂRȚI
+function toggleStatusSlider(button, bookId) {
+    const slider = button.nextElementSibling;
+    const allSliders = document.querySelectorAll('.status-slider');
+
+    allSliders.forEach(s => {
+        if (s !== slider) {
+            s.classList.remove('show');
+        }
+    });
+
+    slider.classList.toggle('show');
+    loadCurrentBookStatus(bookId, slider);
+}
+
+async function setBookStatus(bookId, status, optionElement) {
+    try {
+        const user = getCurrentUser();
+        if (!user || !user.user_id) {
+            alert('Please login to add books to your lists');
+            return;
+        }
+
+        const response = await authenticatedFetch('/backend/api/update_book_status.php', {
+            method: 'POST',
+            body: JSON.stringify({
+                user_id: user.user_id,
+                book_id: bookId,
+                status: status
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            const slider = optionElement.closest('.status-slider');
+            const button = slider.previousElementSibling;
+
+            slider.querySelectorAll('.status-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+
+            optionElement.classList.add('selected');
+            updateButtonText(button, status);
+            slider.classList.remove('show');
+            showStatusMessage('Book added to your list!', 'success');
+
+        } else {
+            showStatusMessage(data.error || 'Error updating book status', 'error');
+        }
+
+    } catch (error) {
+        console.error('Error setting book status:', error);
+        showStatusMessage('Network error. Please try again.', 'error');
+        handleAuthError(error);
+    }
+}
+
+async function loadCurrentBookStatus(bookId, slider) {
+    try {
+        const user = getCurrentUser();
+        if (!user || !user.user_id) return;
+
+        const response = await authenticatedFetch(`/backend/api/get_book_status.php?user_id=${user.user_id}&book_id=${bookId}`);
+        const data = await response.json();
+
+        if (data.success && data.status) {
+            const currentOption = slider.querySelector(`[data-status="${data.status}"]`);
+            if (currentOption) {
+                currentOption.classList.add('selected');
+            }
+
+            const button = slider.previousElementSibling;
+            updateButtonText(button, data.status);
+        }
+    } catch (error) {
+        console.error('Error loading book status:', error);
+        handleAuthError(error);
+    }
+}
+
+function updateButtonText(button, status) {
+    const statusText = button.querySelector('.status-text');
+    const statusMap = {
+        'want_to_read': 'Want to Read',
+        'currently_reading': 'Reading',
+        'finished': 'Finished'
+    };
+
+    statusText.textContent = statusMap[status] || 'Add to List';
+
+    if (status) {
+        button.classList.add('active');
+    } else {
+        button.classList.remove('active');
+    }
+}
+
+function showStatusMessage(message, type) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `status-message ${type}`;
+    messageDiv.textContent = message;
+    messageDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        border-radius: 5px;
+        color: white;
+        font-weight: bold;
+        z-index: 1000;
+        ${type === 'success' ? 'background-color: #4CAF50;' : 'background-color: #f44336;'}
+    `;
+
+    document.body.appendChild(messageDiv);
+    setTimeout(() => messageDiv.remove(), 3000);
+}
+
+//  GESTIONARE ERORI
+function handleAuthError(error) {
+    if (error.message && (error.message.includes('authentication') || error.message.includes('token'))) {
+        sessionStorage.removeItem('jwt_token');
+        window.location.href = '../authPage/authPage.html';
+    }
+}
+
+//  NAVIGARE
+function setupAfterLoginNavigation() {
+    const notificationsLink = document.querySelector('a[href="#notifications"]');
+    const settingsLink = document.querySelector('a[href="#settings"]');
+    const signoutLink = document.querySelector('a[href="#signout"]');
+
+    if (notificationsLink) {
+        notificationsLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = '../notificationsPage/notificationsPage.html';
+        });
+    }
+
+    if (settingsLink) {
+        settingsLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = '../settingsPage/settingsPage.html';
+        });
+    }
+
+    if (signoutLink) {
+        signoutLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            logout();
+        });
+    }
+}
+
+function updateNavigation() {
+    const user = getCurrentUser();
+    const profileDropdown = document.getElementById('profileDropdown');
+    const loginButton = document.getElementById('loginButton');
+    const profileUsername = document.getElementById('profileUsername');
+
+    if (user && user.username) {
+        if (profileDropdown) profileDropdown.style.display = 'block';
+        if (loginButton) loginButton.style.display = 'none';
+        if (profileUsername) profileUsername.textContent = user.username;
+    } else {
+        if (profileDropdown) profileDropdown.style.display = 'none';
+        if (loginButton) loginButton.style.display = 'block';
+    }
+}
+
+//  ANIMAȚII CARDS
 function toggleAnimation() {
-  const container = document.getElementById('cards-container');
-  if (container) {
-    container.classList.toggle('paused');
-  }
+    const container = document.getElementById('cards-container');
+    if (container) {
+        container.classList.toggle('paused');
+    }
 }
+
 function scrollLeft() {
     const container = document.getElementById('cards-container');
-    container.scrollBy({
-        left: -220,
-        behavior: 'smooth'
-    });
+    if (container) {
+        container.scrollBy({
+            left: -220,
+            behavior: 'smooth'
+        });
+    }
 }
 
 function scrollRight() {
     const container = document.getElementById('cards-container');
-    container.scrollBy({
-        left: 220,
-        behavior: 'smooth'
-    });
-}
-
-
-
-const data = {
-        Books: ['The Great Gatsby', '1984', 'To Kill a Mockingbird', 'Pride and Prejudice', 'Harry Potter'],
-        Authors: ['George Orwell', 'Jane Austen', 'J.K. Rowling', 'F. Scott Fitzgerald', 'Homer'],
-        Series: ['Harry Potter', 'The Lord of the Rings', 'A Song of Ice and Fire', 'Percy Jackson', 'Narnia'],
-        Characters: ['Sherlock Holmes', 'Harry Potter', 'Elizabeth Bennet', 'Frodo Baggins', 'Hermione Granger'],
-        Users: ['booklover123', 'readingaddict', 'fictionfan', 'classicreader', 'fantasyfan'],
-        Publishers: ['Penguin Books', 'HarperCollins', 'Bloomsbury', 'Random House', 'Simon & Schuster'],
-    };
-
-function togglePopup() {
-    const popup = document.getElementById('searchPopup');
-    const isVisible = popup.style.display !== 'none';
-
-    if (isVisible) {
-        popup.style.display = 'none';
-    } else {
-        popup.style.display = 'block';
-        loadPopularItems(currentCategory);
+    if (container) {
+        container.scrollBy({
+            left: 220,
+            behavior: 'smooth'
+        });
     }
 }
 
-// Resetează la Books
+// SEARCH POPUP
+const data = {
+    Books: ['The Great Gatsby', '1984', 'To Kill a Mockingbird', 'Pride and Prejudice', 'Harry Potter'],
+    Authors: ['George Orwell', 'Jane Austen', 'J.K. Rowling', 'F. Scott Fitzgerald', 'Homer'],
+    Series: ['Harry Potter', 'The Lord of the Rings', 'A Song of Ice and Fire', 'Percy Jackson', 'Narnia'],
+    Characters: ['Sherlock Holmes', 'Harry Potter', 'Elizabeth Bennet', 'Frodo Baggins', 'Hermione Granger'],
+    Users: ['booklover123', 'readingaddict', 'fictionfan', 'classicreader', 'fantasyfan'],
+    Publishers: ['Penguin Books', 'HarperCollins', 'Bloomsbury', 'Random House', 'Simon & Schuster'],
+};
+
+function togglePopup() {
+    const popup = document.getElementById('searchPopup');
+
+    if (popup) {
+        if (popup.style.display === 'none' || popup.style.display === '') {
+            popup.style.display = 'block';
+            loadPopularItems(currentCategory);
+        } else {
+            popup.style.display = 'none';
+            resetToBooks();
+        }
+    }
+}
+
 function resetToBooks() {
     setCategory('Books');
 }
@@ -67,302 +407,19 @@ function resetToBooks() {
 function setCategory(category) {
     currentCategory = category;
 
-    // Update active category
-    const categories = document.querySelectorAll('.category-list span');
-    categories.forEach(cat => cat.classList.remove('active'));
-    event.target.classList.add('active');
+    document.querySelectorAll('.category-list span').forEach(span => span.classList.remove('active'));
 
-    // Load popular items for this category
+    const categoryElement = document.querySelector(`[onclick="setCategory('${category}')"]`);
+    if (categoryElement) {
+        categoryElement.classList.add('active');
+    }
+
     loadPopularItems(category);
 }
 
-// Închide popup-ul dacă faci clic în afara lui
-document.addEventListener('click', (e) => {
-    const popup = document.getElementById('searchPopup');
-    const searchContainer = document.querySelector('.search-container');
-    if (!popup.contains(e.target) && !searchContainer.contains(e.target)) {
-        popup.style.display = 'none';
-        resetToBooks();
-    }
-});
-window.onload = () => setCategory('Books');
-
-// Funcție pentru gestionare login
-async function handleLogin(event) {
-    event.preventDefault();
-
-    const username = document.getElementById('username').value.trim();
-    const password = document.getElementById('password').value;
-    const submitButton = document.querySelector('#loginForm button[type="submit"]');
-    const originalText = submitButton.textContent;
-
-    // Validare de bază
-    if (!username || !password) {
-        showLoginMessage('Please fill in all fields', 'error');
-        return false;
-    }
-
-    // Disable button during login
-    submitButton.disabled = true;
-    submitButton.textContent = 'Logging in...';
-
-    try {
-        const response = await fetch('/backend/auth/login.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                username: username,
-                password: password
-            })
-        });
-
-        const result = await response.json();
-        console.log('Login response:', result);
-
-
-        if (response.ok && result.success) {
-            // Salvează datele utilizatorului
-            localStorage.setItem('user', JSON.stringify(result.user));
-            localStorage.setItem('isLoggedIn', 'true');
-
-            showLoginMessage('Login successful!', 'success');
-
-            // Actualizează interfața
-            updateUIAfterLogin(result.user);
-
-            // Închide modal-ul după 1 secundă
-            setTimeout(() => {
-                closeLogin();
-                clearLoginForm();
-            }, 1000);
-
-        } else {
-            showLoginMessage(result.error || 'Login failed. Please try again.', 'error');
-        }
-
-    } catch (error) {
-        console.error('Login error:', error);
-        showLoginMessage('Network error. Please check your connection.', 'error');
-    } finally {
-        // Re-enable button
-        submitButton.disabled = false;
-        submitButton.textContent = originalText;
-    }
-
-    return false; // Previne submit-ul formularului
-}
-
-// Funcție pentru afișarea mesajelor în modal
-function showLoginMessage(message, type) {
-    // Elimină mesajul anterior dacă există
-    const existingMessage = document.querySelector('.login-message');
-    if (existingMessage) {
-        existingMessage.remove();
-    }
-
-    // Creează noul mesaj
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `login-message ${type}`;
-    messageDiv.textContent = message;
-
-    // Adaugă mesajul în modal
-    const loginContainer = document.querySelector('.login-container');
-    const form = document.getElementById('loginForm');
-    loginContainer.insertBefore(messageDiv, form);
-
-    // Elimină mesajul după 5 secunde
-    setTimeout(() => {
-        if (messageDiv.parentNode) {
-            messageDiv.remove();
-        }
-    }, 5000);
-}
-
-
-
-// Funcție pentru curățarea formularului
-function clearLoginForm() {
-    document.getElementById('username').value = '';
-    document.getElementById('password').value = '';
-
-    // Elimină mesajele
-    const message = document.querySelector('.login-message');
-    if (message) {
-        message.remove();
-    }
-}
-
-// Funcție pentru logout
-function logout() {
-    // Confirmă logout
-    if (confirm('Are you sure you want to logout?')) {
-        // Șterge datele locale
-        localStorage.removeItem('user');
-        localStorage.removeItem('isLoggedIn');
-
-        // Resetează interfața
-        const loginButton = document.querySelector('.login-btn');
-        if (loginButton) {
-            loginButton.textContent = 'Login';
-            loginButton.onclick = () => openLogin();
-        }
-
-        // Elimină dropdown-ul user
-        const userDropdown = document.querySelector('.user-dropdown');
-        if (userDropdown) {
-            userDropdown.remove();
-        }
-
-        // Apel către backend pentru logout (opțional)
-        fetch('http://localhost:9000/backend/auth/logout.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        }).catch(error => console.log('Logout backend call failed:', error));
-
-        // Afișează mesaj
-        alert('You have been logged out successfully!');
-
-        // Opțional: reîncarcă pagina
-        // window.location.reload();
-    }
-}
-
-// Verifică dacă utilizatorul este deja logat la încărcarea paginii
-document.addEventListener('DOMContentLoaded', function() {
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-
-    if (isLoggedIn === 'true' && user.username) {
-        updateUIAfterLogin(user);
-    }
-});
-
-
-// Funcție pentru actualizarea interfeței după login
-// În script.js, în funcția updateUIAfterLogin, înlocuiește partea cu dropdown-ul:
-
-// În script.js, înlocuiește funcția updateUIAfterLogin cu:
-
-function updateUIAfterLogin(user) {
-    const loginButton = document.querySelector('.login-btn');
-    if (loginButton) {
-        // Creează dropdown pentru utilizator logat
-        loginButton.innerHTML = `
-        ${user.username} 
-        <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="#7a4e3e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M6 9l6 6 6-6"></path>
-        </svg>
-        `;
-
-        // Schimbă funcționalitatea
-        loginButton.onclick = () => toggleUserMenu();
-
-        // Adaugă dropdown menu pentru user
-        if (!document.querySelector('.user-dropdown')) {
-            const userDropdown = document.createElement('div');
-            userDropdown.className = 'user-dropdown';
-            userDropdown.innerHTML = `
-            <a href="#" id="profile-link">Edit Profile</a>
-            <a href="#" id="notifications-link">Notifications</a>
-            <a href="#" id="settings-link">Settings</a>
-            <a href="#" onclick="logout()">Logout</a>
-            `;
-            loginButton.parentNode.appendChild(userDropdown);
-
-            // Adaugă event listeners pentru navigare
-            setupNavigationLinks();
-        }
-    }
-}
-
-// Funcție nouă pentru configurarea link-urilor de navigare
-
-function setupNavigationLinks() {
-    // Folosește setTimeout pentru a se asigura că DOM-ul este gata
-    setTimeout(() => {
-        const profileLink = document.getElementById('profile-link');
-        const settingsLink = document.getElementById('settings-link');
-        const notificationsLink = document.getElementById('notifications-link');
-
-        console.log('Profile link:', profileLink);
-        console.log('Settings link:', settingsLink);
-        console.log('Notifications link:', notificationsLink);
-
-        if (profileLink) {
-            profileLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                console.log('Navigating to profile page...');
-                window.location.href = '/frontend/settingsPage/editProfilePage/editProfilePage.html';
-            });
-        }
-
-        if (settingsLink) {
-            settingsLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                console.log('Navigating to settings page...');
-                window.location.href = '/frontend/settingsPage/settingsPage.html';
-            });
-        }
-
-        if (notificationsLink) {
-            notificationsLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                console.log('Navigating to notifications page...');
-                window.location.href = '/frontend/notificationsPage/notificationsPage.html';
-            });
-        } else {
-            console.error('Notifications link not found!');
-        }
-    }, 100);
-}
-// Funcție pentru toggle user menu
-function toggleUserMenu() {
-    const dropdown = document.querySelector('.user-dropdown');
-    if (dropdown) {
-        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-    }
-}
-
-// Închide dropdown-ul când apeși în altă parte//
-document.addEventListener('click', function(e) {
-    const dropdown = document.querySelector('.user-dropdown');
-    const loginButton = document.querySelector('.login-btn');
-
-    if (dropdown && !loginButton.contains(e.target)) {
-        dropdown.style.display = 'none';
-    }
-});
-
-
-///FUNCTII DE SEARCH
-// Variabile globale pentru search
-let currentCategory = 'Books';
-let searchResults = [];
-
-// Funcție existentă - o actualizez
-
-
-// Funcție existentă - o actualizez
-function setCategory(category) {
-    currentCategory = category;
-
-    // Update active category
-    const categories = document.querySelectorAll('.category-list span');
-    categories.forEach(cat => cat.classList.remove('active'));
-    event.target.classList.add('active');
-
-    // Load popular items for this category
-    loadPopularItems(category);
-}
-
-// Funcție încarcă items populare
 async function loadPopularItems(category) {
     try {
-        const response = await fetch(`http://localhost:9000/backend/api/search.php?category=${category}&limit=10`);
+        const response = await fetch(`/backend/api/search.php?category=${category}&limit=10`);
         const data = await response.json();
 
         if (data.success) {
@@ -375,11 +432,10 @@ async function loadPopularItems(category) {
     }
 }
 
-// Funcție afișează items populare
 function displayPopularItems(items, category) {
     const popularList = document.getElementById('popularList');
 
-    if (items.length === 0) {
+    if (!items || items.length === 0) {
         popularList.innerHTML = '<div class="no-results">No popular items found</div>';
         return;
     }
@@ -392,9 +448,9 @@ function displayPopularItems(items, category) {
                 <div class="popular-item" onclick="selectBook(${item.id})">
                     <div class="item-placeholder">📚</div>
                     <div class="item-info">
-                        <div class="item-title">${item.title}</div>
-                        <div class="item-subtitle">${item.author} (${item.publication_year || 'N/A'})</div>
-                        <div class="item-publisher">Publisher: ${item.publisher}</div>
+                        <div class="item-title">${sanitizeHtml(item.title)}</div>
+                        <div class="item-subtitle">${sanitizeHtml(item.author)} (${item.publication_year || 'N/A'})</div>
+                        <div class="item-publisher">Publisher: ${sanitizeHtml(item.publisher)}</div>
                     </div>
                 </div>
             `;
@@ -403,19 +459,10 @@ function displayPopularItems(items, category) {
                 <div class="popular-item" onclick="selectAuthor(${item.id})">
                     <div class="item-placeholder">👤</div>
                     <div class="item-info">
-                        <div class="item-title">${item.name}</div>
-                        <div class="item-subtitle">${item.nationality || 'Unknown nationality'} • Born ${item.birth_year || 'Unknown'}</div>
-                        <div class="item-description">${item.description || 'No description available.'}</div>
+                        <div class="item-title">${sanitizeHtml(item.name)}</div>
+                        <div class="item-subtitle">${sanitizeHtml(item.nationality || 'Unknown nationality')} • Born ${item.birth_year || 'Unknown'}</div>
+                        <div class="item-description">${sanitizeHtml(item.description || 'No description available.')}</div>
                         <div class="item-books">${item.book_count} books</div>
-                    </div>
-                </div>
-            `;
-        } else {
-            html += `
-                <div class="popular-item" onclick="searchByName('${item.name}', '${category}')">
-                    <div class="item-info">
-                        <div class="item-title">${item.name}</div>
-                        <div class="item-subtitle">${item.book_count} books</div>
                     </div>
                 </div>
             `;
@@ -426,64 +473,103 @@ function displayPopularItems(items, category) {
     popularList.innerHTML = html;
 }
 
-function displaySearchResults(results, category) {
-    const popularList = document.getElementById('popularList');
-
-    if (results.length === 0) {
-        popularList.innerHTML = '<div class="no-results">No results found</div>';
-        return;
-    }
-
-    let html = `<h4>Search Results (${results.length})</h4><div class="search-results">`;
-
-    results.forEach(item => {
-        if (category === 'Books') {
-            html += `
-                <div class="search-result-item" onclick="selectBook(${item.id})">
-                    <div class="item-placeholder">📚</div>
-                    <div class="item-info">
-                        <div class="item-title">${item.title}</div>
-                        <div class="item-subtitle">${item.author} (${item.publication_year || 'N/A'})</div>
-                        <div class="item-publisher">Publisher: ${item.publisher}</div>
-                    </div>
-                </div>
-            `;
-        } else if (category === 'Authors') {
-            html += `
-                <div class="search-result-item" onclick="selectAuthor(${item.id})">
-                    <div class="item-placeholder">👤</div>
-                    <div class="item-info">
-                        <div class="item-title">${item.name}</div>
-                        <div class="item-subtitle">${item.nationality || 'Unknown nationality'} • Born ${item.birth_year || 'Unknown'}</div>
-                        <div class="item-description">${item.description || 'No description available.'}</div>
-                        <div class="item-books">${item.book_count} books</div>
-                    </div>
-                </div>
-            `;
-        } else {
-            html += `
-                <div class="search-result-item" onclick="searchByName('${item.name}', '${category}')">
-                    <div class="item-info">
-                        <div class="item-title">${item.name}</div>
-                        <div class="item-subtitle">${item.book_count} books</div>
-                    </div>
-                </div>
-            `;
-        }
-    });
-
-    html += '</div>';
-    popularList.innerHTML = html;
+function selectBook(bookId) {
+    console.log('Selected book:', bookId);
+    alert(`Selected book ID: ${bookId}. Feature coming soon!`);
 }
 
-// Funcție pentru selectare autor
 function selectAuthor(authorId) {
     console.log('Selected author:', authorId);
-    // TODO: Redirect to author details page sau show books by author
-    alert(`Selected author ID: ${authorId}. În viitor va deschide pagina autorului.`);
+    alert(`Selected author ID: ${authorId}. Feature coming soon!`);
 }
 
-// Funcție search real-time
+//  FILTRARE NEW RELEASES
+function filterNewReleases() {
+    const yearFilter = document.getElementById('yearFilter');
+    const genreFilter = document.getElementById('genreFilter');
+    const sortOrder = document.getElementById('sortOrder');
+
+    if (!yearFilter || !genreFilter || !sortOrder) return;
+
+    let filteredBooks = [...allNewReleases];
+
+    // Filtrează după an
+    if (yearFilter.value) {
+        filteredBooks = filteredBooks.filter(book => book.publication_year == yearFilter.value);
+    }
+
+    // Filtrează după gen
+    if (genreFilter.value) {
+        filteredBooks = filteredBooks.filter(book => book.genre === genreFilter.value);
+    }
+
+    // Sortează
+    filteredBooks.sort((a, b) => {
+        switch (sortOrder.value) {
+            case 'year_desc':
+                return (b.publication_year || 0) - (a.publication_year || 0);
+            case 'year_asc':
+                return (a.publication_year || 0) - (b.publication_year || 0);
+            case 'title_asc':
+                return (a.title || '').localeCompare(b.title || '');
+            case 'author_asc':
+                return (a.author || '').localeCompare(b.author || '');
+            default:
+                return 0;
+        }
+    });
+
+    displayNewReleases(filteredBooks);
+}
+
+// XSS Protectiom
+function sanitizeHtml(str) {
+    if (!str) return '';
+    const temp = document.createElement('div');
+    temp.textContent = str;
+    return temp.innerHTML;
+}
+
+//  EVENT LISTENERS
+document.addEventListener('click', function(e) {
+    const popup = document.getElementById('searchPopup');
+    const searchContainer = document.querySelector('.search-container');
+
+    if (popup && searchContainer && !popup.contains(e.target) && !searchContainer.contains(e.target)) {
+        popup.style.display = 'none';
+        resetToBooks();
+    }
+
+    if (!e.target.closest('.book-status-container')) {
+        document.querySelectorAll('.status-slider').forEach(slider => {
+            slider.classList.remove('show');
+        });
+    }
+});
+
+// Search event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.querySelector('.search-container input');
+    const searchButton = document.querySelector('.search-container button');
+
+    if (searchInput) {
+        searchInput.addEventListener('input', performSearch);
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                performSearch();
+            }
+        });
+    }
+
+    if (searchButton) {
+        searchButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            performSearch();
+        });
+    }
+});
+
 async function performSearch() {
     const searchInput = document.querySelector('.search-container input');
     const query = searchInput.value.trim();
@@ -494,7 +580,7 @@ async function performSearch() {
     }
 
     try {
-        const response = await fetch('http://localhost:9000/backend/api/search.php', {
+        const response = await fetch('/backend/api/search.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -519,41 +605,31 @@ async function performSearch() {
     }
 }
 
+function displaySearchResults(results, category) {
+    const popularList = document.getElementById('popularList');
 
+    if (results.length === 0) {
+        popularList.innerHTML = '<div class="no-results">No results found</div>';
+        return;
+    }
 
-// Funcții helper
-function selectBook(bookId) {
-    console.log('Selected book:', bookId);
-    // TODO: Redirect to book details page
-    alert(`Selected book ID: ${bookId}`);
-}
+    let html = `<h4>Search Results (${results.length})</h4><div class="search-results">`;
 
-function searchByName(name, category) {
-    const searchInput = document.querySelector('.search-container input');
-    searchInput.value = name;
-    setCategory('Books'); // Switch to books to show books by this author/series/etc
-    performSearch();
-}
-
-// Event listeners
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.querySelector('.search-container input');
-    const searchButton = document.querySelector('.search-container button');
-
-    // Real-time search
-    searchInput.addEventListener('input', performSearch);
-
-    // Search button click
-    searchButton.addEventListener('click', function(e) {
-        e.preventDefault();
-        performSearch();
-    });
-
-    // Enter key search
-    searchInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            performSearch();
+    results.forEach(item => {
+        if (category === 'Books') {
+            html += `
+                <div class="search-result-item" onclick="selectBook(${item.id})">
+                    <div class="item-placeholder">📚</div>
+                    <div class="item-info">
+                        <div class="item-title">${sanitizeHtml(item.title)}</div>
+                        <div class="item-subtitle">${sanitizeHtml(item.author)} (${item.publication_year || 'N/A'})</div>
+                        <div class="item-publisher">Publisher: ${sanitizeHtml(item.publisher)}</div>
+                    </div>
+                </div>
+            `;
         }
     });
-});
+
+    html += '</div>';
+    popularList.innerHTML = html;
+}

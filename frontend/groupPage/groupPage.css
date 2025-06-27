@@ -1120,3 +1120,44 @@ footer {
     font-size: 48px;
     color: #999;
 }
+
+
+.group-selection {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.groups-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.group-card {
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.group-card:hover {
+    border-color: #7a4e3e;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.group-card h3 {
+    color: #7a4e3e;
+    margin-bottom: 10px;
+}
+
+.group-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+    font-size: 14px;
+    color: #666;
+}
