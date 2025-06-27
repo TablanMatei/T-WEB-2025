@@ -1,11 +1,69 @@
-// Funcție minimală pentru prevenirea XSS
-function sanitizeHtml(str) {
-    const temp = document.createElement('div');
-    temp.textContent = str;
-    return temp.innerHTML;
+//VERIFICARE AUTENTIFICARE
+document.addEventListener('DOMContentLoaded', function() {
+    if (!isUserLoggedIn()) {
+        window.location.href = '../authPage/authPage.html';
+        return;
+    }
+    initializeGroupPage();
+});
+
+// FUNCȚII JWT
+function isUserLoggedIn() {
+    const token = sessionStorage.getItem('jwt_token');
+    if (!token) return false;
+
+    try {
+        const payload = parseJWT(token);
+        return payload.exp > Math.floor(Date.now() / 1000);
+    } catch (error) {
+        sessionStorage.removeItem('jwt_token');
+        return false;
+    }
 }
 
-// Variabile globale
+function parseJWT(token) {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(window.atob(base64));
+}
+
+function getCurrentUser() {
+    const token = sessionStorage.getItem('jwt_token');
+    if (!token) return null;
+
+    try {
+        return parseJWT(token);
+    } catch (error) {
+        return null;
+    }
+}
+
+async function authenticatedFetch(url, options = {}) {
+    const token = sessionStorage.getItem('jwt_token');
+
+    if (!token) {
+        throw new Error('No authentication token found');
+    }
+
+    const response = await fetch(url, {
+        ...options,
+        headers: {
+            ...options.headers,
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (response.status === 401) {
+        sessionStorage.removeItem('jwt_token');
+        window.location.href = '../authPage/authPage.html';
+        return;
+    }
+
+    return response;
+}
+
+//  VARIABILE GLOBALE
 let allGroupBooks = [];
 let currentFilters = {
     genre: '',
@@ -14,49 +72,50 @@ let currentFilters = {
 };
 let currentViewMode = 'grid';
 
-document.addEventListener('DOMContentLoaded', function() {
+// INIȚIALIZARE PAGINĂ
+function initializeGroupPage() {
     updateNavigation();
     loadGroupData();
     setupAfterLoginNavigation();
-});
+    setCategory('Books');
+    console.log(`Welcome to Group page, ${getCurrentUser().username}!`);
+}
 
-// Actualizează interfața în funcție de starea de login
-function updateNavigation() {
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
+// LOGOUT
+async function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        const token = sessionStorage.getItem('jwt_token');
 
-    const profileDropdown = document.getElementById('profileDropdown');
-    const loginButton = document.getElementById('loginButton');
-    const profileUsername = document.getElementById('profileUsername');
+        if (token) {
+            try {
+                await authenticatedFetch('/backend/auth/logout.php', {
+                    method: 'POST'
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
 
-    if (isLoggedIn === 'true' && user.username) {
-        // Utilizator logat - arată profilul
-        if (profileDropdown) profileDropdown.style.display = 'block';
-        if (loginButton) loginButton.style.display = 'none';
-        if (profileUsername) profileUsername.textContent = user.username;
-    } else {
-        // Utilizator nelogat - arată login
-        if (profileDropdown) profileDropdown.style.display = 'none';
-        if (loginButton) loginButton.style.display = 'block';
+        sessionStorage.removeItem('jwt_token');
+        window.location.href = '../authPage/authPage.html';
     }
 }
 
+// ÎNCĂRCARE DATE
 async function loadGroupData() {
-    const currentGroup = JSON.parse(localStorage.getItem('currentGroup') || '{}');
+    const currentGroup = JSON.parse(sessionStorage.getItem('currentGroup') || '{}');
 
     if (!currentGroup.id) {
-        // Dacă nu avem ID-ul grupului, redirectează înapoi
         window.location.href = '../communityPage/communityPage.html';
         return;
     }
 
     try {
-        const response = await fetch(`../../backend/community/get_group_details.php?group_id=${currentGroup.id}`);
+        const response = await authenticatedFetch(`/backend/community/get_group_details.php?group_id=${currentGroup.id}`);
         const data = await response.json();
 
         if (data.success) {
             updateGroupUI(data.group, data.members);
-            // Încarcă cărțile grupului după ce s-au încărcat detaliile
             loadGroupBooks(currentGroup.id);
         } else {
             console.error('Error loading group:', data.error);
@@ -65,6 +124,7 @@ async function loadGroupData() {
     } catch (error) {
         console.error('Error:', error);
         alert('Network error loading group');
+        handleAuthError(error);
     }
 }
 
@@ -73,7 +133,7 @@ async function loadGroupBooks(groupId) {
     container.innerHTML = '<div class="loading-message">Loading community books...</div>';
 
     try {
-        const response = await fetch(`../../backend/community/get_group_books.php?group_id=${groupId}`);
+        const response = await authenticatedFetch(`/backend/community/get_group_books.php?group_id=${groupId}`);
         const data = await response.json();
 
         if (data.success) {
@@ -87,16 +147,88 @@ async function loadGroupBooks(groupId) {
     } catch (error) {
         console.error('Error loading group books:', error);
         container.innerHTML = '<div class="no-books-message"><h3>❌ Error Loading Books</h3><p>There was a problem loading the community books. Please try again later.</p></div>';
+        handleAuthError(error);
     }
 }
 
-// Populează filtrele
+// STATUS CĂRȚI
+async function setBookStatus(bookId, status, optionElement) {
+    try {
+        const user = getCurrentUser();
+        if (!user || !user.user_id) {
+            alert('Please login to add books to your lists');
+            return;
+        }
+
+        const response = await authenticatedFetch('/backend/api/update_book_status.php', {
+            method: 'POST',
+            body: JSON.stringify({
+                user_id: user.user_id,
+                book_id: bookId,
+                status: status
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            const slider = optionElement.closest('.status-slider');
+            const button = slider.previousElementSibling;
+
+            slider.querySelectorAll('.status-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+
+            optionElement.classList.add('selected');
+            updateButtonText(button, status);
+            slider.classList.remove('show');
+            showStatusMessage('Book added to your list!', 'success');
+        } else {
+            showStatusMessage(data.error || 'Error updating book status', 'error');
+        }
+    } catch (error) {
+        console.error('Error setting book status:', error);
+        showStatusMessage('Network error. Please try again.', 'error');
+        handleAuthError(error);
+    }
+}
+
+async function loadCurrentBookStatus(bookId, slider) {
+    try {
+        const user = getCurrentUser();
+        if (!user || !user.user_id) return;
+
+        const response = await authenticatedFetch(`/backend/api/get_book_status.php?user_id=${user.user_id}&book_id=${bookId}`);
+        const data = await response.json();
+
+        if (data.success && data.status) {
+            const currentOption = slider.querySelector(`[data-status="${data.status}"]`);
+            if (currentOption) {
+                currentOption.classList.add('selected');
+            }
+
+            const button = slider.previousElementSibling;
+            updateButtonText(button, data.status);
+        }
+    } catch (error) {
+        console.error('Error loading book status:', error);
+        handleAuthError(error);
+    }
+}
+
+//  GESTIONARE ERORI
+function handleAuthError(error) {
+    if (error.message && (error.message.includes('authentication') || error.message.includes('token'))) {
+        sessionStorage.removeItem('jwt_token');
+        window.location.href = '../authPage/authPage.html';
+    }
+}
+
+// FILTRE ȘI AFIȘARE
 function populateFilters(books) {
     const genreFilter = document.getElementById('genreFilter');
-
     if (!genreFilter || !books.length) return;
 
-    // Extrage genurile unice
     const genres = [...new Set(books.map(book => book.genre).filter(Boolean))].sort();
     genreFilter.innerHTML = '<option value="">All Genres</option>' +
         genres.map(genre => `<option value="${sanitizeHtml(genre)}">${sanitizeHtml(genre)}</option>`).join('');
@@ -110,9 +242,7 @@ function displayGroupBooks(books) {
         return;
     }
 
-    // Aplică view mode
     container.className = `group-books-container ${currentViewMode}-view`;
-
     container.innerHTML = books.map(book => createGroupBookCard(book)).join('');
 }
 
@@ -125,16 +255,13 @@ function createGroupBookCard(book) {
         <div class="group-book-card" onclick="showBookDetails('${book.book_id}')">
             ${book.cover_image ?
         `<img src="${sanitizeHtml(book.cover_image)}" alt="${sanitizeHtml(book.title)}" class="group-book-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                 <div class="no-cover-placeholder" style="display:none;">📚</div>`
+                <div class="no-cover-placeholder" style="display:none;">📚</div>`
         :
         `<div class="no-cover-placeholder">📚</div>`
     }
-            
             <div class="group-book-genre">${sanitizeHtml(genre)}</div>
-            
             <h3 class="group-book-title">${sanitizeHtml(book.title)}</h3>
             <p class="group-book-author">by ${sanitizeHtml(book.author)}</p>
-            
             <div class="group-book-stats">
                 <div class="group-book-rating">
                     <span class="stars">${stars}</span>
@@ -144,31 +271,9 @@ function createGroupBookCard(book) {
                     ${book.reader_count} readers
                 </div>
             </div>
-            
             <div class="group-book-readers-list">
                 <strong>Read by:</strong> ${sanitizeHtml(readersList)}
             </div>
-
-            <!--
-            <div class="book-actions">
-                <div class="book-status-container">
-                    <button class="book-status-btn" onclick="event.stopPropagation(); toggleStatusSlider(this, ${book.book_id})">
-                        <span class="status-text">Add to List</span>
-                        <span class="dropdown-arrow">▼</span>
-                    </button>
-                    <div class="status-slider">
-                        <div class="status-option" data-status="want_to_read" onclick="event.stopPropagation(); setBookStatus(${book.book_id}, 'want_to_read', this)">
-                            <span class="status-icon">📚</span>Want to Read
-                        </div>
-                        <div class="status-option" data-status="currently_reading" onclick="event.stopPropagation(); setBookStatus(${book.book_id}, 'currently_reading', this)">
-                            <span class="status-icon">📖</span>Currently Reading
-                        </div>
-                        <div class="status-option" data-status="finished" onclick="event.stopPropagation(); setBookStatus(${book.book_id}, 'finished', this)">
-                            <span class="status-icon">✅</span>Finished
-                        </div>
-                    </div>
-                </div>
-            </div> -->
         </div>
     `;
 }
@@ -178,17 +283,14 @@ function generateStars(rating) {
     const hasHalfStar = rating % 1 >= 0.5;
     let stars = '';
 
-    // Adaugă stelele pline
     for (let i = 0; i < fullStars; i++) {
         stars += '★';
     }
 
-    // Adaugă steaua pe jumătate dacă e cazul
     if (hasHalfStar) {
         stars += '☆';
     }
 
-    // Completează cu stele goale până la 5
     const totalStars = fullStars + (hasHalfStar ? 1 : 0);
     for (let i = totalStars; i < 5; i++) {
         stars += '☆';
@@ -197,7 +299,6 @@ function generateStars(rating) {
     return stars;
 }
 
-// Funcții pentru filtrare și sortare
 function filterGroupBooks() {
     const genreFilter = document.getElementById('genreFilter');
     const ratingFilter = document.getElementById('ratingFilter');
@@ -213,18 +314,15 @@ function filterGroupBooks() {
 
     let filteredBooks = [...allGroupBooks];
 
-    // Filtrează după gen
     if (currentFilters.genre) {
         filteredBooks = filteredBooks.filter(book => book.genre === currentFilters.genre);
     }
 
-    // Filtrează după rating
     if (currentFilters.rating) {
         const minRating = parseFloat(currentFilters.rating);
         filteredBooks = filteredBooks.filter(book => (book.avg_rating || 0) >= minRating);
     }
 
-    // Sortează
     filteredBooks.sort((a, b) => {
         switch (currentFilters.sort) {
             case 'rating_desc':
@@ -243,99 +341,35 @@ function filterGroupBooks() {
     displayGroupBooks(filteredBooks);
 }
 
-// Funcții pentru view mode
+// UI HELPERS
 function setViewMode(mode) {
     currentViewMode = mode;
 
-    // Actualizează butoanele
     document.querySelectorAll('.view-btn').forEach(btn => {
         btn.classList.remove('active');
     });
-    document.querySelector(`[data-view="${mode}"]`).classList.add('active');
 
-    // Re-afișează cărțile cu noul view mode
+    const viewBtn = document.querySelector(`[data-view="${mode}"]`);
+    if (viewBtn) viewBtn.classList.add('active');
+
     const container = document.getElementById('groupBooksContainer');
-    container.className = `group-books-container ${mode}-view`;
+    if (container) {
+        container.className = `group-books-container ${mode}-view`;
+    }
 }
 
-// Funcții pentru gestionarea statusului cărților
 function toggleStatusSlider(button, bookId) {
     const slider = button.nextElementSibling;
     const allSliders = document.querySelectorAll('.status-slider');
 
-    // Închide toate celelalte slidere
     allSliders.forEach(s => {
         if (s !== slider) {
             s.classList.remove('show');
         }
     });
 
-    // Toggle slider-ul curent
     slider.classList.toggle('show');
-
-    // Încarcă statusul actual al cărții
     loadCurrentBookStatus(bookId, slider);
-}
-
-async function setBookStatus(bookId, status, optionElement) {
-    try {
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        if (!user.user_id) {
-            alert('Please login to add books to your lists');
-            return;
-        }
-
-        const response = await fetch('../../backend/api/update_book_status.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                user_id: user.user_id,
-                book_id: bookId,
-                status: status
-            })
-        });
-
-        const responseText = await response.text();
-
-        if (responseText.trim().startsWith('{') || responseText.trim().startsWith('[')) {
-            const data = JSON.parse(responseText);
-
-            if (data.success) {
-                // Actualizează UI
-                const slider = optionElement.closest('.status-slider');
-                const button = slider.previousElementSibling;
-
-                // Resetează selecțiile
-                slider.querySelectorAll('.status-option').forEach(option => {
-                    option.classList.remove('selected');
-                });
-
-                // Marchează opțiunea selectată
-                optionElement.classList.add('selected');
-
-                // Actualizează textul butonului
-                updateButtonText(button, status);
-
-                // Închide slider-ul
-                slider.classList.remove('show');
-
-                // Afișează mesaj de succes
-                showStatusMessage('Book added to your list!', 'success');
-
-            } else {
-                showStatusMessage(data.error || 'Error updating book status', 'error');
-            }
-        } else {
-            console.error('Backend returned non-JSON response:', responseText);
-            showStatusMessage('Server error. Please try again.', 'error');
-        }
-
-    } catch (error) {
-        console.error('Error setting book status:', error);
-        showStatusMessage('Network error. Please try again.', 'error');
-    }
 }
 
 function updateButtonText(button, status) {
@@ -359,50 +393,29 @@ function showStatusMessage(message, type) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `status-message ${type}`;
     messageDiv.textContent = message;
+    messageDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        border-radius: 5px;
+        color: white;
+        font-weight: bold;
+        z-index: 1000;
+        ${type === 'success' ? 'background-color: #4CAF50;' : 'background-color: #f44336;'}
+    `;
 
     document.body.appendChild(messageDiv);
-
-    setTimeout(() => {
-        messageDiv.remove();
-    }, 3000);
-}
-
-async function loadCurrentBookStatus(bookId, slider) {
-    try {
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        if (!user.user_id) return;
-
-        const response = await fetch(`../../backend/api/get_book_status.php?user_id=${user.user_id}&book_id=${bookId}`);
-        const responseText = await response.text();
-
-        if (responseText.trim().startsWith('{') || responseText.trim().startsWith('[')) {
-            const data = JSON.parse(responseText);
-
-            if (data.success && data.status) {
-                // Marchează statusul curent
-                const currentOption = slider.querySelector(`[data-status="${data.status}"]`);
-                if (currentOption) {
-                    currentOption.classList.add('selected');
-                }
-
-                // Actualizează butonul
-                const button = slider.previousElementSibling;
-                updateButtonText(button, data.status);
-            }
-        }
-    } catch (error) {
-        console.error('Error loading book status:', error);
-    }
+    setTimeout(() => messageDiv.remove(), 3000);
 }
 
 function showBookDetails(bookId) {
-    // Poți redirecta către o pagină de detalii sau deschide un modal
     console.log('Show details for book:', bookId);
     alert(`Book details for ID: ${bookId} - Feature coming soon!`);
 }
 
+// UPDATE GROUP UI
 function updateGroupUI(group, members) {
-    // Actualizează titlul și descrierea
     const groupTitle = document.querySelector('.group-title');
     const groupSubtitle = document.querySelector('.group-subtitle');
 
@@ -414,13 +427,8 @@ function updateGroupUI(group, members) {
         groupSubtitle.textContent = sanitizeHtml(group.description || 'No description available.');
     }
 
-    // Actualizează genurile
     updateGenres(group.genres);
-
-    // Actualizează vârsta
     updateAgeRequirement(group.min_age, group.max_age);
-
-    // Actualizează lista de membri
     updateMembersList(members);
 }
 
@@ -429,8 +437,6 @@ function updateGenres(genres) {
 
     if (genresContainer && genres) {
         genresContainer.innerHTML = '';
-
-        // Împarte genurile după virgulă și creează tag-uri
         const genreList = genres.split(',').map(g => g.trim()).filter(g => g);
 
         genreList.forEach(genre => {
@@ -475,31 +481,44 @@ function updateMembersList(members) {
     }
 }
 
-// Funcții pentru animații și scroll
-function toggleAnimation() {
-    const container = document.getElementById('cards-container');
-    if (container) {
-        container.classList.toggle('paused');
+// NAVIGARE
+function updateNavigation() {
+    const user = getCurrentUser();
+    const profileDropdown = document.getElementById('profileDropdown');
+    const loginButton = document.getElementById('loginButton');
+    const profileUsername = document.getElementById('profileUsername');
+
+    if (user && user.username) {
+        if (profileDropdown) profileDropdown.style.display = 'block';
+        if (loginButton) loginButton.style.display = 'none';
+        if (profileUsername) profileUsername.textContent = user.username;
+    } else {
+        if (profileDropdown) profileDropdown.style.display = 'none';
+        if (loginButton) loginButton.style.display = 'block';
     }
 }
 
-function scrollLeft() {
-    const container = document.getElementById('cards-container');
-    container.scrollBy({
-        left: -220,
-        behavior: 'smooth'
+function navigateToCommunity() {
+    const user = getCurrentUser();
+
+    if (user && user.username) {
+        window.location.href = '../communityPage/communityPage.html';
+    } else {
+        window.location.href = '../noCommunityPage/noCommunityPage.html';
+    }
+}
+
+function setupAfterLoginNavigation() {
+    const settingsLinks = document.querySelectorAll('a[href="../settingsPage/settingsPage.html"]');
+    settingsLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = '../settingsPage/settingsPage.html';
+        });
     });
 }
 
-function scrollRight() {
-    const container = document.getElementById('cards-container');
-    container.scrollBy({
-        left: 220,
-        behavior: 'smooth'
-    });
-}
-
-// Funcții pentru search popup
+// ===== SEARCH POPUP =====
 const data = {
     Books: ['The Great Gatsby', '1984', 'To Kill a Mockingbird', 'Pride and Prejudice', 'Harry Potter'],
     Authors: ['George Orwell', 'Jane Austen', 'J.K. Rowling', 'F. Scott Fitzgerald', 'Homer'],
@@ -512,11 +531,13 @@ const data = {
 function togglePopup() {
     const popup = document.getElementById('searchPopup');
 
-    if (popup.style.display === 'none' || popup.style.display === '') {
-        popup.style.display = 'block';
-    } else {
-        popup.style.display = 'none';
-        resetToBooks();
+    if (popup) {
+        if (popup.style.display === 'none' || popup.style.display === '') {
+            popup.style.display = 'block';
+        } else {
+            popup.style.display = 'none';
+            resetToBooks();
+        }
     }
 }
 
@@ -526,177 +547,66 @@ function resetToBooks() {
 
 function setCategory(category) {
     document.querySelectorAll('.category-list span').forEach(span => span.classList.remove('active'));
+
     const categoryElement = document.querySelector(`[onclick="setCategory('${category}')"]`);
     if (categoryElement) {
         categoryElement.classList.add('active');
     }
+
     const popularList = document.getElementById('popularList');
     if (popularList && data[category]) {
         popularList.innerHTML = data[category].map(item => `<div>${sanitizeHtml(item)}</div>`).join('');
     }
 }
 
-// Funcții pentru login
-function openLogin() {
-    const loginOverlay = document.getElementById("loginOverlay");
-    if (loginOverlay) {
-        loginOverlay.style.display = "flex";
+// ANIMAȚII CARDS
+function toggleAnimation() {
+    const container = document.getElementById('cards-container');
+    if (container) {
+        container.classList.toggle('paused');
     }
-    document.body.classList.add("blur-effect");
 }
 
-function closeLogin() {
-    const loginOverlay = document.getElementById("loginOverlay");
-    if (loginOverlay) {
-        loginOverlay.style.display = "none";
-    }
-    document.body.classList.remove("blur-effect");
-}
-
-async function handleLogin(event) {
-    event.preventDefault();
-
-    const username = document.getElementById('username').value.trim();
-    const password = document.getElementById('password').value;
-    const submitButton = document.querySelector('#loginForm button[type="submit"]');
-    const originalText = submitButton.textContent;
-
-    if (!username || !password) {
-        showLoginMessage('Please fill in all fields', 'error');
-        return false;
-    }
-
-    submitButton.disabled = true;
-    submitButton.textContent = 'Logging in...';
-
-    try {
-        const response = await fetch('../../backend/auth/login.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                username: username,
-                password: password
-            })
+function scrollLeft() {
+    const container = document.getElementById('cards-container');
+    if (container) {
+        container.scrollBy({
+            left: -220,
+            behavior: 'smooth'
         });
-
-        const result = await response.json();
-
-        if (response.ok && result.success) {
-            localStorage.setItem('user', JSON.stringify(result.user));
-            localStorage.setItem('isLoggedIn', 'true');
-
-            showLoginMessage('Login successful!', 'success');
-            updateNavigation();
-
-            setTimeout(() => {
-                closeLogin();
-                clearLoginForm();
-            }, 1000);
-
-        } else {
-            showLoginMessage(result.error || 'Login failed. Please try again.', 'error');
-        }
-
-    } catch (error) {
-        console.error('Login error:', error);
-        showLoginMessage('Network error. Please check your connection.', 'error');
-    } finally {
-        submitButton.disabled = false;
-        submitButton.textContent = originalText;
-    }
-
-    return false;
-}
-
-function showLoginMessage(message, type) {
-    const existingMessage = document.querySelector('.login-message');
-    if (existingMessage) {
-        existingMessage.remove();
-    }
-
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `login-message ${type}`;
-    messageDiv.textContent = message;
-
-    const loginContainer = document.querySelector('.login-container');
-    const form = document.getElementById('loginForm');
-    loginContainer.insertBefore(messageDiv, form);
-
-    setTimeout(() => {
-        if (messageDiv.parentNode) {
-            messageDiv.remove();
-        }
-    }, 5000);
-}
-
-function clearLoginForm() {
-    document.getElementById('username').value = '';
-    document.getElementById('password').value = '';
-
-    const message = document.querySelector('.login-message');
-    if (message) {
-        message.remove();
     }
 }
 
-function navigateToCommunity() {
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-
-    if (isLoggedIn === 'true' && user.username) {
-        window.location.href = '../communityPage/communityPage.html';
-    } else {
-        window.location.href = '../noCommunityPage/noCommunityPage.html';
-    }
-}
-
-function setupAfterLoginNavigation() {
-    // Funcționalitate pentru navigarea după login
-    const settingsLinks = document.querySelectorAll('a[href="../settingsPage/settingsPage.html"]');
-    settingsLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            window.location.href = '../settingsPage/settingsPage.html';
+function scrollRight() {
+    const container = document.getElementById('cards-container');
+    if (container) {
+        container.scrollBy({
+            left: 220,
+            behavior: 'smooth'
         });
-    });
-}
-
-async function logout() {
-    try {
-        const response = await fetch('../../backend/auth/logout.php', {
-            method: 'POST',
-            credentials: 'include'
-        });
-
-        localStorage.removeItem('user');
-        localStorage.removeItem('isLoggedIn');
-        window.location.href = '../mainPage/index.html';
-    } catch (error) {
-        console.error('Logout error:', error);
-        localStorage.removeItem('user');
-        localStorage.removeItem('isLoggedIn');
-        window.location.href = '../mainPage/index.html';
     }
 }
 
-// Event listeners
+
+function sanitizeHtml(str) {
+    const temp = document.createElement('div');
+    temp.textContent = str;
+    return temp.innerHTML;
+}
+
+// EVENT LISTENERS
 document.addEventListener('click', function(e) {
-    // Închide search popup
     const popup = document.getElementById('searchPopup');
     const searchContainer = document.querySelector('.search-container');
-    if (popup && !popup.contains(e.target) && !searchContainer.contains(e.target)) {
+
+    if (popup && searchContainer && !popup.contains(e.target) && !searchContainer.contains(e.target)) {
         popup.style.display = 'none';
         resetToBooks();
     }
 
-    // Închide status slidere
     if (!e.target.closest('.book-status-container')) {
         document.querySelectorAll('.status-slider').forEach(slider => {
             slider.classList.remove('show');
         });
     }
 });
-
-window.onload = () => setCategory('Books');

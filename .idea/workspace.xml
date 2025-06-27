@@ -4,12 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="11112695-32c3-4b25-80c9-16f957f723d9" name="Changes" comment="JWT pentru index.html &amp; creare authPage">
+    <list default="true" id="11112695-32c3-4b25-80c9-16f957f723d9" name="Changes" comment="JWT pentru genresPage &amp; Dashboard Pages">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/currentlyReadingPage/currentlyReadingPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/currentlyReadingPage/currentlyReadingPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/finishedBooksPage/finishedBooksPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/finishedBooksPage/finishedBooksPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/genresPage/genresPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/genresPage/genresPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/wantToReadPage/wantToReadPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/wantToReadPage/wantToReadPage.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/communityPage/communityPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/communityPage/communityPage.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/createGroupPage/createGroupPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/createGroupPage/createGroupPage.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/groupPage/groupPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/groupPage/groupPage.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -127,7 +126,8 @@
       <workItem from="1750664931010" duration="4218000" />
       <workItem from="1750672479517" duration="2365000" />
       <workItem from="1750863329890" duration="5458000" />
-      <workItem from="1750955387223" duration="13614000" />
+      <workItem from="1750955387223" duration="13893000" />
+      <workItem from="1751016832112" duration="5406000" />
     </task>
     <task id="LOCAL-00001" summary="Fixed duplicated folders">
       <option name="closed" value="true" />
@@ -305,7 +305,15 @@
       <option name="project" value="LOCAL" />
       <updated>1750972800706</updated>
     </task>
-    <option name="localTasksCounter" value="23" />
+    <task id="LOCAL-00023" summary="JWT pentru genresPage &amp; Dashboard Pages">
+      <option name="closed" value="true" />
+      <created>1750978273305</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1750978273305</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -344,7 +352,8 @@
     <MESSAGE value="mutare raport in folder dedicat" />
     <MESSAGE value="Livrabile" />
     <MESSAGE value="JWT pentru index.html &amp; creare authPage" />
-    <option name="LAST_COMMIT_MESSAGE" value="JWT pentru index.html &amp; creare authPage" />
+    <MESSAGE value="JWT pentru genresPage &amp; Dashboard Pages" />
+    <option name="LAST_COMMIT_MESSAGE" value="JWT pentru genresPage &amp; Dashboard Pages" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

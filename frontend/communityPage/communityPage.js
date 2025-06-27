@@ -1,100 +1,107 @@
-function toggleAnimation() {
-  const container = document.getElementById('cards-container');
-  if (container) {
-    container.classList.toggle('paused');
-  }
-}
-function scrollLeft() {
-    const container = document.getElementById('cards-container');
-    container.scrollBy({
-        left: -220,
-        behavior: 'smooth'
-    });
-}
-
-function scrollRight() {
-    const container = document.getElementById('cards-container');
-    container.scrollBy({
-        left: 220,
-        behavior: 'smooth'
-    });
-}
-
-const data = {
-    Books: ['The Great Gatsby', '1984', 'To Kill a Mockingbird', 'Pride and Prejudice', 'Harry Potter'],
-    Authors: ['George Orwell', 'Jane Austen', 'J.K. Rowling', 'F. Scott Fitzgerald', 'Homer'],
-    Users: ['booklover123', 'readingaddict', 'fictionfan', 'classicreader', 'fantasyfan'],
-    Publishers: ['Penguin Books', 'HarperCollins', 'Bloomsbury', 'Random House', 'Simon & Schuster'],
-};
-
-function togglePopup() {
-    const popup = document.getElementById('searchPopup');
-    
-    // Deschide sau închide popup-ul
-    if (popup.style.display === 'none' || popup.style.display === '') {
-        popup.style.display = 'block';
-    } else {
-        popup.style.display = 'none';
-        resetToBooks(); // Resetează la Books când se închide
+// VERIFICARE AUTENTIFICARE
+document.addEventListener('DOMContentLoaded', function() {
+    if (!isUserLoggedIn()) {
+        window.location.href = '../noCommunityPage/noCommunityPage.html';
+        return;
     }
-}
-
-// Resetează la Books
-function resetToBooks() {
-    setCategory('Books', document.querySelector('.category-list span'));
-}
-
-function setCategory(category, element) {
-    document.querySelectorAll('.category-list span').forEach(span => span.classList.remove('active'));
-    if (element) {
-        element.classList.add('active');
-    } else {
-        document.querySelector(`[onclick*="setCategory('${category}'"]`).classList.add('active');
-    }
-    const popularList = document.getElementById('popularList');
-    popularList.innerHTML = data[category].map(item => `<div>${item}</div>`).join('');
-}
-
-// Închide popup-ul dacă faci clic în afara lui
-document.addEventListener('click', (e) => {
-    const popup = document.getElementById('searchPopup');
-    const searchContainer = document.querySelector('.search-container');
-    if (!popup.contains(e.target) && !searchContainer.contains(e.target)) {
-        popup.style.display = 'none';
-        resetToBooks();
-    }
+    initializeCommunityPage();
 });
 
+// FUNCȚII JWT
+function isUserLoggedIn() {
+    const token = sessionStorage.getItem('jwt_token');
+    if (!token) return false;
 
-// NOUA FUNCȚIONALITATE PENTRU COMUNITATE
+    try {
+        const payload = parseJWT(token);
+        return payload.exp > Math.floor(Date.now() / 1000);
+    } catch (error) {
+        sessionStorage.removeItem('jwt_token');
+        return false;
+    }
+}
+
+function parseJWT(token) {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(window.atob(base64));
+}
+
+function getCurrentUser() {
+    const token = sessionStorage.getItem('jwt_token');
+    if (!token) return null;
+
+    try {
+        return parseJWT(token);
+    } catch (error) {
+        return null;
+    }
+}
+
+async function authenticatedFetch(url, options = {}) {
+    const token = sessionStorage.getItem('jwt_token');
+
+    if (!token) {
+        throw new Error('No authentication token found');
+    }
+
+    const response = await fetch(url, {
+        ...options,
+        headers: {
+            ...options.headers,
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (response.status === 401) {
+        sessionStorage.removeItem('jwt_token');
+        window.location.href = '../noCommunityPage/noCommunityPage.html';
+        return;
+    }
+
+    return response;
+}
+
+
 let allGroups = [];
 let currentUser = null;
 
-// Încarcă grupurile la încărcarea paginii
-document.addEventListener('DOMContentLoaded', function() {
-    // Verifică dacă utilizatorul este logat
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-
-    updateNavigation(); // Actualizează navigația
-
-    if (isLoggedIn === 'true' && user.user_id) {
-        currentUser = user;
-        loadGroups();
-        setupCommunityEventListeners();
-    } else {
-        // Redirect la pagina fără comunitate dacă nu e logat
-        window.location.href = '../noCommunityPage/noCommunityPage.html';
-    }
-
+//  INIȚIALIZARE PAGINĂ
+function initializeCommunityPage() {
+    currentUser = getCurrentUser();
+    updateNavigation();
+    loadGroups();
+    setupCommunityEventListeners();
     setupAfterLoginNavigation();
     setCategory('Books', document.querySelector('.category-list span'));
-});
+    console.log(`Welcome to Community page, ${currentUser.username}!`);
+}
 
-// Încarcă grupurile din backend
+//  LOGOUT
+async function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        const token = sessionStorage.getItem('jwt_token');
+
+        if (token) {
+            try {
+                await authenticatedFetch('/backend/auth/logout.php', {
+                    method: 'POST'
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+
+        sessionStorage.removeItem('jwt_token');
+        window.location.href = '../authPage/authPage.html';
+    }
+}
+
+//  FUNCȚII PENTRU GRUPURI
 async function loadGroups() {
     try {
-        const response = await fetch('../../backend/community/get_groups.php');
+        const response = await authenticatedFetch('/backend/community/get_groups.php');
         const data = await response.json();
 
         if (data.success) {
@@ -107,23 +114,90 @@ async function loadGroups() {
     } catch (error) {
         console.error('Error:', error);
         showMessage('Network error loading groups', 'error');
+        handleAuthError(error);
     }
 }
 
-// Afișează grupurile în interfață
+async function joinGroup(groupId) {
+    if (!currentUser) {
+        showMessage('Please log in to join groups', 'error');
+        return;
+    }
+
+    try {
+        const response = await authenticatedFetch('/backend/community/join_group.php', {
+            method: 'POST',
+            body: JSON.stringify({
+                group_id: groupId,
+                user_id: currentUser.user_id
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            showMessage('Successfully joined the group!', 'success');
+
+            // Actualizează numărul de membri în timp real
+            updateGroupMemberCount(groupId, 1);
+
+            // Opțional: reîncarcă toate grupurile pentru sincronizare completă
+            // loadGroups();
+        } else {
+            showMessage(data.error || 'Failed to join group', 'error');
+        }
+    } catch (error) {
+        console.error('Error joining group:', error);
+        showMessage('Network error. Please try again.', 'error');
+        handleAuthError(error);
+    }
+}
+
+function updateGroupMemberCount(groupId, increment) {
+    const groupCard = document.querySelector(`[data-group-id="${groupId}"]`);
+    if (!groupCard) return;
+
+    const memberCountElement = groupCard.querySelector('.group-meta');
+    if (memberCountElement) {
+        const currentText = memberCountElement.textContent;
+        const memberMatch = currentText.match(/(\d+)\s+Members/);
+
+        if (memberMatch) {
+            const currentCount = parseInt(memberMatch[1]);
+            const newCount = currentCount + increment;
+            const newText = currentText.replace(/\d+\s+Members/, `${newCount} Members`);
+            memberCountElement.textContent = newText;
+        }
+    }
+
+    // Actualizează și în array-ul local
+    const groupIndex = allGroups.findIndex(group => group.id == groupId);
+    if (groupIndex !== -1) {
+        allGroups[groupIndex].member_count = (allGroups[groupIndex].member_count || 0) + increment;
+    }
+}
+
+// GESTIONARE ERORI
+function handleAuthError(error) {
+    if (error.message && (error.message.includes('authentication') || error.message.includes('token'))) {
+        sessionStorage.removeItem('jwt_token');
+        window.location.href = '../noCommunityPage/noCommunityPage.html';
+    }
+}
+
+// AFIȘARE GRUPURI
 function displayGroups(groups) {
     const communitySection = document.querySelector('.community-section');
     const existingGroups = communitySection.querySelectorAll('.group-card');
 
-    // Șterge grupurile statice existente
     existingGroups.forEach(card => card.remove());
 
     if (groups.length === 0) {
         const noGroupsMessage = document.createElement('div');
         noGroupsMessage.className = 'no-groups-message';
-        noGroupsMessage.innerHTML = `  
-            <p>No groups found. Be the first to create one!</p>  
-            <a href="../createGroupPage/createGroupPage.html" class="create-group-btn">➕ Create First Group</a>  
+        noGroupsMessage.innerHTML = `
+            <p>No groups found. Be the first to create one!</p>
+            <a href="../createGroupPage/createGroupPage.html" class="create-group-btn">➕ Create First Group</a>
         `;
         communitySection.appendChild(noGroupsMessage);
         return;
@@ -135,82 +209,44 @@ function displayGroups(groups) {
     });
 }
 
-// Creează un card pentru grup
 function createGroupCard(group) {
     const groupCard = document.createElement('div');
     groupCard.className = 'group-card';
     groupCard.dataset.category = 'books';
+    groupCard.dataset.groupId = group.id; // Important pentru actualizarea numărului de membri
 
-    // Fă întregul card clickable
     groupCard.style.cursor = 'pointer';
     groupCard.onclick = () => navigateToGroup(group.id, group.name);
 
     const createdDate = new Date(group.created_at).toLocaleDateString();
 
-    groupCard.innerHTML = `    
-        <div class="group-header">    
-            <div class="group-icon"></div>    
-            <div class="group-info">    
-                <h3>${group.name}</h3>    
-                <span class="group-meta">${group.member_count} Members · Created by ${group.creator_name} · ${createdDate}</span>    
-            </div>    
-        </div>    
-        <p class="group-description">    
-            ${group.description || 'No description available.'}    
-        </p>    
-        <button class="join-btn" onclick="event.stopPropagation(); joinGroup(${group.id})">Join Group</button>    
+    groupCard.innerHTML = `
+        <div class="group-header">
+            <div class="group-icon"></div>
+            <div class="group-info">
+                <h3>${sanitizeHtml(group.name)}</h3>
+                <span class="group-meta">${group.member_count} Members · Created by ${sanitizeHtml(group.creator_name)} · ${createdDate}</span>
+            </div>
+        </div>
+        <p class="group-description">
+            ${sanitizeHtml(group.description || 'No description available.')}
+        </p>
+        <button class="join-btn" onclick="event.stopPropagation(); joinGroup(${group.id})">Join Group</button>
     `;
 
     return groupCard;
 }
 
-// Adaugă această funcție nouă pentru navigare:
 function navigateToGroup(groupId, groupName) {
-    // Salvează informațiile grupului în localStorage pentru a le folosi în groupPage
-    localStorage.setItem('currentGroup', JSON.stringify({
+    sessionStorage.setItem('currentGroup', JSON.stringify({
         id: groupId,
         name: groupName
     }));
 
-    // Navighează către pagina grupului
     window.location.href = '../groupPage/groupPage.html';
 }
 
-// Funcție pentru alăturarea la grup
-async function joinGroup(groupId) {
-    if (!currentUser) {
-        showMessage('Please log in to join groups', 'error');
-        return;
-    }
-
-    try {
-        const response = await fetch('../../backend/community/join_group.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                group_id: groupId,
-                user_id: currentUser.user_id
-            })
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            showMessage('Successfully joined the group!', 'success');
-            // Reîncarcă grupurile pentru a actualiza numărul de membri
-            loadGroups();
-        } else {
-            showMessage(data.error || 'Failed to join group', 'error');
-        }
-    } catch (error) {
-        console.error('Error joining group:', error);
-        showMessage('Network error. Please try again.', 'error');
-    }
-}
-
-// Configurează event listeners pentru filtrare
+//  FILTRARE ȘI CĂUTARE
 function setupCommunityEventListeners() {
     const searchInput = document.querySelector('.search-input');
     const filterSelect = document.querySelector('.filter-select');
@@ -224,7 +260,6 @@ function setupCommunityEventListeners() {
     }
 }
 
-// Filtrează grupurile
 function filterGroups() {
     const searchInput = document.querySelector('.search-input');
     const filterSelect = document.querySelector('.filter-select');
@@ -237,7 +272,7 @@ function filterGroups() {
     const filteredGroups = allGroups.filter(group => {
         const matchesSearch = group.name.toLowerCase().includes(searchValue) ||
             (group.description && group.description.toLowerCase().includes(searchValue));
-        const matchesCategory = selectedCategory === 'all' || selectedCategory === 'books'; // Toate grupurile sunt de cărți pentru moment
+        const matchesCategory = selectedCategory === 'all' || selectedCategory === 'books';
 
         return matchesSearch && matchesCategory;
     });
@@ -245,9 +280,8 @@ function filterGroups() {
     displayGroups(filteredGroups);
 }
 
-// Afișează mesaje către utilizator
+//MESAJE
 function showMessage(message, type) {
-    // Elimină mesajul anterior dacă există
     const existingMessage = document.querySelector('.community-message');
     if (existingMessage) {
         existingMessage.remove();
@@ -256,12 +290,20 @@ function showMessage(message, type) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `community-message ${type}`;
     messageDiv.textContent = message;
+    messageDiv.style.cssText = `
+        padding: 12px 20px;
+        margin: 10px 0;
+        border-radius: 5px;
+        font-weight: bold;
+        text-align: center;
+        ${type === 'success' ?
+        'background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb;' :
+        'background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;'}
+    `;
 
-    // Adaugă mesajul la începutul secțiunii de comunitate
     const communitySection = document.querySelector('.community-section');
     communitySection.insertBefore(messageDiv, communitySection.firstChild);
 
-    // Elimină mesajul după 5 secunde
     setTimeout(() => {
         if (messageDiv.parentNode) {
             messageDiv.remove();
@@ -269,7 +311,7 @@ function showMessage(message, type) {
     }, 5000);
 }
 
-// Funcțiile pentru navigare
+// NAVIGARE
 function setupAfterLoginNavigation() {
     const notificationsLink = document.querySelector('a[href="#notifications"]');
     const settingsLink = document.querySelector('a[href="#settings"]');
@@ -297,65 +339,105 @@ function setupAfterLoginNavigation() {
     }
 }
 
-async function logout() {
-    try {
-        const response = await fetch('../backend/auth/logout.php', {
-            method: 'POST',
-            credentials: 'include'
-        });
-
-        localStorage.removeItem('user');
-        localStorage.removeItem('isLoggedIn');
-        window.location.href = '../mainPage/index.html';
-    } catch (error) {
-        console.error('Logout error:', error);
-        localStorage.removeItem('user');
-        localStorage.removeItem('isLoggedIn');
-        window.location.href = '../mainPage/index.html';
-    }
-}
-
-// Funcții pentru navigație și login (din mainPage)
-function navigateToCommunity() {
-    // Deja suntem pe community page
-    return;
-}
-
-function openLogin() {
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    if (isLoggedIn === 'true') {
-        // Dacă e deja logat, navighează la dashboard
-        window.location.href = '../dashboardPage/dashboardPage.html';
-    } else {
-        // Dacă nu e logat, navighează la login
-        window.location.href = '../loginPage/loginPage.html';
-    }
-}
-
-function closeLogin() {
-    const loginOverlay = document.getElementById('loginOverlay');
-    if (loginOverlay) {
-        loginOverlay.style.display = 'none';
-    }
-}
-
-// Actualizează interfața în funcție de starea de login
 function updateNavigation() {
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-
+    const user = getCurrentUser();
     const profileDropdown = document.getElementById('profileDropdown');
     const loginButton = document.getElementById('loginButton');
     const profileUsername = document.getElementById('profileUsername');
 
-    if (isLoggedIn === 'true' && user.username) {
-        // Utilizator logat - arată profilul
+    if (user && user.username) {
         if (profileDropdown) profileDropdown.style.display = 'block';
         if (loginButton) loginButton.style.display = 'none';
         if (profileUsername) profileUsername.textContent = user.username;
     } else {
-        // Utilizator nelogat - arată login
         if (profileDropdown) profileDropdown.style.display = 'none';
         if (loginButton) loginButton.style.display = 'block';
     }
 }
+
+//  SEARCH POPUP
+const data = {
+    Books: ['The Great Gatsby', '1984', 'To Kill a Mockingbird', 'Pride and Prejudice', 'Harry Potter'],
+    Authors: ['George Orwell', 'Jane Austen', 'J.K. Rowling', 'F. Scott Fitzgerald', 'Homer'],
+    Users: ['booklover123', 'readingaddict', 'fictionfan', 'classicreader', 'fantasyfan'],
+    Publishers: ['Penguin Books', 'HarperCollins', 'Bloomsbury', 'Random House', 'Simon & Schuster'],
+};
+
+function togglePopup() {
+    const popup = document.getElementById('searchPopup');
+
+    if (popup) {
+        if (popup.style.display === 'none' || popup.style.display === '') {
+            popup.style.display = 'block';
+        } else {
+            popup.style.display = 'none';
+            resetToBooks();
+        }
+    }
+}
+
+function resetToBooks() {
+    setCategory('Books', document.querySelector('.category-list span'));
+}
+
+function setCategory(category, element) {
+    document.querySelectorAll('.category-list span').forEach(span => span.classList.remove('active'));
+
+    if (element) {
+        element.classList.add('active');
+    } else {
+        const categoryElement = document.querySelector(`[onclick*="setCategory('${category}'"]`);
+        if (categoryElement) categoryElement.classList.add('active');
+    }
+
+    const popularList = document.getElementById('popularList');
+    if (popularList && data[category]) {
+        popularList.innerHTML = data[category].map(item => `<div>${sanitizeHtml(item)}</div>`).join('');
+    }
+}
+
+// ANIMAȚII CARDS
+function toggleAnimation() {
+    const container = document.getElementById('cards-container');
+    if (container) {
+        container.classList.toggle('paused');
+    }
+}
+
+function scrollLeft() {
+    const container = document.getElementById('cards-container');
+    if (container) {
+        container.scrollBy({
+            left: -220,
+            behavior: 'smooth'
+        });
+    }
+}
+
+function scrollRight() {
+    const container = document.getElementById('cards-container');
+    if (container) {
+        container.scrollBy({
+            left: 220,
+            behavior: 'smooth'
+        });
+    }
+}
+
+
+function sanitizeHtml(str) {
+    const temp = document.createElement('div');
+    temp.textContent = str;
+    return temp.innerHTML;
+}
+
+//  EVENT LISTENERS
+document.addEventListener('click', (e) => {
+    const popup = document.getElementById('searchPopup');
+    const searchContainer = document.querySelector('.search-container');
+
+    if (popup && searchContainer && !popup.contains(e.target) && !searchContainer.contains(e.target)) {
+        popup.style.display = 'none';
+        resetToBooks();
+    }
+});
