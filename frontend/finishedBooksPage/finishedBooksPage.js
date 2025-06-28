@@ -423,7 +423,7 @@ function displayUserBooks(books) {
             <div class="book-placeholder">📚</div>
             <h3 class="book-title">${sanitizeHtml(book.title)}</h3>
             <p class="book-author">${sanitizeHtml(book.author)}</p>
-            <p class="book-year">${book.publication_year || 'N/A'}</p>
+            
             <p class="book-finished">Finished: ${new Date(book.date_added).toLocaleDateString()}</p>
             ${book.rating ? `<div class="book-rating">${'★'.repeat(book.rating)}${'☆'.repeat(5 - book.rating)}</div>` : ''}
             

@@ -673,7 +673,7 @@ footer {
     transform: scale(1.1);
 }
 
-/* === General Community Section Styling === */
+/*  General Community Section Styling  */
 .community-section {
   max-width: 900px;
   margin: 60px auto;
@@ -693,7 +693,7 @@ footer {
   color: #5a3b2e;
 }
 
-/* === Controls: Search + Filter + Create Button === */
+/*  Controls: Search + Filter + Create Button  */
 .community-controls {
   display: flex;
   flex-wrap: wrap;
@@ -765,7 +765,7 @@ footer {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
 }
 
-/* === Group Header: Icon + Title + Meta === */
+/*  Group Header: Icon + Title + Meta === */
 .group-header {
   display: flex;
   align-items: center;
@@ -789,7 +789,7 @@ footer {
   margin-top: 4px;
 }
 
-/* === Description & Join Button === */
+/*  Description & Join Button  */
 .group-description {
   font-size: 1rem;
   margin-bottom: 16px;

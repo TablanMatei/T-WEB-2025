@@ -374,7 +374,7 @@ function displayUserBooks(books) {
             <div class="book-placeholder">📚</div>
             <h3 class="book-title">${book.title}</h3>
             <p class="book-author">${book.author}</p>
-            <p class="book-year">${book.publication_year || 'N/A'}</p>
+           
             <p class="book-added">Started: ${new Date(book.date_added).toLocaleDateString()}</p>
             <div class="book-actions">
                 <button onclick="changeBookStatus(${book.book_id}, 'finished')" class="btn-finished">

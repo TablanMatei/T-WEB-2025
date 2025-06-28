@@ -164,7 +164,7 @@ async function changeBookStatus(bookId, newStatus) {
 
             // Notifică alte pagini despre actualizare
             // if (typeof(Storage) !== "undefined") {
-            //     sessionStorage.setItem('bookStatusUpdated', Date.now());
+            //    sessionStorage.setItem('bookStatusUpdated', Date.now());
             // }
 
             // Afișează mesaj de succes
@@ -235,15 +235,15 @@ function showStatusMessage(message, type) {
     messageDiv.className = `status-message ${type}`;
     messageDiv.textContent = message;
     messageDiv.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 12px 20px;
-        border-radius: 5px;
-        color: white;
-        font-weight: bold;
-        z-index: 1000;
-        ${type === 'success' ? 'background-color: #4CAF50;' : 'background-color: #f44336;'}
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    z-index: 1000;
+    ${type === 'success' ? 'background-color: #4CAF50;' : 'background-color: #f44336;'}
     `;
 
     document.body.appendChild(messageDiv);
@@ -301,42 +301,40 @@ function navigateToCommunity() {
     }
 }
 
-
-
+// FUNCȚIA  PENTRU AFIȘAREA CĂRȚILOR
 function displayUserBooks(books) {
-    const booksContainer = document.querySelector('.want-book-cards-container');
+    const booksContainer = document.getElementById('userWantToReadBooks');
 
     if (!booksContainer) {
-        console.error('Books container not found');
+        console.error('Books container not found - looking for #userWantToReadBooks');
         return;
     }
 
     if (books.length === 0) {
         booksContainer.innerHTML = `
-            <div class="no-books-message">
-                <h3>No books in your "Want to Read" list yet!</h3>
-                <p>Start adding books from the <a href="../genresPage/genresPage.html">Genres page</a> or <a href="../mainPage/index.html">search for books</a>.</p>
-            </div>
-        `;
+    <div class="no-books-message">
+    <h3>No books in your "Want to Read" list yet!</h3>
+    <p>Start adding books from the <a href="../genresPage/genresPage.html">Genres page</a> or <a href="../mainPage/index.html">search for books</a>.</p>
+    </div>
+    `;
         return;
     }
 
     booksContainer.innerHTML = books.map(book => `
-        <div class="want-book-card">
-            <div class="book-placeholder">📚</div>
-            <div class="want-book-title">${sanitizeHtml(book.title)}</div>
-            <div class="want-book-author">${sanitizeHtml(book.author)}</div>
-            <div class="book-actions">
-                <button onclick="changeBookStatus(${book.book_id}, 'currently_reading')" class="btn-reading">Start Reading</button>
-                <button onclick="changeBookStatus(${book.book_id}, 'finished')" class="btn-finished">Mark as Finished</button>
-                <button onclick="removeFromList(${book.book_id})" class="btn-remove">Remove</button>
-            </div>
-        </div>
+    <article class="book-card-item">
+    <img src="${book.cover_image || '../mainPage/bookcovers/default.jpg'}" alt="${sanitizeHtml(book.title)}" class="book-cover" />
+    <p class="book-author">${sanitizeHtml(book.author)}</p>
+    <div class="book-actions">
+    <button onclick="changeBookStatus(${book.book_id}, 'currently_reading')" class="btn-reading">Start Reading</button>
+    <button onclick="changeBookStatus(${book.book_id}, 'finished')" class="btn-finished">Mark as Finished</button>
+    <button onclick="removeFromList(${book.book_id})" class="btn-remove">Remove</button>
+    </div>
+    </article>
     `).join('');
 }
 
 function displayMessage(message) {
-    const booksContainer = document.querySelector('.want-book-cards-container');
+    const booksContainer = document.getElementById('userWantToReadBooks');
     if (booksContainer) {
         booksContainer.innerHTML = `<div class="message">${message}</div>`;
     }
@@ -482,6 +480,12 @@ async function searchWantToRead() {
     }
 }
 
+// Funcție pentru deschiderea modalului de căutare (pentru butonul "Add More Books")
+function openSearchModal() {
+    // Redirecționează către pagina de căutare sau deschide un modal
+    window.location.href = '../genresPage/genresPage.html';
+}
+
 // Funcție minimală pentru prevenirea XSS
 function sanitizeHtml(str) {
     const temp = document.createElement('div');
@@ -534,24 +538,3 @@ window.addEventListener('storage', function(e) {
         }, 500);
     }
 });
-
-// Funcții care nu mai sunt necesare
-// function openLogin() {
-//     window.location.href = '../authPage/authPage.html';
-// }
-//
-// function closeLogin() {
-//     // Nu mai e necesară
-// }
-//
-// function handleLogin() {
-//     // Nu mai e necesară - se face în authPage
-// }
-//
-// function showLoginMessage() {
-//     // Nu mai e necesară
-// }
-//
-// function clearLoginForm() {
-//     // Nu mai e necesară
-// }

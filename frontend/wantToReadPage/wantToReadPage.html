@@ -180,39 +180,43 @@
   </div>
 </div>
 
-<section class="want-to-read-section">
-  <h2>Want to Read</h2>
-  <p>Add books you're interested in reading next.</p>
+<section class="reading-list-section">
+  <h2 class="section-title">Want to Read</h2>
+  <p>Books you want to read in the future.</p>
 
-  <div class="search-want-books">
-    <input type="text" id="wantSearchInput" placeholder="Search for books to add...">
-    <button onclick="searchWantToRead()">Search</button>
+  <div class="book-cards-wrapper">
+    <div class="book-cards-container" id="userWantToReadBooks">
+      <!-- Cărți statice ca exemple - vor fi înlocuite de JavaScript -->
+      <article class="book-card-item">
+        <img src="../mainPage/bookcovers/harrypotter.jpg" alt="Harry Potter Series" class="book-cover" />
+        <h3 class="book-title">Harry Potter Series</h3>
+        <p class="book-author">J.K. Rowling</p>
+      </article>
+
+      <article class="book-card-item">
+        <img src="../mainPage/bookcovers/warandpeace.jpg" alt="War and Peace" class="book-cover" />
+        <h3 class="book-title">War and Peace</h3>
+        <p class="book-author">Leo Tolstoy</p>
+      </article>
+
+      <article class="book-card-item">
+        <img src="../mainPage/bookcovers/frankenstein.jpg" alt="Frankenstein" class="book-cover" />
+        <h3 class="book-title">Frankenstein</h3>
+        <p class="book-author">Mary Shelley</p>
+      </article>
+
+      <article class="book-card-item">
+        <img src="../mainPage/bookcovers/prideandprejudice.jpg" alt="Pride and Prejudice" class="book-cover" />
+        <h3 class="book-title">Pride and Prejudice</h3>
+        <p class="book-author">Jane Austen</p>
+      </article>
+    </div>
   </div>
 
-  <div class="want-book-cards-container">
-    <div class="want-book-card">
-      <img src="../mainPage/bookcovers/dune.jpg" alt="Dune">
-      <div class="want-book-title">Dune</div>
-      <div class="want-book-author">Frank Herbert</div>
-    </div>
-    <div class="want-book-card">
-      <img src="../mainPage/bookcovers/thealchemist.jpg" alt="The Alchemist">
-      <div class="want-book-title">The Alchemist</div>
-      <div class="want-book-author">Paulo Coelho</div>
-    </div>
-    <div class="want-book-card">
-      <img src="../mainPage/bookcovers/becoming.jpg" alt="Becoming">
-      <div class="want-book-title">Becoming</div>
-      <div class="want-book-author">Michelle Obama</div>
-    </div>
-    <div class="want-book-card">
-      <img src="../mainPage/bookcovers/themartian.jpg" alt="The Martian">
-      <div class="want-book-title">The Martian</div>
-      <div class="want-book-author">Andy Weir</div>
-    </div>
-  </div>
+  <button class="btn-search-books" onclick="openSearchModal()">
+    Add More Books
+  </button>
 </section>
-
 
 
 <div class="girlreadingimg-container">
