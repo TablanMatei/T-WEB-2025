@@ -4,19 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="11112695-32c3-4b25-80c9-16f957f723d9" name="Changes" comment="Admin &amp; Export Fixes">
-      <change afterPath="$PROJECT_DIR$/backend/auth/check_auth.php" afterDir="false" />
+    <list default="true" id="11112695-32c3-4b25-80c9-16f957f723d9" name="Changes" comment="Blacklist JWT">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/auth/jwt.php" beforeDir="false" afterPath="$PROJECT_DIR$/backend/auth/jwt.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/auth/logout.php" beforeDir="false" afterPath="$PROJECT_DIR$/backend/auth/logout.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/communityPage/communityPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/communityPage/communityPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/createGroupPage/createGroupPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/createGroupPage/createGroupPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/currentlyReadingPage/currentlyReadingPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/currentlyReadingPage/currentlyReadingPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/finishedBooksPage/finishedBooksPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/finishedBooksPage/finishedBooksPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/genresPage/genresPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/genresPage/genresPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/groupPage/groupPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/groupPage/groupPage.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/mainPage/script.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/mainPage/script.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/wantToReadPage/wantToReadPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/wantToReadPage/wantToReadPage.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,12 +34,12 @@
     &quot;assignee&quot;: &quot;TablanMatei&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/TablanMatei/T-WEB-2025.git",
-    "accountId": "5defed38-b4a4-469f-b74f-bb00f4ea7d27"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/TablanMatei/T-WEB-2025.git&quot;,
+    &quot;accountId&quot;: &quot;5defed38-b4a4-469f-b74f-bb00f4ea7d27&quot;
   }
-}]]></component>
+}</component>
   <component name="PhpWorkspaceProjectConfiguration" interpreter_name="PHP" />
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
@@ -138,7 +128,8 @@
       <workItem from="1751016832112" duration="6086000" />
       <workItem from="1751048037389" duration="14304000" />
       <workItem from="1751114953945" duration="7170000" />
-      <workItem from="1751192800154" duration="2618000" />
+      <workItem from="1751192800154" duration="5446000" />
+      <workItem from="1751220814705" duration="6574000" />
     </task>
     <task id="LOCAL-00001" summary="Fixed duplicated folders">
       <option name="closed" value="true" />
@@ -348,7 +339,15 @@
       <option name="project" value="LOCAL" />
       <updated>1751064561008</updated>
     </task>
-    <option name="localTasksCounter" value="27" />
+    <task id="LOCAL-00027" summary="Blacklist JWT">
+      <option name="closed" value="true" />
+      <created>1751195637117</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1751195637117</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -366,7 +365,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Fixed duplicated folders" />
     <MESSAGE value="Integrare creare grup" />
     <MESSAGE value="Integrare join grup + bug fixed" />
     <MESSAGE value="Integrare genresPage" />
@@ -391,7 +389,8 @@
     <MESSAGE value="JWT pentru grupuri" />
     <MESSAGE value="JWT pentru restul paginilor" />
     <MESSAGE value="Admin &amp; Export Fixes" />
-    <option name="LAST_COMMIT_MESSAGE" value="Admin &amp; Export Fixes" />
+    <MESSAGE value="Blacklist JWT" />
+    <option name="LAST_COMMIT_MESSAGE" value="Blacklist JWT" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

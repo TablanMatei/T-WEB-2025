@@ -531,16 +531,28 @@ function displaySearchResults(results, category, query) {
     results.forEach(item => {
         if (category === 'Books') {
             html += `
-                <div class="search-result-item" onclick="selectBook(${item.id})">
-                    <div class="item-placeholder">📚</div>
-                    <div class="item-info">
-                        <div class="item-title">${item.title}</div>
-                        <div class="item-subtitle">${item.author} (${item.publication_year || 'N/A'})</div>
-                        <div class="item-publisher">Publisher: ${item.publisher}</div>
-                    </div>
+        <div class="search-result-item book-card" data-book-id="${item.id}">
+            <div class="item-placeholder">📚</div>
+            <div class="item-info">
+                <div class="item-title">${item.title}</div>
+                <div class="item-subtitle">${item.author} (${item.publication_year || 'N/A'})</div>
+                <div class="item-publisher">Publisher: ${item.publisher}</div>
+            </div>
+
+            <div class="book-status-container">
+                <button class="book-status-btn">Add to List</button>
+                <div class="status-slider">
+                   <div class="status-option" data-status="wantToRead">Want to Read</div>
+                    <div class="status-option" data-status="currentlyReading">Currently Reading</div>
+                    <div class="status-option" data-status="finishedBook">Finished</div>
+
                 </div>
-            `;
-        } else if (category === 'Authors') {
+            </div>
+        </div>
+    `;
+
+
+    } else if (category === 'Authors') {
             html += `
                 <div class="search-result-item" onclick="selectAuthor(${item.id})">
                     <div class="item-placeholder">👤</div>
@@ -564,9 +576,139 @@ function displaySearchResults(results, category, query) {
         }
     });
 
+
+
+    html += '</div>';
+    popularList.innerHTML = html;
+    document.querySelectorAll('.book-status-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const slider = this.nextElementSibling;
+            slider.classList.toggle('show');
+        });
+    });
+
+    document.querySelectorAll('.status-option').forEach(option => {
+        option.addEventListener('click', function() {
+            const status = this.getAttribute('data-status');
+            const bookCard = this.closest('.book-card');
+            const bookId = bookCard.getAttribute('data-book-id');
+            setBookStatus(bookId, status, this);
+        });
+    });
+
+// opțional: marchează statusul actual
+    document.querySelectorAll('.book-card').forEach(card => {
+        const bookId = card.getAttribute('data-book-id');
+        loadCurrentBookStatus(bookId, card.querySelector('.status-slider'));
+    });
+}
+
+function displayPopularItems(items, category) {
+    const popularList = document.getElementById('popularList');
+    if (!popularList) return;
+
+    if (items.length === 0) {
+        popularList.innerHTML = '<div class="no-results">No popular items found</div>';
+        return;
+    }
+
+    let html = `<h4>Popular ${category}</h4><div class="popular-items">`;
+
+    items.forEach(item => {
+        if (category === 'Books') {
+            html += `
+                <div class="popular-item" onclick="selectBook(${item.id})">
+                    <div class="item-placeholder">📚</div>
+                    <div class="item-info">
+                        <div class="item-title">${item.title}</div>
+                        <div class="item-subtitle">${item.author} (${item.publication_year || 'N/A'})</div>
+                        <div class="item-publisher">Publisher: ${item.publisher}</div>
+                    </div>
+                </div>
+            `;
+        } else if (category === 'Authors') {
+            html += `
+                <div class="popular-item" onclick="selectAuthor(${item.id})">
+                    <div class="item-placeholder">👤</div>
+                    <div class="item-info">
+                        <div class="item-title">${item.name}</div>
+                        <div class="item-subtitle">${item.nationality || 'Unknown nationality'} • Born ${item.birth_year || 'Unknown'}</div>
+                        <div class="item-description">${item.description || 'No description available.'}</div>
+                        <div class="item-books">${item.book_count} books</div>
+                    </div>
+                </div>
+            `;
+        } else {
+            html += `
+                <div class="popular-item" onclick="searchByName('${item.name}', '${category}')">
+                    <div class="item-info">
+                        <div class="item-title">${item.name}</div>
+                        <div class="item-subtitle">${item.book_count} books</div>
+                    </div>
+                </div>
+            `;
+        }
+    });
+
     html += '</div>';
     popularList.innerHTML = html;
 }
+
+async function setBookStatus(bookId, status, optionElement) {
+    try {
+        const user = getCurrentUser();
+        if (!user || !user.user_id) {
+            alert('Please login to add books to your lists');
+            return;
+        }
+
+        // Mapare status frontend → backend
+        const statusMap = {
+            wantToRead: 'want_to_read',
+            currentlyReading: 'currently_reading',
+            finishedBook: 'finished'
+        };
+
+        const dbStatus = statusMap[status];
+        if (!dbStatus) {
+            console.error('Invalid status:', status);
+            return;
+        }
+
+        const response = await authenticatedFetch('/backend/api/update_book_status.php', {
+            method: 'POST',
+            body: JSON.stringify({
+                user_id: user.user_id,
+                book_id: bookId,
+                status: dbStatus
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            const slider = optionElement.closest('.status-slider');
+            const button = slider.previousElementSibling;
+
+            slider.querySelectorAll('.status-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+
+            optionElement.classList.add('selected');
+            updateButtonText(button, status);
+            slider.classList.remove('show');
+            showStatusMessage('Book added to your list!', 'success');
+        } else {
+            showStatusMessage(data.error || 'Error updating book status', 'error');
+        }
+
+    } catch (error) {
+        console.error('Error setting book status:', error);
+        showStatusMessage('Network error. Please try again.', 'error');
+        handleAuthError(error);
+    }
+}
+
 
 function displayNoResults(query) {
     const popularList = document.getElementById('popularList');
@@ -897,18 +1039,15 @@ function toggleStatusSlider(button, bookId) {
 }
 
 function updateButtonText(button, status) {
-    const statusText = button.querySelector('.status-text');
-    const statusMap = {
-        'want_to_read': 'Want to Read',
-        'currently_reading': 'Reading',
-        'finished': 'Finished'
-    };
+    const slider = button.nextElementSibling;
+    const statusText = slider.querySelector(`.status-option[data-status="${status}"]`);
 
-    statusText.textContent = statusMap[status] || 'Add to List';
-
-    if (status) {
+    if (statusText) {
+        button.textContent = statusText.textContent;
         button.classList.add('active');
     } else {
+        console.warn('Status text not found for:', status);
+        button.textContent = 'Add to List';
         button.classList.remove('active');
     }
 }
