@@ -1,14 +1,48 @@
+
+async function checkAuthBackend() {
+    try {
+        const response = await fetch('../../backend/auth/check_auth.php', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${sessionStorage.getItem('jwt_token')}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.status === 401) {
+            sessionStorage.removeItem('jwt_token');
+            window.location.href = '../authPage/authPage.html';
+            return false;
+        }
+
+        const text = await response.text();
+        console.log('Response text from backend:', text);
+
+        // Încearcă să parsezi JSON doar dacă textul nu este gol
+        const data = text ? JSON.parse(text) : null;
+        return data && data.success;
+    } catch (error) {
+        console.error('Auth check failed:', error);
+        sessionStorage.removeItem('jwt_token');
+        window.location.href = '../authPage/authPage.html';
+        return false;
+    }
+}
+
+
 //VERIFICARE AUTENTIFICARE
-document.addEventListener('DOMContentLoaded', function() {
-    // Verifică dacă utilizatorul e logat
+document.addEventListener('DOMContentLoaded', async function() {
     if (!isUserLoggedIn()) {
         window.location.href = '../authPage/authPage.html';
         return;
     }
 
-    // Utilizatorul e logat - continuă cu inițializarea
+    // Verifică și cu backend dacă tokenul e valid
+    const valid = await checkAuthBackend();
+    if (!valid) return;
+
+    // Tokenul e valid - inițializează pagina
     initializeMainPage();
-    localStorage.clear();
 });
 
 // FUNCȚII JWT

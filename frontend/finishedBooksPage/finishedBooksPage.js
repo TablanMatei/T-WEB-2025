@@ -1,10 +1,41 @@
 // VERIFICARE AUTENTIFICARE
-document.addEventListener('DOMContentLoaded', function() {
+async function checkAuthBackend() {
+    try {
+        const response = await fetch('../../backend/auth/check_auth.php', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${sessionStorage.getItem('jwt_token')}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.status === 401) {
+            sessionStorage.removeItem('jwt_token');
+            window.location.href = '../authPage/authPage.html';
+            return false;
+        }
+
+        const text = await response.text();
+        console.log('Response text from backend:', text);
+
+        // Încearcă să parsezi JSON doar dacă textul nu este gol
+        const data = text ? JSON.parse(text) : null;
+        return data && data.success;
+    } catch (error) {
+        console.error('Auth check failed:', error);
+        sessionStorage.removeItem('jwt_token');
+        window.location.href = '../authPage/authPage.html';
+        return false;
+    }
+}
+document.addEventListener('DOMContentLoaded', async function() {
     if (!isUserLoggedIn()) {
         window.location.href = '../authPage/authPage.html';
         return;
     }
-
+// Verifică și cu backend dacă tokenul e valid
+    const valid = await checkAuthBackend();
+    if (!valid) return;
     initializeFinishedBooksPage();
 });
 

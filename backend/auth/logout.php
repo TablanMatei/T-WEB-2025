@@ -24,7 +24,15 @@ try {
     ");
     $logStmt->execute([$user_id]);
 
+    // Adaugă tokenul în blacklist
+    $authHeader = getallheaders()['Authorization'] ?? '';
+    $token = substr($authHeader, 7);
+    $expires_at = date('Y-m-d H:i:s', $payload['exp']);
 
+    $blacklistStmt = $pdo->prepare("
+        INSERT INTO jwt_blacklist (token, expires_at) VALUES (?, ?)
+    ");
+    $blacklistStmt->execute([$token, $expires_at]);
 
     echo json_encode([
         'success' => true,

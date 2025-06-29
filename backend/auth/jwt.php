@@ -45,15 +45,35 @@ function verifyJWT() {
     $headers = getallheaders();
     $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
 
-    if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
+    if (!$authHeader || strncmp($authHeader, 'Bearer ', 7) !== 0)
+    {
+        // Dacă tokenul lipsește sau formatul e greșit, returnăm eroare 401
         http_response_code(401);
         echo json_encode(['error' => 'Authorization token required']);
         exit;
     }
 
+    $token = substr($authHeader, 7);
+
+    // Verifică dacă tokenul e în blacklist
+    $pdo = getDbConnection();
+    $stmt = $pdo->prepare("SELECT 1 FROM jwt_blacklist WHERE token = ?");
+    $stmt->execute([$token]);
+    if ($stmt->fetch()) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Token has been revoked']);
+        exit;
+    }
+
+    // Decodează și validează semnătura + expirarea
     try {
-        $token = substr($authHeader, 7);
         $payload = SimpleJWT::decode($token, JWT_SECRET);
+
+        // Deja verifică expirarea în decode, dar re-verificăm pentru siguranță
+        if (isset($payload['exp']) && $payload['exp'] < time()) {
+            throw new Exception('Token expired');
+        }
+
         return $payload;
     } catch (Exception $e) {
         http_response_code(401);
@@ -63,6 +83,29 @@ function verifyJWT() {
 }
 
 function requireAuth() {
-    return verifyJWT();
+    // Folosește verifyJWT, dar cu excepții în loc să dea exit, pentru flexibilitate
+    $headers = getallheaders();
+    $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
+
+    if (!$authHeader || strncmp($authHeader, 'Bearer ', 7) !== 0) {
+        throw new Exception('Authorization token required');
+    }
+
+    $token = substr($authHeader, 7);
+
+    // Verifică blacklist
+    $pdo = getDbConnection();
+    $stmt = $pdo->prepare("SELECT 1 FROM jwt_blacklist WHERE token = ?");
+    $stmt->execute([$token]);
+    if ($stmt->fetch()) {
+        throw new Exception('Token has been revoked');
+    }
+
+    $payload = SimpleJWT::decode($token, JWT_SECRET);
+
+    if (isset($payload['exp']) && $payload['exp'] < time()) {
+        throw new Exception('Token expired');
+    }
+
+    return $payload;
 }
-?>
